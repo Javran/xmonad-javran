@@ -2,8 +2,10 @@ import System.IO
 import System.Process
 import XMonad
 import XMonad.Hooks.DynamicLog
-import XMonad.Util.Replace
 
 import JavranXMonad.Config
 
-main = xmonad =<< dzen myConfig
+main = do
+    spawn $ "/bin/bash " ++ initScript 
+    c <- dzen myConfig
+    xmonad c

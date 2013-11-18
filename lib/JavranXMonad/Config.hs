@@ -1,9 +1,12 @@
 module JavranXMonad.Config
 ( myConfig
+, initScript
 ) where
 
 import XMonad
 import XMonad.Util.CustomKeys
+
+initScript = "${HOME}/.xmonad/xmonad-init.sh"
 
 myConfig = defaultConfig
     { modMask = mod3Mask
