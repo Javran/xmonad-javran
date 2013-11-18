@@ -7,7 +7,7 @@ OS=linux
 
 all: $(TARGET)
 
-$(TARGET): xmonad.hs
+$(TARGET): xmonad.hs lib/JavranXMonad/Config.hs
 	@rm -vf $(ERROR_LOG)
 	@ghc --make "xmonad.hs" \
 		-O2 -ilib -fforce-recomp \

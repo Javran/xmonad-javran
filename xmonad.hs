@@ -1,7 +1,9 @@
-import XMonad
-import JavranXMonad.Config
-import XMonad.Util.Replace
 import System.IO
 import System.Process
+import XMonad
+import XMonad.Hooks.DynamicLog
+import XMonad.Util.Replace
 
-main = xmonad myConfig
+import JavranXMonad.Config
+
+main = xmonad =<< dzen myConfig

@@ -14,6 +14,8 @@ myConfig = defaultConfig
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys conf@(XConfig {modMask = modm}) =
     [ ((mod4Mask, xK_w          ) , spawn "firefox-bin") 
+    , ((mod4Mask, xK_r          ) , spawn "xterm")
+    , ((mod4Mask, xK_e          ) , spawn "thunar")
     , ((mod4Mask, xK_l          ) , spawn "xscreensaver-command --lock")
     , ((mod4Mask, xK_m          ) , spawn "gmpc")
     , ((mod4Mask, xK_apostrophe ) , spawn "amixer set Master 5+")
@@ -22,4 +24,3 @@ insKeys conf@(XConfig {modMask = modm}) =
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
     ]
-    
