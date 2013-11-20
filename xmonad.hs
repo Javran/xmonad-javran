@@ -7,5 +7,5 @@ import JavranXMonad.Config
 
 main = do
     spawn $ "/bin/bash " ++ initScript 
-    c <- dzen myConfig
-    xmonad c
+    -- c <- dzen myConfig
+    xmonad myConfig --c

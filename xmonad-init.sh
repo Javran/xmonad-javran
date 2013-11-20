@@ -18,6 +18,8 @@ function try_run_once()
 # load Xresources
 xrdb -merge ~/.Xresources
 
+xmodmap ~/.Xmodmap
+
 # load xfce settings
 xfsettingsd &
 
@@ -39,6 +41,8 @@ try_run_once /usr/bin/nm-applet --sm-disable
 try_run_once /usr/bin/xfce4-power-manager
 
 try_run_once /usr/bin/xfce4-volumed
+
+try_run_once /usr/bin/xscreensaver -no-splash
 
 # IM
 export XMODIFIERS="@im=ibus"
