@@ -39,7 +39,8 @@ conkyCommand = unwords
     ]
 
 myManageHook = composeAll
-    [
+    [ className =? "Gimp"     --> doFloat
+    , className =? "Pidgin"   --> doFloat
     ]
 
 defaultLayoutHook = layoutHook defaultConfig
