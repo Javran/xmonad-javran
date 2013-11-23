@@ -24,6 +24,7 @@ xmodmap ~/.Xmodmap
 xfsettingsd &
 
 # startup trayer
+pkill -9 trayer
 
 try_run_once /usr/bin/trayer \
 	--edge top \
