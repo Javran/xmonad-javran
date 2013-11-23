@@ -15,9 +15,12 @@ import qualified XMonad.StackSet as W
 
 initScript = "${HOME}/.xmonad/xmonad-init.sh"
 
+pathStreamConvert = "~/.xmonad/StreamConvert"
+pathStreamConvertTempalate = "~/.xmonad/stream_convert.txt"
+
 dzenCommand = unwords
     [ "dzen2"
-    , "-w" , show 1000
+    , "-w" , show 900
     , "-ta", "l"
     , "-h" , show 24
     , "-bg", "\"#202020\""
@@ -28,11 +31,14 @@ conkyCommand = unwords
     [ "pkill -9 conky"
     , ";"
     , "conky"
-    , "-c", "${HOME}/.xmonad/conky-xmonad.conf"
+    , "-c", "${HOME}/.xmonad/conky-json.conf"
+    , "|"
+    , pathStreamConvert
+    , pathStreamConvertTempalate
     , "|"
     , "dzen2"
-    , "-w", show 709
-    , "-x", show 1000
+    , "-w", show 810
+    , "-x", show 901
     , "-h", show 24
     , "-fn", "\"DejaVu Sans Mono\""
     , "-bg", "\"#505050\""

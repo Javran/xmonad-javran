@@ -1,0 +1,17 @@
+C:![
+{cpu_1}
+{cpu_2}
+{cpu_3}
+{cpu_4}
+{cpu_5}
+{cpu_6}
+{cpu_7}
+{cpu_8}]
+ M:{mem}
+ {top}
+ Rx:{netspeed_d}
+ Tx:{netspeed_u}
+ ![{mpdstatus}]
+ {adapter}{battery}
+ {date}
+ {time}
