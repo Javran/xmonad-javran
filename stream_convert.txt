@@ -1,3 +1,4 @@
+[#FFFF00]
 C:![
 {cpu_1}
 {cpu_2}
@@ -7,11 +8,19 @@ C:![
 {cpu_6}
 {cpu_7}
 {cpu_8}]
+[#00FF00]
  M:{mem}
+[#FF00FF]
  {top}
+[#80FF80]
  Rx:{netspeed_d}
+[#8080FF]
  Tx:{netspeed_u}
+[#FF80FF]
  ![{mpdstatus}]
+[#FF8080]
  {adapter}{battery}
+[#80FFFF]
  {date}
+[#FFFF80]
  {time}

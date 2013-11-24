@@ -26,7 +26,7 @@ doConvert template fallbackStr parsedJson = maybe
     -- on failure
     fallbackStr
     -- on success
-    (applyTemplate template.map (applySlot convertSlots)) 
+    (applyTemplate template Nothing . map (applySlot convertSlots)) 
     $ maybeConvert parsedJson
     where
         maybeConvert :: JSValue -> Maybe [InfoRaw]
@@ -140,25 +140,26 @@ keepInRange (low,high) v
 -- '!' for escaping
 -- "{..}" -> tag
 -- "[..]" -> color
-applyTemplate :: String -> [Info] -> String
-applyTemplate [] _ = ""
-applyTemplate (t:ts) infos =
+applyTemplate :: String -> Maybe String -> [Info] -> String
+applyTemplate [] colorEnd _ = "" ++ fromMaybe "" colorEnd
+applyTemplate (t:ts) colorEnd infos =
     case t of
         '!' -> case ts of
         -- these cases are actually the same...
-            []       -> '!' : applyTemplate ts infos
-            (t':ts') ->  t' : applyTemplate ts' infos
-        '[' -> colorStr ++ applyTemplate restStr infos
+            []       -> '!' : applyTemplate ts colorEnd infos 
+            (t':ts') ->  t' : applyTemplate ts' colorEnd infos 
+        '[' -> colorStr ++ applyTemplate restStr newColorEnd infos 
             where
-                (colorStr,restStr) = doColor ts
+                (colorStr,restStr, newColorEnd) = doColor ts
                 doColor str
-                    | null rest        = ("[", ts)
-                    | head rest == '[' = ("[", ts)
-                    | null body        = ("[]", tail rest)
-                    | otherwise        = ("<color>"++body++"</color>", tail rest)
+                    | null rest        = ("[", ts, colorEnd)
+                    | head rest == '[' = ("[", ts, colorEnd)
+                    | null body        = ("[]", tail rest, colorEnd)
+                    | otherwise        = (prevColorEnd ++ "^fg("++body++")", tail rest, Just "^fg()")
                     where
                         (body,rest) = span (`notElem` "[]") str
-        '{' -> formattedStr ++ applyTemplate restStr infos
+                        prevColorEnd = fromMaybe "" colorEnd
+        '{' -> formattedStr ++ applyTemplate restStr colorEnd infos 
             where
                 (formattedStr, restStr) = doFormat ts
                 doFormat str
@@ -168,7 +169,7 @@ applyTemplate (t:ts) infos =
                     | otherwise        = (findData body infos, tail rest)
                     where
                         (body,rest) = span (`notElem` "{}") str
-        _ -> t : applyTemplate ts infos
+        _ -> t : applyTemplate ts colorEnd infos 
         where
             findData :: String -> [Info] -> String
             findData body infos
