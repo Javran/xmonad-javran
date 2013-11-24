@@ -24,6 +24,8 @@ In addition, `1` is an optional tag.
 
 * `{time_}` `{time}` and `{time_1}` are all valid, however only the last one has a tag.
 
+* the usage of tag is explained in `Output`.
+
 Template:
 
 * For now, `StreamConvert` uses `dzen2` syntax to color everything.
@@ -38,3 +40,15 @@ So you don't need to and shouldn't give a `\` at the end of each line.
 * to escape, use `!`-sign. `StreamConvert` will treat any single character right after this `!` literally.
 (i.e. `!!` for `!`, `![` for `["`)
 Currently only two characters have special meanings, they are `[` and `{`.
+
+Output:
+
+* `{date_1}` gives the converted result of `{date_1}` given in `stdin`.
+If the tag is not given. The first occurence in the `stdin` will be used.
+
+* `[#FF0000]` means to color everything after it to color `#FF0000`
+
+* Any `[...]` will shadow previous color settings.
+
+* Depend on the slot functions' implementation, color settings might be changed.
+So use `[..]` explicitly if anything unwanted happened.
