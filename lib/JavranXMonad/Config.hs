@@ -24,6 +24,7 @@ dzenCommand = unwords
     , "-w" , show 900
     , "-ta", "l"
     , "-h" , show 24
+    , "-fg", "\"#22EE11\""
     , "-bg", "\"#202020\""
     , "-fn", "\"WenQuanYi MicroHei:pixelsize=16:antialias=true\""
     ]
@@ -60,6 +61,7 @@ myConfig dzenHandle = defaultConfig
     , handleEventHook = fullscreenEventHook
     , layoutHook = fullscreenFull $ avoidStruts (defaultLayoutHook)
     , logHook = myLogHook dzenHandle
+    , focusedBorderColor = "cyan"
     }
 
 myLogHook h = dynamicLogWithPP $ defaultPP { ppOutput = (hPutStrLn h).strOp }
