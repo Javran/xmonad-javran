@@ -6,9 +6,10 @@ module JavranXMonad.Config
 ) where
 
 import XMonad
+import XMonad.Layout.Fullscreen
+import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys
-import XMonad.Hooks.DynamicLog
 import System.IO
 
 import qualified XMonad.StackSet as W
@@ -55,8 +56,9 @@ myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys (const []) insKeys
-    , manageHook = manageDocks <+> myManageHook
-    , layoutHook = avoidStruts (defaultLayoutHook)
+    , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
+    , handleEventHook = fullscreenEventHook
+    , layoutHook = fullscreenFull $ avoidStruts (defaultLayoutHook)
     , logHook = myLogHook dzenHandle
     }
 
