@@ -6,18 +6,22 @@ module JavranXMonad.Config
 ) where
 
 import XMonad
+import XMonad.Core
 import XMonad.Layout.Fullscreen
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys
 import System.IO
+import System.FilePath
 
 import qualified XMonad.StackSet as W
 
-initScript = "${HOME}/.xmonad/xmonad-init.sh"
+initScript xmBase = xmBase </> "xmonad-init.sh"
 
-pathStreamConvert = "~/.xmonad/StreamConvert"
-pathStreamConvertTempalate = "~/.xmonad/stream_convert.txt"
+pathStreamConvert xmBase = xmBase </> "StreamConvert"
+pathStreamConvertConf xmBase = xmBase </> "stream_convert.txt"
+
+conkyConf xmBase = xmBase </> "conky-json.conf"
 
 dzenCommand = unwords
     [ "dzen2"
@@ -29,14 +33,14 @@ dzenCommand = unwords
     , "-fn", "\"WenQuanYi MicroHei:pixelsize=16:antialias=true\""
     ]
 
-conkyCommand = unwords
+conkyCommand xmPath = unwords
     [ "pkill -9 conky"
     , ";"
     , "conky"
-    , "-c", "${HOME}/.xmonad/conky-json.conf"
+    , "-c", conkyConf xmPath
     , "|"
-    , pathStreamConvert
-    , pathStreamConvertTempalate
+    , pathStreamConvert xmPath
+    , pathStreamConvertConf xmPath
     , "|"
     , "dzen2"
     , "-w", show 810
@@ -51,6 +55,17 @@ myManageHook = composeAll
     , className =? "Pidgin"   --> doFloat
     ]
 
+myWorkspace = zipWith combine [1..] wkSpaceNames
+    where 
+        combine n name = show n ++ ':' : name
+        wkSpaceNames =
+            [ "a" -- anything
+            , "a" -- anything
+            , "m" -- instant messages
+            , "e" -- extended
+            , "e" -- extended
+            ]
+
 defaultLayoutHook = layoutHook defaultConfig
 
 myConfig dzenHandle = defaultConfig
@@ -59,13 +74,14 @@ myConfig dzenHandle = defaultConfig
     , keys = customKeys (const []) insKeys
     , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
     , handleEventHook = fullscreenEventHook
-    , layoutHook = fullscreenFull $ avoidStruts (defaultLayoutHook)
+    , layoutHook = fullscreenFull $ avoidStruts defaultLayoutHook
     , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
+    , workspaces = myWorkspace
     }
 
-myLogHook h = dynamicLogWithPP $ defaultPP { ppOutput = (hPutStrLn h).strOp }
-    where strOp str = str -- "|" ++ str ++ "|"
+myLogHook h = dynamicLogWithPP $ defaultPP { ppOutput = hPutStrLn h . strOp }
+    where strOp str = str -- TODO left dzen bar
 
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
