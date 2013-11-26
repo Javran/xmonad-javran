@@ -8,6 +8,7 @@ module JavranXMonad.Config
 import XMonad
 import XMonad.Core
 import XMonad.Layout.Fullscreen
+import XMonad.Layout.PerWorkspace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys
@@ -68,13 +69,15 @@ myWorkspace = zipWith combine [1..] wkSpaceNames
 
 defaultLayoutHook = layoutHook defaultConfig
 
+myLayoutHook = fullscreenFull $ avoidStruts defaultLayoutHook
+
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys (const []) insKeys
     , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
     , handleEventHook = fullscreenEventHook
-    , layoutHook = fullscreenFull $ avoidStruts defaultLayoutHook
+    , layoutHook = myLayoutHook
     , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
     , workspaces = myWorkspace
