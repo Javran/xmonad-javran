@@ -5,9 +5,11 @@ module JavranXMonad.Config
 , conkyCommand
 ) where
 
+import Data.Ratio
 import XMonad
 import XMonad.Core
 import XMonad.Layout.Fullscreen
+import XMonad.Layout.IM
 import XMonad.Layout.PerWorkspace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -53,8 +55,16 @@ conkyCommand xmPath = unwords
 
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
-    , className =? "Pidgin"   --> doFloat
+    , className =? "Pidgin"   --> doShift "3:m"
     ]
+
+-- TODO: let workspace name be numbers,
+--   and we "translate" numbers to readable names as needed
+--   e.g.:
+--   instead of:
+--   [1:a] 3:m : Tall : xxxxx
+--   have:
+--   [1] 3 : a : Tall : xxxxx
 
 myWorkspace = zipWith combine [1..] wkSpaceNames
     where 
@@ -69,7 +79,10 @@ myWorkspace = zipWith combine [1..] wkSpaceNames
 
 defaultLayoutHook = layoutHook defaultConfig
 
-myLayoutHook = fullscreenFull $ avoidStruts defaultLayoutHook
+myLayoutHook = fullscreenFull $ avoidStruts mainLayout
+    where
+        imLayout = withIM (1%7) (Role "buddy_list") defaultLayoutHook
+        mainLayout = onWorkspace "3:m" imLayout $ defaultLayoutHook
 
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
