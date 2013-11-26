@@ -102,6 +102,7 @@ convertSlots = M.fromList
     , ("battery", convertBattery )
     , ("mpdstatus", convertMpdStatus )
     , ("top", convertTop )
+    , ("freq", (++"GHz"))
     ]
     where
         convertCpuLoad s = fullOrNum $ keepInRange (0,100) $ read s

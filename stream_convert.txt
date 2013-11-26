@@ -8,6 +8,8 @@ C:![
 {cpu_6}
 {cpu_7}
 {cpu_8}]
+[#FF80A0]
+ {freq}
 [#00FF00]
  M:{mem}
 [#FF00FF]
