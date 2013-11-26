@@ -30,7 +30,7 @@ dzenCommand = unwords
     , "-h" , show 24
     , "-fg", "\"#22EE11\""
     , "-bg", "\"#202020\""
-    , "-fn", "\"WenQuanYi MicroHei:pixelsize=16:antialias=true\""
+    , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
     ]
 
 conkyCommand xmPath = unwords
@@ -46,7 +46,7 @@ conkyCommand xmPath = unwords
     , "-w", show 810
     , "-x", show 901
     , "-h", show 24
-    , "-fn", "\"DejaVu Sans Mono\""
+    , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
     ]
 
