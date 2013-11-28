@@ -5,6 +5,8 @@ module JavranXMonad.Config
 , conkyCommand
 ) where
 
+import Data.Maybe
+import Data.List (intercalate,sortBy)
 import Data.Ratio
 import XMonad
 import XMonad.Core
@@ -16,8 +18,14 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys
 import System.IO
 import System.FilePath
+import XMonad.Util.WorkspaceCompare
+import Data.Function (on)
+
+import Codec.Binary.UTF8.String (encodeString)
 
 import qualified XMonad.StackSet as W
+
+import XMonad.Util.NamedWindows (getName)
 
 initScript xmBase = xmBase </> "xmonad-init.sh"
 
@@ -55,7 +63,8 @@ conkyCommand xmPath = unwords
 
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
-    , className =? "Pidgin"   --> doShift "3:m"
+    -- TODO hard-coded "3"
+    , className =? "Pidgin"   --> doShift "3"
     ]
 
 -- TODO: let workspace name be numbers,
@@ -66,23 +75,25 @@ myManageHook = composeAll
 --   have:
 --   [1] 3 : a : Tall : xxxxx
 
-myWorkspace = zipWith combine [1..] wkSpaceNames
-    where 
-        combine n name = show n ++ ':' : name
-        wkSpaceNames =
-            [ "a" -- anything
-            , "a" -- anything
-            , "m" -- instant messages
-            , "e" -- extended
-            , "e" -- extended
-            ]
+-- TODO: can I switch to the corresponding workspace
+--   when I click something on the trayer which requires focus?
+
+myWorkspace = map show [1..5]
+
+workspaceName "1" = "any" -- anything
+workspaceName "2" = "any"
+workspaceName "3" = "msg" -- instant messages
+workspaceName "4" = "ext" -- extended
+workspaceName "5" = "ext"
+workspaceName _   = "???"
 
 defaultLayoutHook = layoutHook defaultConfig
 
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") defaultLayoutHook
-        mainLayout = onWorkspace "3:m" imLayout $ defaultLayoutHook
+        -- TODO: hard-coded "3"
+        mainLayout = onWorkspace "3" imLayout defaultLayoutHook
 
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
@@ -91,13 +102,40 @@ myConfig dzenHandle = defaultConfig
     , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
     , handleEventHook = fullscreenEventHook
     , layoutHook = myLayoutHook
-    , logHook = myLogHook dzenHandle
+    -- , logHook = myLogHook dzenHandle
+    , logHook = myLogHookTest dzenHandle
     , focusedBorderColor = "cyan"
     , workspaces = myWorkspace
     }
 
 myLogHook h = dynamicLogWithPP $ defaultPP { ppOutput = hPutStrLn h . strOp }
     where strOp str = str -- TODO left dzen bar
+
+myLogHookTest h = do
+    wset <- gets windowset
+
+    wt <- maybe (return "<Nothing>") (fmap show . getName) . W.peek $ wset
+
+    c <- ask
+    let curWorkspaces = workspaces $ config c 
+    let swi = map W.tag $ filter (isJust . W.stack) $ getWorkspaceInsts wset
+   
+    sb <- getSortByIndex
+    let wsCurrent = W.currentTag wset
+    let outStr = dzenEscape $ encodeString $ intercalate " | "
+                    [ intercalate "" $ map (compactedWorkspace wsCurrent swi) curWorkspaces
+                    , workspaceName wsCurrent
+                    , wt
+                    ]
+
+    io $ hPutStrLn h outStr
+    where
+        compactedWorkspace wCurrent swi w
+            | w == wCurrent = wCurrent
+            | w `elem` swi = "*"
+            | otherwise = "."
+
+getWorkspaceInsts s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =

@@ -15,6 +15,8 @@ main = do
     -- TODO: next line kills xmonad itself...why?
     -- exitCode <- waitForProcess hInit
     -- spawn $ "/bin/bash " ++ initScript 
+
+    -- TODO: use starkup hook instead of initScript
     dzenHandle <- spawnPipe dzenCommand
     _ <- spawnPipe $ conkyCommand basePath
     xmonad $ myConfig dzenHandle
