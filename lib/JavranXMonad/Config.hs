@@ -5,35 +5,41 @@ module JavranXMonad.Config
 , conkyCommand
 ) where
 
-import Data.Maybe
-import Data.List (intercalate,sortBy)
-import Data.Ratio
-import XMonad
-import XMonad.Core
-import XMonad.Layout.Fullscreen
-import XMonad.Layout.IM
-import XMonad.Layout.PerWorkspace
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Util.CustomKeys
-import System.IO
-import System.FilePath
-import XMonad.Util.WorkspaceCompare
-import Data.Function (on)
-
 import Codec.Binary.UTF8.String (encodeString)
+import Data.Function (on)
+import Data.List (intercalate , sortBy)
+import Data.Maybe (isJust)
+import Data.Monoid (Endo)
+import Data.Ratio ((%))
+import System.FilePath ((</>))
+import System.IO (hPutStrLn, Handle)
+import XMonad
+import XMonad.Layout.Fullscreen
+    ( fullscreenEventHook
+    , fullscreenFull
+    , fullscreenManageHook
+    )
+import XMonad.Layout.IM (withIM, Property(..))
+import XMonad.Layout.PerWorkspace (onWorkspace)
+import XMonad.Hooks.DynamicLog (dzenEscape)
+import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
+import XMonad.Util.CustomKeys (customKeys)
+import XMonad.Util.NamedWindows (getName)
 
 import qualified XMonad.StackSet as W
 
-import XMonad.Util.NamedWindows (getName)
+import JavranXMonad.Workspace
 
-initScript xmBase = xmBase </> "xmonad-init.sh"
-
-pathStreamConvert xmBase = xmBase </> "StreamConvert"
+initScript            :: FilePath -> FilePath
+conkyConf             :: FilePath -> FilePath
+pathStreamConvert     :: FilePath -> FilePath
+pathStreamConvertConf :: FilePath -> FilePath
+initScript            xmBase = xmBase </> "xmonad-init.sh"
+pathStreamConvert     xmBase = xmBase </> "StreamConvert"
 pathStreamConvertConf xmBase = xmBase </> "stream_convert.txt"
+conkyConf             xmBase = xmBase </> "conky-json.conf"
 
-conkyConf xmBase = xmBase </> "conky-json.conf"
-
+dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
     , "-w" , show 900
@@ -44,6 +50,7 @@ dzenCommand = unwords
     , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
     ]
 
+conkyCommand :: FilePath -> String
 conkyCommand xmPath = unwords
     [ "pkill -9 conky"
     , ";"
@@ -61,39 +68,21 @@ conkyCommand xmPath = unwords
     , "-bg", "\"#505050\""
     ]
 
+myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
-    -- TODO hard-coded "3"
-    , className =? "Pidgin"   --> doShift "3"
+    , className =? "Pidgin"   --> doShift wkSpaceIM
     ]
-
--- TODO: let workspace name be numbers,
---   and we "translate" numbers to readable names as needed
---   e.g.:
---   instead of:
---   [1:a] 3:m : Tall : xxxxx
---   have:
---   [1] 3 : a : Tall : xxxxx
 
 -- TODO: can I switch to the corresponding workspace
 --   when I click something on the trayer which requires focus?
-
-myWorkspace = map show [1..5]
-
-workspaceName "1" = "any" -- anything
-workspaceName "2" = "any"
-workspaceName "3" = "msg" -- instant messages
-workspaceName "4" = "ext" -- extended
-workspaceName "5" = "ext"
-workspaceName _   = "???"
 
 defaultLayoutHook = layoutHook defaultConfig
 
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") defaultLayoutHook
-        -- TODO: hard-coded "3"
-        mainLayout = onWorkspace "3" imLayout defaultLayoutHook
+        mainLayout = onWorkspace wkSpaceIM imLayout defaultLayoutHook
 
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
@@ -102,40 +91,49 @@ myConfig dzenHandle = defaultConfig
     , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
     , handleEventHook = fullscreenEventHook
     , layoutHook = myLayoutHook
-    -- , logHook = myLogHook dzenHandle
-    , logHook = myLogHookTest dzenHandle
+    , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
-    , workspaces = myWorkspace
+    , workspaces = myWorkspaceConf
     }
 
-myLogHook h = dynamicLogWithPP $ defaultPP { ppOutput = hPutStrLn h . strOp }
-    where strOp str = str -- TODO left dzen bar
+myLogHook :: Handle -> X ()
+myLogHook h = do
+    -- retrieve states that we might use
+    -- mutable   => state
+    -- immutable => xConf
+    state <- get
+    xConf <- ask
 
-myLogHookTest h = do
-    wset <- gets windowset
+    let curWindowSet = windowset state
 
-    wt <- maybe (return "<Nothing>") (fmap show . getName) . W.peek $ wset
+    windowTitle <- maybe
+        -- no focus
+        (return "<Nothing>") 
+        -- or try to figure out its title
+        (fmap show . getName) . W.peek 
+        $ curWindowSet
 
-    c <- ask
-    let curWorkspaces = workspaces $ config c 
-    let swi = map W.tag $ filter (isJust . W.stack) $ getWorkspaceInsts wset
-   
-    sb <- getSortByIndex
-    let wsCurrent = W.currentTag wset
+    let curWorkspaceTags = workspaces $ config xConf
+    -- wwis : Workspaces that has some Window Inside 
+    let wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
+    let curWorkspaceTag = W.currentTag curWindowSet
     let outStr = dzenEscape $ encodeString $ intercalate " | "
-                    [ intercalate "" $ map (compactedWorkspace wsCurrent swi) curWorkspaces
-                    , workspaceName wsCurrent
-                    , wt
-                    ]
+                [ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
+                , workspaceName curWorkspaceTag
+                , windowTitle
+                ]
 
     io $ hPutStrLn h outStr
     where
-        compactedWorkspace wCurrent swi w
-            | w == wCurrent = wCurrent
-            | w `elem` swi = "*"
-            | otherwise = "."
+        hasSomeWindows = isJust . W.stack
+        workspaceRepresent wTag wwis w
+            | w == wTag     =  w  -- current workspace: show its tag
+            | w `elem` wwis = "*" -- has some window inside
+            | otherwise     = "." -- normal
 
-getWorkspaceInsts s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
+        -- get all workspace instances from stack set
+        --   note that this might not be the order defined by config
+        allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
@@ -152,5 +150,6 @@ insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
 
+workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
 workspaceSwitchAltKeys modMask wkSpace =
     [((modMask, k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]]
