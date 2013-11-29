@@ -1,11 +1,15 @@
+import Control.Arrow
 import Control.Monad
 import Data.Maybe
 import Data.List
-import Text.JSON.String
-import Text.JSON.Types
 import System.IO
 import System.Environment (getArgs)
+import Text.JSON.String
+import Text.JSON.Types
+
 import qualified Data.Map as M
+
+import JavranXMonad.Utils
 
 -- InfoRaw <slot> <tag> <data>
 data InfoRaw = InfoRaw String (Maybe String) String
@@ -68,12 +72,15 @@ fixStringLen :: Int     -- length expected
              -> String  -- too long
              -> String  -- input
              -> String  -- output
-fixStringLen len padChar fallbackStr str
-    | strLen > len = fallbackStr
-    | otherwise    = replicate (len-strLen) padChar ++ str
-    where
-        strLen = length str
+fixStringLen len padChar fallbackStr str =
+    keepStringLength 
+        len
+        (padLeft (strLen-len) padChar)
+        (const fallbackStr)
+        str
+    where strLen = length str
 
+-- pretty print bit count
 bitToReadableString :: Int -> String
 bitToReadableString b
     | b < unitKiB && b       < 1000 = fixLen $ show b       ++   "B"
@@ -91,18 +98,19 @@ bitToReadableString b
         bDivKiB = b `div` unitKiB
         bDivMiB = b `div` unitMiB
 
+-- a mapping from slot name to the corresponding handler
 convertSlots :: M.Map String (String -> String)
 convertSlots = M.fromList
-    [ ("date" , id )
-    , ("time" , id )
-    , ("mem"  , convertMemLoad )
-    , ("cpu"  , convertCpuLoad )
-    , ("netspeed", convertNetspeed )
-    , ("adapter", convertAdapter )
-    , ("battery", convertBattery )
-    , ("mpdstatus", convertMpdStatus )
-    , ("top", convertTop )
-    , ("freq", (++"GHz"))
+    [ ("date"       , id                )
+    , ("time"       , id                )
+    , ("mem"        , convertMemLoad    )
+    , ("cpu"        , convertCpuLoad    )
+    , ("netspeed"   , convertNetspeed   )
+    , ("adapter"    , convertAdapter    )
+    , ("battery"    , convertBattery    )
+    , ("mpdstatus"  , convertMpdStatus  )
+    , ("top"        , convertTop        )
+    , ("freq"       , convertFreq       )
     ]
     where
         convertCpuLoad s = fullOrNum $ keepInRange (0,100) $ read s
@@ -132,11 +140,7 @@ convertSlots = M.fromList
                 len = length s'
                 limit = 6
 
-keepInRange :: (Ord a) => (a,a) -> a -> a
-keepInRange (low,high) v
-    | v < low = low
-    | v > high = high
-    | otherwise = v
+        convertFreq = (++ "GHz")
 
 -- '!' for escaping
 -- "{..}" -> tag
@@ -183,18 +187,26 @@ applyTemplate (t:ts) colorEnd infos =
                     getData  (Info _ _ d) = d
                     fallback = "{" ++ body ++"}"
 
+main :: IO ()
 main = do
+    -- should have one argument
     args <- getArgs
     case args of
         []        -> showHelp
-        (fname:_) -> readTemplate fname >>= convertLine
+        (fname:_) -> readTemplate fname 
     where
-        readTemplate tFile = do
-            contents <- readFile tFile
-            return $ concat $ lines contents
-
+        readTemplate = runKleisli
+            $   Kleisli readFile 
+            >>> arr lines
+            >>> arr concat
+            >>> Kleisli convertLine
+        
+-- print help message
+showHelp :: IO ()
 showHelp = putStrLn "StreamConvert <template file>"
 
+-- convert every input line until EOF
+convertLine :: String -> IO ()
 convertLine template = do
     r <- isEOF
     unless r $ 
