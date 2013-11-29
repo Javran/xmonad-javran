@@ -75,7 +75,7 @@ fixStringLen :: Int     -- length expected
 fixStringLen len padChar fallbackStr str =
     keepStringLength 
         len
-        (padLeft (strLen-len) padChar)
+        (padLeft (len-strLen) padChar)
         (const fallbackStr)
         str
     where strLen = length str

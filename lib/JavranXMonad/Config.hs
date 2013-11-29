@@ -11,6 +11,7 @@ import Data.List (intercalate , sortBy)
 import Data.Maybe (isJust)
 import Data.Monoid (Endo)
 import Data.Ratio ((%))
+import System.Cmd (system)
 import System.FilePath ((</>))
 import System.IO (hPutStrLn, Handle)
 import XMonad
@@ -71,7 +72,8 @@ conkyCommand xmPath = unwords
 myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
-    , className =? "Pidgin"   --> doShift wkSpaceIM
+    -- TODO: "3"
+    , className =? "Pidgin"   --> doShift "3"
     ]
 
 -- TODO: can I switch to the corresponding workspace
@@ -82,7 +84,8 @@ defaultLayoutHook = layoutHook defaultConfig
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") defaultLayoutHook
-        mainLayout = onWorkspace wkSpaceIM imLayout defaultLayoutHook
+        -- TODO: "3"
+        mainLayout = onWorkspace "3" imLayout defaultLayoutHook
 
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
