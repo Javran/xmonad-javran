@@ -20,6 +20,7 @@ import XMonad.Layout.Fullscreen
     , fullscreenFull
     , fullscreenManageHook
     )
+import XMonad.Layout.Grid (Grid(..))
 import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Hooks.DynamicLog (dzenEscape)
@@ -83,7 +84,7 @@ defaultLayoutHook = layoutHook defaultConfig
 
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
     where
-        imLayout = withIM (1%7) (Role "buddy_list") defaultLayoutHook
+        imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
 
