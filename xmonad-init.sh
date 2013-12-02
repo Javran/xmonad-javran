@@ -20,6 +20,10 @@ xrdb -merge ~/.Xresources
 
 xmodmap ~/.Xmodmap
 
+xsetroot -cursor_name left_ptr
+
+xloadimage -onroot -fullscreen -type png "$HOME/Wallpapers/haskell.png" -gamma 2.0
+
 # load xfce settings
 xfsettingsd &
 
