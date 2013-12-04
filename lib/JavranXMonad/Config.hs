@@ -64,7 +64,7 @@ conkyCommand xmPath = unwords
     , "|"
     , "dzen2"
     , "-w", show 810
-    , "-x", show 901
+    , "-x", show 900
     , "-h", show 24
     , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
@@ -100,6 +100,15 @@ myConfig dzenHandle = defaultConfig
     , workspaces = myWorkspaceConf
     }
 
+dzenColorize :: String -> String -> String
+dzenColorize colorStr str = concat
+    [ "^fg("
+    , colorStr
+    , ")"
+    , str
+    , "^fg()"
+    ]
+
 myLogHook :: Handle -> X ()
 myLogHook h = do
     -- retrieve states that we might use
@@ -121,10 +130,10 @@ myLogHook h = do
     -- wwis : Workspaces that has some Window Inside 
     let wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
     let curWorkspaceTag = W.currentTag curWindowSet
-    let outStr = dzenEscape $ encodeString $ intercalate " | "
-                [ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
-                , workspaceName curWorkspaceTag
-                , windowTitle
+    let outStr = encodeString $ intercalate " | "
+                [ dzenColorize "#FFFFFF" $ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
+                , dzenColorize "#FF6600" $ dzenEscape $ workspaceName curWorkspaceTag
+                , dzenColorize "#33FFFF" $ dzenEscape $ windowTitle
                 ]
 
     io $ hPutStrLn h outStr
