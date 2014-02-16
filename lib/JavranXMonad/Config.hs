@@ -70,11 +70,15 @@ conkyCommand xmPath = unwords
     , "-bg", "\"#505050\""
     ]
 
+-- command `xprop WM_CLASS` would give you a hint on `className` below
 myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
     -- TODO: "3"
     , className =? "Pidgin"   --> doShift "3"
+    , className =? "net-minecraft-MinecraftLauncher" --> doFloat
+    , className =? "Gnuplot" --> doFloat
+    , className =? "FLTK" --> doFloat
     ]
 
 -- TODO: can I switch to the corresponding workspace
@@ -121,13 +125,13 @@ myLogHook h = do
 
     windowTitle <- maybe
         -- no focus
-        (return "<Nothing>") 
+        (return "<Nothing>")
         -- or try to figure out its title
-        (fmap show . getName) . W.peek 
+        (fmap show . getName) . W.peek
         $ curWindowSet
 
     let curWorkspaceTags = workspaces $ config xConf
-    -- wwis : Workspaces that has some Window Inside 
+    -- wwis : Workspaces that has some Window Inside
     let wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
     let curWorkspaceTag = W.currentTag curWindowSet
     let outStr = encodeString $ intercalate " | "
@@ -150,7 +154,7 @@ myLogHook h = do
 
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
-    [ ((mod4Mask, xK_w          ) , spawn "firefox-bin") 
+    [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
     , ((mod4Mask, xK_r          ) , spawn "xfce4-terminal")
     , ((mod4Mask, xK_e          ) , spawn "thunar")
     , ((mod4Mask, xK_l          ) , spawn "xscreensaver-command --lock")
