@@ -9,12 +9,12 @@ import XMonad.Util.Run (spawnPipe)
 import JavranXMonad.Config
 
 main = do
-    basePath <- getXMonadDir 
+    basePath <- getXMonadDir
     let cmd = "/bin/bash " ++ initScript basePath
     hInit <- runCommand cmd
     -- TODO: next line kills xmonad itself...why?
     -- exitCode <- waitForProcess hInit
-    -- spawn $ "/bin/bash " ++ initScript 
+    -- spawn $ "/bin/bash " ++ initScript
 
     -- TODO: use starkup hook instead of initScript
     dzenHandle <- spawnPipe dzenCommand

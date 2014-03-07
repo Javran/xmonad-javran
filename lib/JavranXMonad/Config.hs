@@ -32,14 +32,16 @@ import qualified XMonad.StackSet as W
 
 import JavranXMonad.Workspace
 
-initScript            :: FilePath -> FilePath
-conkyConf             :: FilePath -> FilePath
+initScript             :: FilePath -> FilePath
+conkyConf              :: FilePath -> FilePath
 pathStreamConvert     :: FilePath -> FilePath
 pathStreamConvertConf :: FilePath -> FilePath
-initScript            xmBase = xmBase </> "xmonad-init.sh"
-pathStreamConvert     xmBase = xmBase </> "StreamConvert"
-pathStreamConvertConf xmBase = xmBase </> "stream_convert.txt"
-conkyConf             xmBase = xmBase </> "conky-json.conf"
+initScript             xmBase = xmBase </> "xmonad-init.sh"
+pathStreamConvert      xmBase = xmBase </> "StreamConvert"
+pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
+conkyConf              xmBase = xmBase </> "conky-json.conf"
+
+-- gimp layout?
 
 dzenCommand :: String
 dzenCommand = unwords
@@ -84,6 +86,10 @@ myManageHook = composeAll
 -- TODO: can I switch to the corresponding workspace
 --   when I click something on the trayer which requires focus?
 
+-- TODO: focus move when some window requests
+
+-- TODO: close windows in a more decent way.
+
 defaultLayoutHook = layoutHook defaultConfig
 
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
@@ -92,6 +98,7 @@ myLayoutHook = fullscreenFull $ avoidStruts mainLayout
         -- TODO: "3"
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
 
+-- TODO: fullscreen without frame?
 myConfig dzenHandle = defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
