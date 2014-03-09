@@ -8,7 +8,7 @@ module JavranXMonad.Config
 import Codec.Binary.UTF8.String (encodeString)
 import Data.Function (on)
 import Data.List (intercalate , sortBy)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, fromMaybe)
 import Data.Monoid (Endo)
 import Data.Ratio ((%))
 import System.Cmd (system)
@@ -30,12 +30,15 @@ import XMonad.Util.NamedWindows (getName)
 
 import qualified XMonad.StackSet as W
 
+import System.IO
+
 import JavranXMonad.Workspace
+import JavranXMonad.Utils
 
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
-pathStreamConvert     :: FilePath -> FilePath
-pathStreamConvertConf :: FilePath -> FilePath
+pathStreamConvert      :: FilePath -> FilePath
+pathStreamConvertConf  :: FilePath -> FilePath
 initScript             xmBase = xmBase </> "xmonad-init.sh"
 pathStreamConvert      xmBase = xmBase </> "StreamConvert"
 pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
@@ -120,6 +123,27 @@ dzenColorize colorStr str = concat
     , "^fg()"
     ]
 
+shortenLayoutDesc :: String -> String
+shortenLayoutDesc ld = keepStringLength 3 tooShortHdl tooLongHdl $ shortened ld
+    where
+        tooLongHdl = id -- take 3
+        tooShortHdl s = padRight (3 - length s) ' ' s
+        shortened s = fromMaybe s $ lookup s shortenDict
+
+        shortenDict :: [( String, String )]
+        shortenDict =
+            [ ( "Full"
+              , " F " )
+            , ( "Tall"
+              , " T " )
+            , ( "Mirror Tall"
+              , "M T")
+            , ( "IM Grid"
+              , "IMG" )
+            , ("IM Mirror Grid"
+              , "IMR" )
+            ]
+
 myLogHook :: Handle -> X ()
 myLogHook h = do
     -- retrieve states that we might use
@@ -137,6 +161,8 @@ myLogHook h = do
         (fmap show . getName) . W.peek
         $ curWindowSet
 
+    let layoutDescription = description . W.layout . W.workspace . W.current $ curWindowSet
+
     let curWorkspaceTags = workspaces $ config xConf
     -- wwis : Workspaces that has some Window Inside
     let wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
@@ -144,6 +170,7 @@ myLogHook h = do
     let outStr = encodeString $ intercalate " | "
                 [ dzenColorize "#FFFFFF" $ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
                 , dzenColorize "#FF6600" $ dzenEscape $ workspaceName curWorkspaceTag
+                , dzenColorize "#FF3322" $ dzenEscape $ shortenLayoutDesc layoutDescription
                 , dzenColorize "#33FFFF" $ dzenEscape $ windowTitle
                 ]
 

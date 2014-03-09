@@ -14,8 +14,8 @@ keepInRange (low,high) v
 
 -- make sure the resulting string is a fixed length
 keepStringLength :: Int                 -- fixed length
-                 -> (String -> String)  -- what if it's too long
                  -> (String -> String)  -- what if it's too short
+                 -> (String -> String)  -- what if it's too long
                  -> String              -- input
                  -> String              -- output
 keepStringLength len tooShortProc tooLongProc input
