@@ -84,6 +84,7 @@ myManageHook = composeAll
     , className =? "net-minecraft-MinecraftLauncher" --> doFloat
     , className =? "Gnuplot" --> doFloat
     , className =? "FLTK" --> doFloat
+    , className =? "Xfce4-appfinder" --> doFloat
     ]
 
 -- TODO: can I switch to the corresponding workspace
