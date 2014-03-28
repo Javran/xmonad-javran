@@ -1,5 +1,5 @@
 [#FFFF00]
-C:![
+![
 {cpu_1}
 {cpu_2}
 {cpu_3}
@@ -15,9 +15,11 @@ C:![
 [#FF00FF]
  {top}
 [#80FF80]
- Rx:{netspeed_d}
+ R:{netspeed_d}
 [#8080FF]
- Tx:{netspeed_u}
+ T:{netspeed_u}
+[#FFFFFF]
+ ({mail})
 [#FF80FF]
  ![{mpdstatus}]
 [#FF8080]

@@ -5,7 +5,7 @@ ERROR_LOG=xmonad.errors
 ARCH=$(shell arch)
 OS=linux
 
-all: $(TARGET) StreamConvert
+all: $(TARGET) StreamConvert xmonad-check-email
 
 $(TARGET): xmonad.hs lib/JavranXMonad/Config.hs
 	@rm -vf $(ERROR_LOG)
@@ -18,6 +18,11 @@ StreamConvert: lib/JavranXMonad/StreamConvert.hs
 	@ghc "lib/JavranXMonad/StreamConvert.hs" \
 		-O2 -ilib -fforce-recomp \
 		-o StreamConvert
+
+xmonad-check-email: xmonad-check-email.hs
+	@ghc "xmonad-check-email.hs" \
+		-O2 -ilib -fforce-recomp \
+		-o xmonad-check-email
 
 clean:
 	@find . \

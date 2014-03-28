@@ -111,6 +111,7 @@ convertSlots = M.fromList
     , ("mpdstatus"  , convertMpdStatus  )
     , ("top"        , convertTop        )
     , ("freq"       , convertFreq       )
+    , ("mail"       , convertMailCheck  )
     ]
     where
         convertCpuLoad s = fullOrNum $ keepInRange (0,100) $ read s
@@ -141,6 +142,11 @@ convertSlots = M.fromList
                 limit = 6
 
         convertFreq = (++ "GHz")
+
+        convertMailCheck xs
+            | null xs = "?"
+            | length xs > 1 = "+"
+            | otherwise = xs
 
 -- '!' for escaping
 -- "{..}" -> tag
