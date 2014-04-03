@@ -55,6 +55,8 @@ dzenCommand = unwords
     , "-fg", "\"#22EE11\""
     , "-bg", "\"#202020\""
     , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
+    , "-e", "\"button2=;\""
+    --, "-l", "5"
     ]
 
 conkyCommand :: FilePath -> String
@@ -73,6 +75,8 @@ conkyCommand xmPath = unwords
     , "-h", show 24
     , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
+    , "-e", "\"button2=;\""
+    -- , "-l", "4"
     ]
 
 -- command `xprop WM_CLASS` would give you a hint on `className` below
@@ -175,7 +179,7 @@ myLogHook h = do
                 , dzenColorize "#33FFFF" $ dzenEscape $ windowTitle
                 ]
 
-    io $ hPutStrLn h outStr
+    io $ hPutStrLn h ("^tw()" ++ outStr)
     where
         hasSomeWindows = isJust . W.stack
         workspaceRepresent wTag wwis w

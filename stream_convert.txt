@@ -1,4 +1,5 @@
-[#FFFF00]
+^ca(3, echo Nothing)
+^tw()[#FFFF00]
 ![
 {cpu_1}
 {cpu_2}
@@ -19,7 +20,7 @@
 [#8080FF]
  T:{netspeed_u}
 [#FFFFFF]
- ({mail})
+ ^ca(1, nohup firefox-bin http://mail.google.com >/dev/null &)^ca(3, ~/.xmonad/xmonad-check-email)({mail})^ca()^ca()
 [#FF80FF]
  ![{mpdstatus}]
 [#FF8080]
@@ -28,3 +29,4 @@
  {date}
 [#FFFF80]
  {time}
+ ^ca()
