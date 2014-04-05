@@ -28,6 +28,8 @@ import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
 
+import XMonad.Hooks.EwmhDesktops (ewmh)
+
 import qualified XMonad.StackSet as W
 
 import System.IO
@@ -107,7 +109,7 @@ myLayoutHook = fullscreenFull $ avoidStruts mainLayout
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
 
 -- TODO: fullscreen without frame?
-myConfig dzenHandle = defaultConfig
+myConfig dzenHandle = ewmh $ defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys (const []) insKeys
