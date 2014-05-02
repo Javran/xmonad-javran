@@ -102,19 +102,13 @@ myManageHook = composeAll
        --> doFloat
     ]
 
--- TODO: can I switch to the corresponding workspace
---   when I click something on the trayer which requires focus?
-
--- TODO: focus move when some window requests
-
 -- TODO: close windows in a more decent way.
-defaultLayoutHook = layoutHook defaultConfig
-
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
+        defaultLayoutHook = layoutHook defaultConfig
 
 -- TODO: fullscreen without frame?
 myConfig dzenHandle = ewmh $ defaultConfig
@@ -129,6 +123,7 @@ myConfig dzenHandle = ewmh $ defaultConfig
     , workspaces = myWorkspaceConf
     }
 
+-- | colorize text in dzen
 dzenColorize :: String -> String -> String
 dzenColorize colorStr str = concat
     [ "^fg("
@@ -138,6 +133,7 @@ dzenColorize colorStr str = concat
     , "^fg()"
     ]
 
+-- | make layout description shorter
 shortenLayoutDesc :: String -> String
 shortenLayoutDesc ld = keepStringLength 3 tooShortHdl tooLongHdl $ shortened ld
     where
@@ -201,6 +197,7 @@ myLogHook h = do
         --   note that this might not be the order defined by config
         allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
+-- | some key bindings
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
@@ -216,6 +213,7 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
 
+-- | key bindings for moving windows around
 workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
 workspaceSwitchAltKeys modMask' wkSpace =
     [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]]

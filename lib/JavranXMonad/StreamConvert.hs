@@ -30,7 +30,7 @@ doConvert template fallbackStr parsedJson = maybe
     -- on failure
     fallbackStr
     -- on success
-    (applyTemplate template Nothing . map (applySlot convertSlots)) 
+    (applyTemplate template Nothing . map (applySlot convertSlots))
     $ maybeConvert parsedJson
     where
         maybeConvert :: JSValue -> Maybe [InfoRaw]
@@ -39,7 +39,7 @@ doConvert template fallbackStr parsedJson = maybe
                     where (s,t) = pairSlotTag k
 
         maybeConvertObject :: JSValue -> Maybe [(String, String)]
-        maybeConvertObject (JSObject obj) = 
+        maybeConvertObject (JSObject obj) =
             Just $ mapMaybe maybeConvertPair $ fromJSObject obj
             where
                 maybeConvertPair (k,v) = do
@@ -73,7 +73,7 @@ fixStringLen :: Int     -- length expected
              -> String  -- input
              -> String  -- output
 fixStringLen len padChar fallbackStr str =
-    keepStringLength 
+    keepStringLength
         len
         (padLeft (len-strLen) padChar)
         (const fallbackStr)
@@ -114,7 +114,7 @@ convertSlots = M.fromList
     , ("mail"       , convertMailCheck  )
     ]
     where
-        convertCpuLoad s = fullOrNum $ keepInRange (0,100) $ read s
+        convertCpuLoad s = fullOrNum $ keepInRange (0 :: Int,100) $ read s
             -- the padChar should never be reached here
             where fullOrNum x = fixStringLen 1 undefined "F" $ show $ x `div` 10
         convertMemLoad s = fixStringLen 2 ' ' "FF" s ++ "%"
@@ -157,9 +157,9 @@ applyTemplate (t:ts) colorEnd infos =
     case t of
         '!' -> case ts of
         -- these cases are actually the same...
-            []       -> '!' : applyTemplate ts colorEnd infos 
-            (t':ts') ->  t' : applyTemplate ts' colorEnd infos 
-        '[' -> colorStr ++ applyTemplate restStr newColorEnd infos 
+            []       -> '!' : applyTemplate ts colorEnd infos
+            (t':ts') ->  t' : applyTemplate ts' colorEnd infos
+        '[' -> colorStr ++ applyTemplate restStr newColorEnd infos
             where
                 (colorStr,restStr, newColorEnd) = doColor ts
                 doColor str
@@ -170,7 +170,7 @@ applyTemplate (t:ts) colorEnd infos =
                     where
                         (body,rest) = span (`notElem` "[]") str
                         prevColorEnd = fromMaybe "" colorEnd
-        '{' -> formattedStr ++ applyTemplate restStr colorEnd infos 
+        '{' -> formattedStr ++ applyTemplate restStr colorEnd infos
             where
                 (formattedStr, restStr) = doFormat ts
                 doFormat str
@@ -180,16 +180,16 @@ applyTemplate (t:ts) colorEnd infos =
                     | otherwise        = (findData body infos, tail rest)
                     where
                         (body,rest) = span (`notElem` "{}") str
-        _ -> t : applyTemplate ts colorEnd infos 
+        _ -> t : applyTemplate ts colorEnd infos
         where
             findData :: String -> [Info] -> String
-            findData body infos
-                | isNothing tag = maybe fallback getData $ find (matchSlot slot) infos
-                | otherwise     = maybe fallback getData $ find (matchTag slot tag) infos
+            findData body
+                | isNothing tag = maybe fallback getData . find (matchSlot slot)
+                | otherwise     = maybe fallback getData . find (matchTag slot tag)
                 where
                     (slot,tag) = pairSlotTag body
-                    matchSlot slot (Info s _ _) = s == slot
-                    matchTag slot tag (Info s t _) = s == slot && t == tag
+                    matchSlot slot' (Info s _ _) = s == slot'
+                    matchTag slot' tag' (Info s t' _) = s == slot' && t' == tag'
                     getData  (Info _ _ d) = d
                     fallback = "{" ++ body ++"}"
 
@@ -199,14 +199,13 @@ main = do
     args <- getArgs
     case args of
         []        -> showHelp
-        (fname:_) -> readTemplate fname 
+        (fname:_) -> readTemplate fname
     where
         readTemplate = runKleisli
-            $   Kleisli readFile 
-            >>> arr lines
-            >>> arr concat
-            >>> Kleisli convertLine
-        
+            $   Kleisli readFile
+            >>> (lines >>> concat)
+            ^>> Kleisli convertLine
+
 -- print help message
 showHelp :: IO ()
 showHelp = putStrLn "StreamConvert <template file>"
@@ -215,8 +214,8 @@ showHelp = putStrLn "StreamConvert <template file>"
 convertLine :: String -> IO ()
 convertLine template = do
     r <- isEOF
-    unless r $ 
-            getLine 
+    unless r $
+            getLine
         >>= putStrLn . convertJson template
         >>  hFlush stdout
         >>  convertLine template

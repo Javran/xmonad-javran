@@ -18,3 +18,5 @@ main = do
     dzenHandle <- spawnPipe dzenCommand
     _ <- spawnPipe $ conkyCommand basePath
     xmonad $ myConfig dzenHandle
+
+
