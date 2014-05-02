@@ -22,7 +22,7 @@ xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
-xloadimage -onroot -fullscreen -type png "$HOME/Wallpapers/haskell.png" -gamma 2.0
+xloadimage -onroot -center -type png "${WALLPAPER}"
 
 # load xfce settings
 xfsettingsd &
