@@ -8,6 +8,8 @@ module JavranXMonad.Config
 ) where
 
 import Codec.Binary.UTF8.String (encodeString)
+import Control.Applicative
+import Control.Monad
 import Data.Maybe (isJust, fromMaybe)
 import Data.Monoid (Endo)
 import Data.Ratio ((%))
@@ -83,6 +85,10 @@ conkyCommand xmPath = unwords
     -- , "-l", "4"
     ]
 
+instance Applicative Query where
+    pure = return
+    (<*>) = ap
+
 -- command `xprop WM_CLASS` would give you a hint on `className` below
 myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
@@ -95,10 +101,8 @@ myManageHook = composeAll
     , className =? "Xfce4-appfinder" --> doFloat
     , className =? "Nm-connection-editor" --> doFloat
     , fmap ("@dev" `isPrefixOf`) title --> doFloat
-    , (do
-          clsN <- className
-          t <- title
-          return (clsN == "Thunar" && t == "File Operation Progress") )
+    , ((&&) <$> fmap (== "Thunar") className
+            <*> fmap (== "File Operation Progress") title)
        --> doFloat
     ]
 
