@@ -30,6 +30,8 @@ import XMonad.Util.NamedWindows (getName)
 
 import XMonad.Hooks.EwmhDesktops (ewmh)
 
+import Data.List
+
 import qualified XMonad.StackSet as W
 
 import System.IO
@@ -91,6 +93,13 @@ myManageHook = composeAll
     , className =? "Gnuplot" --> doFloat
     , className =? "FLTK" --> doFloat
     , className =? "Xfce4-appfinder" --> doFloat
+    , className =? "Nm-connection-editor" --> doFloat
+    , fmap ("@dev" `isPrefixOf`) title --> doFloat
+    , (do
+          clsN <- className
+          t <- title
+          return (clsN == "Thunar" && t == "File Operation Progress") )
+       --> doFloat
     ]
 
 -- TODO: can I switch to the corresponding workspace
