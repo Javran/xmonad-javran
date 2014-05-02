@@ -1,17 +1,15 @@
 import System.Environment
-import System.IO
 import System.Process
 import XMonad
-import XMonad.Core
-import XMonad.Hooks.DynamicLog
 import XMonad.Util.Run (spawnPipe)
 
 import JavranXMonad.Config
 
+main :: IO ()
 main = do
     basePath <- getXMonadDir
     let cmd = "/bin/bash " ++ initScript basePath
-    hInit <- runCommand cmd
+    _ <- runCommand cmd
     -- TODO: next line kills xmonad itself...why?
     -- exitCode <- waitForProcess hInit
     -- spawn $ "/bin/bash " ++ initScript

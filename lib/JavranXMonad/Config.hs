@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module JavranXMonad.Config
 ( myConfig
 , initScript
@@ -6,14 +8,10 @@ module JavranXMonad.Config
 ) where
 
 import Codec.Binary.UTF8.String (encodeString)
-import Data.Function (on)
-import Data.List (intercalate , sortBy)
 import Data.Maybe (isJust, fromMaybe)
 import Data.Monoid (Endo)
 import Data.Ratio ((%))
-import System.Cmd (system)
 import System.FilePath ((</>))
-import System.IO (hPutStrLn, Handle)
 import XMonad
 import XMonad.Layout.Fullscreen
     ( fullscreenEventHook
@@ -48,14 +46,16 @@ pathStreamConvert      xmBase = xmBase </> "StreamConvert"
 pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
 conkyConf              xmBase = xmBase </> "conky-json.conf"
 
+showI :: Int -> String
+showI = show
 -- gimp layout?
 
 dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
-    , "-w" , show 900
+    , "-w" , showI 900
     , "-ta", "l"
-    , "-h" , show 24
+    , "-h" , showI 24
     , "-fg", "\"#22EE11\""
     , "-bg", "\"#202020\""
     , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
@@ -74,9 +74,9 @@ conkyCommand xmPath = unwords
     , pathStreamConvertConf xmPath
     , "|"
     , "dzen2"
-    , "-w", show 810
-    , "-x", show 900
-    , "-h", show 24
+    , "-w", showI 810
+    , "-x", showI 900
+    , "-h", showI 24
     , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
     , "-e", "\"button2=;\""
@@ -108,7 +108,6 @@ myManageHook = composeAll
 -- TODO: focus move when some window requests
 
 -- TODO: close windows in a more decent way.
-
 defaultLayoutHook = layoutHook defaultConfig
 
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
@@ -165,10 +164,10 @@ myLogHook h = do
     -- retrieve states that we might use
     -- mutable   => state
     -- immutable => xConf
-    state <- get
+    state' <- get
     xConf <- ask
 
-    let curWindowSet = windowset state
+    let curWindowSet = windowset state'
 
     windowTitle <- maybe
         -- no focus
@@ -187,7 +186,7 @@ myLogHook h = do
                 [ dzenColorize "#FFFFFF" $ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
                 , dzenColorize "#FF6600" $ dzenEscape $ workspaceName curWorkspaceTag
                 , dzenColorize "#FF3322" $ dzenEscape $ shortenLayoutDesc layoutDescription
-                , dzenColorize "#33FFFF" $ dzenEscape $ windowTitle
+                , dzenColorize "#33FFFF" $ dzenEscape   windowTitle
                 ]
 
     io $ hPutStrLn h ("^tw()" ++ outStr)
@@ -203,7 +202,7 @@ myLogHook h = do
         allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
-insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
+insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
     , ((mod4Mask, xK_r          ) , spawn "xfce4-terminal")
     , ((mod4Mask, xK_e          ) , spawn "thunar")
@@ -218,5 +217,5 @@ insKeys conf@(XConfig {modMask = modm, workspaces = wkSpace}) =
     ++ workspaceSwitchAltKeys modm wkSpace
 
 workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
-workspaceSwitchAltKeys modMask wkSpace =
-    [((modMask, k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]]
+workspaceSwitchAltKeys modMask' wkSpace =
+    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]]
