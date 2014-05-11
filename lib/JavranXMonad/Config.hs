@@ -104,6 +104,7 @@ myManageHook = composeAll
     , ((&&) <$> fmap (== "Thunar") className
             <*> fmap (== "File Operation Progress") title)
        --> doFloat
+    , title =? "PLT Redex Reduction Graph" --> doFloat
     ]
 
 -- TODO: close windows in a more decent way.
