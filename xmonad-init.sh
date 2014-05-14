@@ -55,3 +55,7 @@ export GTK_IM_MODULE="ibus"
 export QT_IM_MODULE="xim"
 
 try_run_once /usr/bin/ibus-daemon -dxr
+
+try_run_once /usr/bin/pidgin
+
+try_run_once /opt/bin/dropbox
