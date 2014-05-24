@@ -50,12 +50,18 @@ try_run_once /usr/bin/xfce4-volumed
 try_run_once /usr/bin/xscreensaver -no-splash
 
 # IM
-export XMODIFIERS="@im=ibus"
-export GTK_IM_MODULE="ibus"
-export QT_IM_MODULE="xim"
+#export XMODIFIERS="@im=ibus"
+#export GTK_IM_MODULE="ibus"
+#export QT_IM_MODULE="xim"
 
-try_run_once /usr/bin/ibus-daemon -dxr
+
+
+#try_run_once /usr/bin/ibus-daemon -dxr
+
+try_run_once /usr/bin/fcitx -dr
 
 try_run_once /usr/bin/pidgin
 
-try_run_once /opt/bin/dropbox
+try_run_once ~/.xmonad/xmonad-check-email 
+
+#try_run_once ~/.dropbox-dist/dropboxd

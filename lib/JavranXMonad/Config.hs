@@ -105,6 +105,8 @@ myManageHook = composeAll
             <*> fmap (== "File Operation Progress") title)
        --> doFloat
     , title =? "PLT Redex Reduction Graph" --> doFloat
+    , fmap ("Fcitx" `isPrefixOf`) title --> doFloat
+    , fmap ("Fcitx" `isPrefixOf`) className --> doFloat
     ]
 
 -- TODO: close windows in a more decent way.
