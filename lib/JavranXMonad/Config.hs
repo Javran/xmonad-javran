@@ -223,4 +223,5 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
 -- | key bindings for moving windows around
 workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
 workspaceSwitchAltKeys modMask' wkSpace =
-    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]]
+    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]] ++
+    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_a, xK_s, xK_d, xK_f, xK_g]]

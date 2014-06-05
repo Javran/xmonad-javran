@@ -18,7 +18,15 @@ function try_run_once()
 # load Xresources
 xrdb -merge ~/.Xresources
 
-xmodmap ~/.Xmodmap
+if (lsusb | grep "HHKB"); then
+    echo "HHKB keyboard detected."
+    xmodmap ~/.XmodmapHHKB
+else
+    echo "HHKB keyboard not detected."
+    xmodmap ~/.Xmodmap
+fi
+
+#xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
@@ -53,8 +61,6 @@ try_run_once /usr/bin/xscreensaver -no-splash
 #export XMODIFIERS="@im=ibus"
 #export GTK_IM_MODULE="ibus"
 #export QT_IM_MODULE="xim"
-
-
 
 #try_run_once /usr/bin/ibus-daemon -dxr
 
