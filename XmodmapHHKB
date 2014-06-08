@@ -1,0 +1,20 @@
+clear lock
+clear control
+clear mod1
+clear mod3
+clear mod4
+
+keycode 37 = Control_L
+keycode 102 = Hyper_L
+keycode 108 = Super_L
+
+add mod1 = Alt_L
+
+add control = Control_L
+add control = Control_R
+
+add mod3 = Hyper_L
+add mod3 = Hyper_R
+
+add mod4 = Super_L
+add mod4 = Super_R

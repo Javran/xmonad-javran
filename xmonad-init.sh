@@ -20,13 +20,13 @@ xrdb -merge ~/.Xresources
 
 if (lsusb | grep "HHKB"); then
     echo "HHKB keyboard detected."
-    xmodmap ~/.XmodmapHHKB
+    cp ~/.xmonad/XmodmapHHKB ~/.Xmodmap
 else
     echo "HHKB keyboard not detected."
-    xmodmap ~/.Xmodmap
+    cp ~/.xmonad/XmodmapDef ~/.Xmodmap
 fi
 
-#xmodmap ~/.Xmodmap
+xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
