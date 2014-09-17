@@ -32,9 +32,6 @@ xsetroot -cursor_name left_ptr
 
 xloadimage -onroot -center -type png "${WALLPAPER}"
 
-# load xfce settings
-xfsettingsd &
-
 # startup trayer
 pkill -9 trayer
 
@@ -71,3 +68,7 @@ try_run_once /usr/bin/pidgin
 try_run_once ~/.xmonad/xmonad-check-email 
 
 #try_run_once ~/.dropbox-dist/dropboxd
+
+# load xfce settings
+xfsettingsd &
+
