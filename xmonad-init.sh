@@ -72,5 +72,9 @@ try_run_once ~/.xmonad/xmonad-check-email
 # load xfce settings
 xfsettingsd &
 
-
 wmname LG3D
+
+# seems not working,
+# guess xfsettingsd had changed something
+# maybe it's time to drop xfce entirely
+numlockx
