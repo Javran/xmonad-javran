@@ -98,6 +98,8 @@ myManageHook = composeAll
     , className =? "net-minecraft-MinecraftLauncher" --> doFloat
     , className =? "Gnuplot" --> doFloat
     , className =? "FLTK" --> doFloat
+    -- not necessary
+    -- , className =? "jetbrains-android-studio" --> doFloat
     , className =? "Xfce4-appfinder" --> doFloat
     , className =? "Nm-connection-editor" --> doFloat
     , fmap ("@dev" `isPrefixOf`) title --> doFloat
