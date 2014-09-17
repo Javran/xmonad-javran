@@ -5,6 +5,7 @@ clear mod3
 clear mod4
 
 keycode 37 = Control_L
+keycode 66 = Control_L
 keycode 102 = Hyper_L
 keycode 108 = Super_L
 
