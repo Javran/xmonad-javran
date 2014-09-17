@@ -72,3 +72,5 @@ try_run_once ~/.xmonad/xmonad-check-email
 # load xfce settings
 xfsettingsd &
 
+
+wmname LG3D
