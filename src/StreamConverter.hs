@@ -1,3 +1,5 @@
+module Main where
+
 import Control.Arrow
 import Control.Monad
 import Data.Maybe

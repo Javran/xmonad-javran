@@ -1,4 +1,5 @@
-import System.Environment
+module Main where
+
 import System.Process
 import XMonad
 import XMonad.Util.Run (spawnPipe)
@@ -18,5 +19,3 @@ main = do
     dzenHandle <- spawnPipe dzenCommand
     _ <- spawnPipe $ conkyCommand basePath
     xmonad $ myConfig dzenHandle
-
-
