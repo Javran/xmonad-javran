@@ -1,39 +1,15 @@
 TARGET=xmonad-$(ARCH)-$(OS)
-TARGET_TMP=$(TARGET)--temp
-XMONAD_MAIN=xmonad.hs
-ERROR_LOG=xmonad.errors
+TARGET_DIR=$(HOME)/.xmonad
 ARCH=$(shell arch)
 OS=linux
 
-all: $(TARGET) StreamConvert xmonad-check-email
-
-$(TARGET): xmonad.hs lib/JavranXMonad/Config.hs
-	@rm -vf $(ERROR_LOG)
-	@ghc --make "xmonad.hs" \
-		-O2 -ilib -fforce-recomp \
-		-v0 -o $(TARGET_TMP) 2>&1 | tee $(ERROR_LOG) && \
-	 mv -v $(TARGET_TMP) $(TARGET)
-
-StreamConvert: lib/JavranXMonad/StreamConvert.hs
-	@ghc "lib/JavranXMonad/StreamConvert.hs" \
-		-O2 -ilib -fforce-recomp \
-		-o StreamConvert
-
-xmonad-check-email: xmonad-check-email.hs
-	@ghc "xmonad-check-email.hs" \
-		-O2 -ilib -fforce-recomp \
-		-o xmonad-check-email
+build-and-install:
+	@cabal configure --bindir=${HOME}/.xmonad
+	@cabal build
+	@echo It\'s totally fine if there are warnings about the system search path below.
+	@cabal copy
+	@mv -v $(TARGET_DIR)/xmonad-javran $(TARGET_DIR)/$(TARGET)
+	@cp -v etc/* $(TARGET_DIR)/
 
 clean:
-	@find . \
-		-type d \
-		-name .git \
-		-prune \
-		-or \
-		-name xmonad-init.sh \
-		-prune \
-		-or \
-		-type f \
-		\( -iname "*.hi" -or -iname "*.o" -or -executable \) \
-		-exec rm -v {} \;
-	@rm -vf $(ERROR_LOG)
+	@cabal clean
