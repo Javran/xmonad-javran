@@ -123,7 +123,7 @@ myLayoutHook = fullscreenFull $ avoidStruts mainLayout
 myConfig dzenHandle = ewmh $ defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
-    , keys = customKeys (const []) insKeys
+    , keys = customKeys delKeys insKeys
     , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
     , handleEventHook = fullscreenEventHook
     , layoutHook = myLayoutHook
@@ -219,8 +219,14 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
+    , ((modm    , xK_q          ) , spawn "xmonad --restart")
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
+
+delKeys :: XConfig l -> [(KeyMask, KeySym)]
+delKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
+    [ (modm    , xK_q          )
+    ]
 
 -- | key bindings for moving windows around
 workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
