@@ -44,7 +44,7 @@ conkyConf              :: FilePath -> FilePath
 pathStreamConvert      :: FilePath -> FilePath
 pathStreamConvertConf  :: FilePath -> FilePath
 initScript             xmBase = xmBase </> "xmonad-init.sh"
-pathStreamConvert      xmBase = xmBase </> "StreamConvert"
+pathStreamConvert      xmBase = xmBase </> "StreamConverter"
 pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
 conkyConf              xmBase = xmBase </> "conky-json.conf"
 

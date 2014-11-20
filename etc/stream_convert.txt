@@ -20,7 +20,7 @@
 [#8080FF]
  T:{netspeed_u}
 [#FFFFFF]
- ^ca(1, nohup firefox-bin http://mail.google.com >/dev/null &)^ca(3, ~/.xmonad/xmonad-check-email)({mail})^ca()^ca()
+ ^ca(1, nohup firefox-bin http://mail.google.com >/dev/null &)^ca(3, ~/.xmonad/MailChecker)({mail})^ca()^ca()
 [#FF80FF]
  ![{mpdstatus}]
 [#FF8080]
