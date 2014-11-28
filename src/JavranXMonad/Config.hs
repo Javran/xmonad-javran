@@ -42,10 +42,6 @@ import JavranXMonad.Workspace
 import JavranXMonad.Utils
 import JavranXMonad.State
 
--- TODO: some program steals focus on DE startup,
--- maybe we can prevent this from happening by ignoring
--- messages sent by them when xmonad just gets started
-
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
 pathStreamConvert      :: FilePath -> FilePath
@@ -262,7 +258,7 @@ myEwmhDesktopsEventHook e@(ClientMessageEvent
     curTime <- liftIO getCurrentTime
     StartupTime starupTime <- XS.get
     if    mt == a_aw
-       && curTime `diffUTCTime` starupTime <= 1.0
+       && curTime `diffUTCTime` starupTime <= 5.0
        then return (All True)
        else ewmhDesktopsEventHook e
 myEwmhDesktopsEventHook e = ewmhDesktopsEventHook e
