@@ -39,6 +39,10 @@ import System.IO
 import JavranXMonad.Workspace
 import JavranXMonad.Utils
 
+-- TODO: some program steals focus on DE startup,
+-- maybe we can prevent this from happening by ignoring
+-- messages sent by them when xmonad just gets started
+
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
 pathStreamConvert      :: FilePath -> FilePath
