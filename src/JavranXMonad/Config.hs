@@ -27,17 +27,20 @@ import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
+import Data.Time.Clock (getCurrentTime)
 
 import XMonad.Hooks.EwmhDesktops (ewmh)
 
 import Data.List
 
 import qualified XMonad.StackSet as W
+import qualified XMonad.Util.ExtensibleState as XS
 
 import System.IO
 
 import JavranXMonad.Workspace
 import JavranXMonad.Utils
+import JavranXMonad.State
 
 -- TODO: some program steals focus on DE startup,
 -- maybe we can prevent this from happening by ignoring
@@ -138,7 +141,11 @@ myConfig dzenHandle = ewmh $ defaultConfig
     , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
     , workspaces = myWorkspaceConf
+    , startupHook = myStartupHook
     }
+
+myStartupHook :: X ()
+myStartupHook = StartupTime <$> liftIO getCurrentTime >>= XS.put
 
 -- | colorize text in dzen
 dzenColorize :: String -> String -> String
