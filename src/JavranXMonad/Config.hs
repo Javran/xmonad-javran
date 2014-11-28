@@ -11,7 +11,6 @@ import Codec.Binary.UTF8.String (encodeString)
 import Control.Applicative
 import Control.Monad
 import Data.Maybe (isJust, fromMaybe)
-import Data.Monoid (Endo)
 import Data.Ratio ((%))
 import System.FilePath ((</>))
 import XMonad
@@ -27,9 +26,10 @@ import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
-import Data.Time.Clock (getCurrentTime)
+import Data.Time.Clock
 
-import XMonad.Hooks.EwmhDesktops (ewmh)
+import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
+import Data.Monoid
 
 import Data.List
 
@@ -131,7 +131,7 @@ myLayoutHook = fullscreenFull $ avoidStruts mainLayout
         defaultLayoutHook = layoutHook defaultConfig
 
 -- TODO: fullscreen without frame?
-myConfig dzenHandle = ewmh $ defaultConfig
+myConfig dzenHandle = myEwmh $ defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys delKeys insKeys
@@ -143,6 +143,12 @@ myConfig dzenHandle = ewmh $ defaultConfig
     , workspaces = myWorkspaceConf
     , startupHook = myStartupHook
     }
+
+myEwmh :: XConfig a -> XConfig a
+myEwmh c = c { startupHook     = startupHook c     <> ewmhDesktopsStartup
+             , handleEventHook = handleEventHook c <> myEwmhDesktopsEventHook
+             , logHook         = logHook c         <> ewmhDesktopsLogHook
+             }
 
 myStartupHook :: X ()
 myStartupHook = StartupTime <$> liftIO getCurrentTime >>= XS.put
@@ -248,3 +254,15 @@ workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ()
 workspaceSwitchAltKeys modMask' wkSpace =
     [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]] ++
     [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_a, xK_s, xK_d, xK_f, xK_g]]
+
+myEwmhDesktopsEventHook :: Event -> X All
+myEwmhDesktopsEventHook e@(ClientMessageEvent
+    {ev_message_type = mt}) = do
+    a_aw <- getAtom "_NET_ACTIVE_WINDOW"
+    curTime <- liftIO getCurrentTime
+    StartupTime starupTime <- XS.get
+    if    mt == a_aw
+       && curTime `diffUTCTime` starupTime <= 1.0
+       then return (All True)
+       else ewmhDesktopsEventHook e
+myEwmhDesktopsEventHook e = ewmhDesktopsEventHook e
