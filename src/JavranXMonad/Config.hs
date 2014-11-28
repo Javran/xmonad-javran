@@ -52,9 +52,13 @@ showI :: Int -> String
 showI = show
 -- gimp layout?
 
+leftScr :: Int
+leftScr = 0
+
 dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
+    , "-x" , showI leftScr
     , "-w" , showI 900
     , "-ta", "l"
     , "-h" , showI 24
@@ -77,7 +81,7 @@ conkyCommand xmPath = unwords
     , "|"
     , "dzen2"
     , "-w", showI 810
-    , "-x", showI 900
+    , "-x", showI (leftScr+ 900)
     , "-h", showI 24
     , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
