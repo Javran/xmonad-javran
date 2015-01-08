@@ -28,6 +28,8 @@ import Data.Time.Clock
 import System.FilePath.Posix
 import Control.Concurrent
 
+import XMonad.Hooks.ManageHelpers
+
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import Data.Monoid
 
@@ -96,11 +98,15 @@ instance Applicative Query where
     pure = return
     (<*>) = ap
 
+isSplash :: Query Bool
+isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
+
 -- command `xprop WM_CLASS` would give you a hint on `className` below
 myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
     [ className =? "Gimp"     --> doFloat
     -- TODO: "3"
+    , isSplash --> doFloat
     , className =? "Pidgin"   --> doShift "3"
     , className =? "net-minecraft-MinecraftLauncher" --> doFloat
     , className =? "Gnuplot" --> doFloat
