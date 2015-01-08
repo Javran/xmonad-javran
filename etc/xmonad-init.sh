@@ -30,12 +30,17 @@ xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
-xloadimage -onroot -center -type png "${WALLPAPER}"
+# xloadimage -onroot -center -type png "${WALLPAPER}"
+
+xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 1920x1080
+
+
+~/.xmonad/on-monitor-change.sh
 
 # startup trayer
 pkill -9 trayer
 
-try_run_once /usr/bin/trayer \
+try_run_once /usr/bin/trayer-srg \
 	--edge top \
 	--align right \
 	--SetDockType true \
