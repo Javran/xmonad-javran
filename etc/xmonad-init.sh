@@ -14,7 +14,6 @@ function try_run_once()
 	fi
 }
 
-
 # load Xresources
 xrdb -merge ~/.Xresources
 
@@ -30,10 +29,7 @@ xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
-# xloadimage -onroot -center -type png "${WALLPAPER}"
-
 xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 1920x1080
-
 
 ~/.xmonad/on-monitor-change.sh
 
