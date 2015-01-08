@@ -16,13 +16,10 @@ import Data.Ratio ((%))
 import System.FilePath ((</>))
 import XMonad
 import XMonad.Layout.Fullscreen
-    ( fullscreenEventHook
-    , fullscreenFull
-    , fullscreenManageHook
-    )
 import XMonad.Layout.Grid (Grid(..))
 import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
+import XMonad.Layout.NoBorders
 import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
@@ -123,6 +120,7 @@ myManageHook = composeAll
 
 -- TODO: close windows in a more decent way.
 myLayoutHook = fullscreenFull $ avoidStruts mainLayout
+    -- smartBorders $ fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
@@ -134,7 +132,7 @@ myConfig dzenHandle = myEwmh $ defaultConfig
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys delKeys insKeys
-    , manageHook = manageDocks <+> fullscreenManageHook <+> myManageHook
+    , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
     , handleEventHook = fullscreenEventHook
     , layoutHook = myLayoutHook
     , logHook = myLogHook dzenHandle
