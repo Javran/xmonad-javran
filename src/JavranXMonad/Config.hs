@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, BangPatterns #-}
 
 module JavranXMonad.Config
 ( myConfig
@@ -7,6 +7,7 @@ module JavranXMonad.Config
 , conkyCommand
 ) where
 
+import System.Exit
 import Codec.Binary.UTF8.String (encodeString)
 import Control.Applicative
 import Control.Monad
@@ -27,6 +28,8 @@ import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
 import Data.Time.Clock
+import System.FilePath.Posix
+import Control.Concurrent
 
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import Data.Monoid
@@ -236,13 +239,24 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
+      -- TODO: no xmonad binary ...
     , ((modm    , xK_q          ) , spawn "xmonad --restart")
+    , ((modm .|. shiftMask, xK_q     ), do
+           xmHome <- getXMonadDir
+           spawn $ "/bin/bash " ++ (xmHome </> "on-finalize.sh")
+           -- TODO: doesn't seem to work
+           -- right now it delays for 5 seconds and then terminates
+           io $ do
+               threadDelay $ 5 * 1000 * 1000
+               exitSuccess
+           return ())
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
 
 delKeys :: XConfig l -> [(KeyMask, KeySym)]
 delKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
-    [ (modm    , xK_q          )
+    [ (modm              , xK_q     )
+    , (modm .|. shiftMask, xK_q     )
     ]
 
 -- | key bindings for moving windows around
