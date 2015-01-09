@@ -6,16 +6,22 @@ import XMonad.Util.Run (spawnPipe)
 
 import JavranXMonad.Config
 
-main :: IO ()
-main = do
-    basePath <- getXMonadDir
-    let cmd = "/bin/bash " ++ initScript basePath
-    _ <- runCommand cmd
-    -- TODO: next line kills xmonad itself...why?
-    -- exitCode <- waitForProcess hInit
-    -- spawn $ "/bin/bash " ++ initScript
+import qualified XMonad.Util.MainHelper as MH
 
-    -- TODO: use starkup hook instead of initScript
-    dzenHandle <- spawnPipe dzenCommand
-    _ <- spawnPipe $ conkyCommand basePath
-    xmonad $ myConfig dzenHandle
+main :: IO ()
+main = MH.withCustomHelper mhConf
+  where
+    mhConf = MH.defaultConfig  {
+        MH.execute = do
+                basePath <- getXMonadDir
+                let cmd = "/bin/bash " ++ initScript basePath
+                _ <- runCommand cmd
+                -- TODO: next line kills xmonad itself...why?
+                -- exitCode <- waitForProcess hInit
+                -- spawn $ "/bin/bash " ++ initScript
+                -- TODO: use starkup hook instead of initScript
+                dzenHandle <- spawnPipe dzenCommand
+                _ <- spawnPipe $ conkyCommand basePath
+                xmonad (myConfig dzenHandle)
+        }
+

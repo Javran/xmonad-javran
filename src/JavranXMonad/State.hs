@@ -11,7 +11,7 @@ import Data.Time.Calendar
 
 newtype StartupTime =
     StartupTime UTCTime
-    deriving Typeable
+    deriving (Typeable,Show)
 
 -- not persistent state, and we should intialize
 -- the value using the startup time

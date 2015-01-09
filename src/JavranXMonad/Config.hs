@@ -1,11 +1,13 @@
 {-# LANGUAGE FlexibleContexts, BangPatterns #-}
-
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module JavranXMonad.Config
 ( myConfig
 , initScript
 , dzenCommand
 , conkyCommand
 ) where
+
+-- TODO: xmonad restarter
 
 import System.Exit
 import Codec.Binary.UTF8.String (encodeString)
@@ -24,9 +26,11 @@ import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
+import XMonad.Util.Run
 import Data.Time.Clock
 import System.FilePath.Posix
 import Control.Concurrent
+import System.IO
 
 import XMonad.Hooks.ManageHelpers
 
@@ -154,7 +158,9 @@ myEwmh c = c { startupHook     = startupHook c     <> ewmhDesktopsStartup
              }
 
 myStartupHook :: X ()
-myStartupHook = StartupTime <$> liftIO getCurrentTime >>= XS.put
+myStartupHook = do
+    safeSpawn "/bin/bash" ["/home/javran/.xmonad/on-startup.sh"]
+    StartupTime <$> liftIO getCurrentTime >>= XS.put
 
 -- | colorize text in dzen
 dzenColorize :: String -> String -> String
@@ -245,15 +251,16 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
       -- TODO: no xmonad binary ...
     , ((modm    , xK_q          ) , spawn "xmonad --restart")
+      -- TODO: make and run!
     , ((modm .|. shiftMask, xK_q     ), do
            xmHome <- getXMonadDir
            spawn $ "/bin/bash " ++ (xmHome </> "on-finalize.sh")
            -- TODO: doesn't seem to work
            -- right now it delays for 5 seconds and then terminates
            io $ do
-               threadDelay $ 5 * 1000 * 1000
-               exitSuccess
-           return ())
+               -- threadDelay $ 5 * 1000 * 1000
+               exitSuccess)
+
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
 
