@@ -3,10 +3,8 @@ import Development.Shake
 import Development.Shake.Command
 import Development.Shake.FilePath
 
-import Data.Functor
 import System.Directory
 import System.Info
-import System.IO
 import Data.List
 
 type a :-> t = a
@@ -29,15 +27,16 @@ main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
         cmdCb    :: CmdArguments args => args :-> Action r
         cmdCb    = cmd Shell (Cwd "cabal-zone")
         info     = putNormal . ("> ShakeBuild: " ++)
+        collectSrcs = getDirectoryFiles "" [ "cabal-zone/src//*.hs"
+                                           , "cabal-zone/xmonad-javran.cabal"
+                                           ]
 
     want ["all"]
 
     binaries &%> \ _ -> do
         projectDir <- liftIO getCurrentDirectory
         let binDir = projectDir </> "_build"
-        srcFiles <- getDirectoryFiles "" [ "cabal-zone/src//*.hs"
-                                         , "cabal-zone/xmonad-javran.cabal"
-                                         ]
+        srcFiles <- collectSrcs
         need srcFiles
         info "Building binaries"
         cmdCb "cabal configure" ("--bindir=" ++ binDir) :: Action ()
@@ -51,7 +50,10 @@ main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
         need binaries
         cmd Shell (Cwd "_build") "cp xmonad-javran" xmonadBinaryName
 
-    phony "all" (need [syncBins, syncEtcs])
+    phony "all" $ do
+        need [syncBins, syncEtcs]
+        info "Printing current time"
+        cmd "date"
 
     phony syncEtcs $ do
         projectDir <- liftIO getCurrentDirectory
@@ -80,4 +82,4 @@ main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
         info "Cleaning files in _build"
         removeFilesAfter "_build" ["//*"]
         info "Cleaning cabal-zone"
-        cmdCb "cabal clean" ""
+        cmdCb "cabal clean"
