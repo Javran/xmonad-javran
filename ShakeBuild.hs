@@ -26,7 +26,7 @@ main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
         xmBin    = "_build" </> xmonadBinaryName
         cmdCb    :: CmdArguments args => args :-> Action r
         cmdCb    = cmd Shell (Cwd "cabal-zone")
-        info     = putNormal . ("> ShakeBuild: " ++)
+        info     = putNormal . ("## ShakeBuild: " ++)
         collectSrcs = getDirectoryFiles "" [ "cabal-zone/src//*.hs"
                                            , "cabal-zone/xmonad-javran.cabal"
                                            ]
