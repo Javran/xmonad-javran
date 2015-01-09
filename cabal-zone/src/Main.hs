@@ -3,6 +3,7 @@ module Main where
 import System.Process
 import XMonad
 import XMonad.Util.Run (spawnPipe)
+import System.Environment
 
 import JavranXMonad.Config
 
@@ -12,7 +13,7 @@ main :: IO ()
 main = MH.withCustomHelper mhConf
   where
     mhConf = MH.defaultConfig  {
-        MH.execute = do
+          MH.execute = do
                 basePath <- getXMonadDir
                 let cmd = "/bin/bash " ++ initScript basePath
                 _ <- runCommand cmd
@@ -23,5 +24,8 @@ main = MH.withCustomHelper mhConf
                 dzenHandle <- spawnPipe dzenCommand
                 _ <- spawnPipe $ conkyCommand basePath
                 xmonad (myConfig dzenHandle)
+        , MH.upToDateCheck = return False
+        , MH.recompileCommand = do
+            xmonadHome <- getEnv "XMONAD_HOME"
+            return ( "./build.sh", ["all"], Just xmonadHome)
         }
-
