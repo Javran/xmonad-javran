@@ -249,8 +249,7 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
-      -- TODO: no xmonad binary ...
-    , ((modm    , xK_q          ) , spawn "xmonad --restart")
+    , ((modm    , xK_q          ) , spawn "xmonad --recompile && xmonad --restart")
       -- TODO: make and run!
     , ((modm .|. shiftMask, xK_q     ), do
            xmHome <- getXMonadDir
