@@ -4,16 +4,16 @@ import System.Process
 import XMonad
 import XMonad.Util.Run (spawnPipe)
 import System.Environment
-
+import System.Exit
 import JavranXMonad.Config
 
-import qualified XMonad.Util.MainHelper as MH
+import qualified XMonad.Util.EntryHelper as EH
 
 main :: IO ()
-main = MH.withCustomHelper mhConf
+main = EH.withCustomHelper mhConf
   where
-    mhConf = MH.defaultConfig  {
-          MH.execute = do
+    mhConf = EH.defaultConfig  {
+          EH.run = do
                 basePath <- getXMonadDir
                 let cmd = "/bin/bash " ++ initScript basePath
                 _ <- runCommand cmd
@@ -24,8 +24,10 @@ main = MH.withCustomHelper mhConf
                 dzenHandle <- spawnPipe dzenCommand
                 _ <- spawnPipe $ conkyCommand basePath
                 xmonad (myConfig dzenHandle)
-        , MH.upToDateCheck = return False
-        , MH.recompileCommand = do
-            xmonadHome <- getEnv "XMONAD_HOME"
-            return ( "./build.sh", ["all"], Just xmonadHome)
+        , EH.compile = \force -> EH.withLock ExitSuccess $ do
+              let cmd = if force
+                        then "cd ${XMONAD_HOME} && ./build.sh clean && ./build.sh all"
+                        else "cd ${XMONAD_HOME} && ./build.sh all"
+              EH.compileUsingShell cmd
         }
+
