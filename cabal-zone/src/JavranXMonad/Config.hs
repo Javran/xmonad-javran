@@ -98,10 +98,6 @@ conkyCommand xmPath = unwords
     -- , "-l", "4"
     ]
 
-instance Applicative Query where
-    pure = return
-    (<*>) = ap
-
 isSplash :: Query Bool
 isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
 
@@ -249,7 +245,8 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
-    , ((modm    , xK_q          ) , spawn "xmonad --recompile && xmonad --restart")
+    , ((modm    , xK_q          ) , spawn "xmonad --restart && \
+                                          \notify-send \"XMonad built on `date`\"")
       -- TODO: make and run!
     , ((modm .|. shiftMask, xK_q     ), do
            xmHome <- getXMonadDir
