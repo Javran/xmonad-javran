@@ -3,9 +3,12 @@ import Development.Shake
 import Development.Shake.Command
 import Development.Shake.FilePath
 
-import System.Directory
 import System.Info
 import Data.List
+import Control.Exception
+import System.Environment as SE
+import System.FilePath.Posix
+import System.Directory as SD
 
 type a :-> t = a
 
@@ -15,8 +18,25 @@ getXMonadDir = getAppUserDataDirectory "xmonad"
 xmonadBinaryName :: String
 xmonadBinaryName = "xmonad-"++arch++"-"++os
 
+-- get and verify project directory, so we can make the script independent
+-- of the current directory of the script
+getProjectDirectory :: IO String
+getProjectDirectory = do
+    putStrLn "Getting and verifying project directory."
+    putStrLn "Please make sure $XMONAD_HOME points to the correct directory"
+    putStrLn "and file \"xmonad-javran.cabal\" is in the directory"
+    prjDir <- SE.getEnv "XMONAD_HOME"
+    let cabalFile = prjDir </> "xmonad-javran.cabal"
+    True <- SD.doesFileExist cabalFile
+    return prjDir
+
 main :: IO ()
-main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
+main = do
+  projectDir <- getProjectDirectory
+  putStrLn $ "Setting current directory to: " ++ projectDir
+  SD.setCurrentDirectory projectDir
+
+  shakeArgs shakeOptions{shakeFiles="_build/"} $ do
     let binaries = map ("_build" </>)
                  . words
                  $ "xmonad-javran MailChecker StreamConverter"
@@ -27,24 +47,21 @@ main = shakeArgs shakeOptions{shakeFiles="_build/"} $ do
         cmdCb    :: CmdArguments args => args :-> Action r
         cmdCb    = cmd Shell (Cwd "cabal-zone")
         info     = putNormal . ("## ShakeBuild: " ++)
-        collectSrcs = getDirectoryFiles "" [ "cabal-zone/src//*.hs"
-                                           , "cabal-zone/xmonad-javran.cabal"
+        collectSrcs = getDirectoryFiles "" [ "src//*.hs"
+                                           , "xmonad-javran.cabal"
                                            ]
 
     want ["all"]
 
     binaries &%> \ _ -> do
-        projectDir <- liftIO getCurrentDirectory
         let binDir = projectDir </> "_build"
         srcFiles <- collectSrcs
         need srcFiles
-        info "Building binaries"
-        cmdCb "cabal configure" ("--bindir=" ++ binDir) :: Action ()
-        cmdCb "cabal build" :: Action ()
-        info "Copying binaries"
+        info "Building and copying binaries"
         -- make it think it's copying binaries to a PATH location
         fakePath <- addPath [binDir] []
-        cmdCb fakePath "cabal copy" :: Action ()
+        let shellCmd = "stack --local-bin-path " ++ binDir ++ " install"
+        cmd Shell fakePath shellCmd  :: Action ()
 
     xmBin %> \ _ -> do
         need binaries
