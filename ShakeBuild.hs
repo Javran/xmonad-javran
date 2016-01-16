@@ -44,8 +44,6 @@ main = do
         syncBins = "syncBins"
         diffEtcs = "diffEtcs"
         xmBin    = "_build" </> xmonadBinaryName
-        cmdCb    :: CmdArguments args => args :-> Action r
-        cmdCb    = cmd Shell (Cwd "cabal-zone")
         info     = putNormal . ("## ShakeBuild: " ++)
         collectSrcs = getDirectoryFiles "" [ "src//*.hs"
                                            , "xmonad-javran.cabal"
@@ -73,14 +71,12 @@ main = do
         cmd "date"
 
     phony syncEtcs $ do
-        projectDir <- liftIO getCurrentDirectory
         xmDir <- liftIO getXMonadDir
         info "Synchronizing etc files"
         cmd "rsync -uarc" (projectDir </> "etc/") xmDir :: Action ()
         need [diffEtcs]
 
     phony syncBins $ do
-        projectDir <- liftIO getCurrentDirectory
         xmDir <- liftIO getXMonadDir
         info "Synchronizing binary files"
         need (xmBin:binaries)
@@ -99,4 +95,4 @@ main = do
         info "Cleaning files in _build"
         removeFilesAfter "_build" ["//*"]
         info "Cleaning cabal-zone"
-        cmdCb "cabal clean"
+        cmd "stack clean"

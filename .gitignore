@@ -24,3 +24,4 @@ StreamConvert
 # shake
 /_build/
 /_shake/
+/.stack-work/
