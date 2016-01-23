@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts, BangPatterns #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module JavranXMonad.Config
 ( myConfig
@@ -11,17 +10,13 @@ module JavranXMonad.Config
 
 import System.Exit
 import Codec.Binary.UTF8.String (encodeString)
-import Control.Applicative
-import Control.Monad
 import Data.Maybe (isJust, fromMaybe)
 import Data.Ratio ((%))
-import System.FilePath ((</>))
 import XMonad
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.Grid (Grid(..))
 import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.NoBorders
 import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys (customKeys)
@@ -29,8 +24,6 @@ import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
 import Data.Time.Clock
 import System.FilePath.Posix
-import Control.Concurrent
-import System.IO
 
 import XMonad.Hooks.ManageHelpers
 
@@ -131,10 +124,10 @@ myLayoutHook = fullscreenFull $ avoidStruts mainLayout
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
-        defaultLayoutHook = layoutHook defaultConfig
+        defaultLayoutHook = layoutHook def
 
 -- TODO: fullscreen without frame?
-myConfig dzenHandle = myEwmh $ defaultConfig
+myConfig dzenHandle = myEwmh $ def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = customKeys delKeys insKeys
