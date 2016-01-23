@@ -23,7 +23,7 @@ import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
 import XMonad.Hooks.DynamicLog (dzenEscape)
-import XMonad.Hooks.ManageDocks (avoidStruts, manageDocks)
+import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
@@ -139,7 +139,7 @@ myConfig dzenHandle = myEwmh $ defaultConfig
     , terminal = "xfce4-terminal"
     , keys = customKeys delKeys insKeys
     , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
-    , handleEventHook = fullscreenEventHook
+    , handleEventHook = fullscreenEventHook <+> docksEventHook
     , layoutHook = myLayoutHook
     , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
