@@ -17,6 +17,7 @@ import XMonad.Layout.Fullscreen
 import XMonad.Layout.Grid (Grid(..))
 import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
+import XMonad.Layout.NoBorders
 import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.CustomKeys (customKeys)
@@ -112,19 +113,32 @@ myManageHook = composeAll
     , ((&&) <$> fmap (== "Thunar") className
             <*> fmap (== "File Operation Progress") title)
        --> doFloat
+    , isJuliaImageView --> doFloat
     , title =? "PLT Redex Reduction Graph" --> doFloat
     , fmap ("Fcitx" `isPrefixOf`) title --> doFloat
     , fmap ("Fcitx" `isPrefixOf`) className --> doFloat
     ]
+  where
+    isJuliaImageView :: Query Bool
+    isJuliaImageView = (== "ImageView") <$> title
 
 -- TODO: close windows in a more decent way.
-myLayoutHook = fullscreenFull $ avoidStruts mainLayout
-    -- smartBorders $ fullscreenFull $ avoidStruts mainLayout
+myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
         mainLayout = onWorkspace "3" imLayout defaultLayoutHook
-        defaultLayoutHook = layoutHook def
+        defaultLayoutHook = tiled ||| Mirror tiled ||| noBorders Full
+          where
+            -- default tiling algorithm partitions the screen into two panes
+            tiled   = Tall nmaster delta ratio
+            -- The default number of windows in the master pane
+            nmaster = 1
+            -- Default proportion of screen occupied by master pane
+            ratio   = 1/2
+            -- Percent of screen to increment by when resizing panes
+            delta   = 3/100
+
 
 -- TODO: fullscreen without frame?
 myConfig dzenHandle = myEwmh $ def
