@@ -29,23 +29,10 @@ xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
-xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 1920x1080
+# xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 1920x1080
+xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 768x576
 
 ~/.xmonad/on-monitor-change.sh
-
-# startup trayer
-pkill -9 trayer
-
-try_run_once /usr/bin/trayer-srg \
-	--edge top \
-	--align right \
-	--SetDockType true \
-	--SetPartialStrut true \
-	--expand true \
-	--width 11 \
-	--transparent true \
-	--tint 0xe0e0e0 \
-	--height 24
 
 try_run_once /usr/bin/nm-applet --sm-disable
 
@@ -63,6 +50,20 @@ try_run_once /usr/bin/fcitx -dr
 try_run_once ~/.xmonad/MailChecker
 
 #try_run_once ~/.dropbox-dist/dropboxd
+
+# startup trayer
+pkill -9 trayer
+
+try_run_once /usr/bin/trayer-srg \
+	--edge top \
+	--align right \
+	--SetDockType true \
+	--SetPartialStrut true \
+	--expand true \
+	--width 11 \
+	--transparent true \
+	--tint 0xe0e0e0 \
+	--height 24
 
 # load xfce settings
 xfsettingsd &
