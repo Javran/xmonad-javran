@@ -45,11 +45,7 @@ try_run_once /usr/bin/xscreensaver -no-splash
 # IM
 try_run_once /usr/bin/fcitx -dr
 
-# try_run_once /usr/bin/pidgin
-
 try_run_once ~/.xmonad/MailChecker
-
-#try_run_once ~/.dropbox-dist/dropboxd
 
 # startup trayer
 pkill -9 trayer
