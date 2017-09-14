@@ -34,11 +34,13 @@ xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 768x576
 
 ~/.xmonad/on-monitor-change.sh
 
+[ ! -s ~/.config/mpd/pid ] && mpd
+
 try_run_once /usr/bin/nm-applet --sm-disable
 
 try_run_once /usr/bin/xfce4-power-manager
 
-try_run_once /usr/bin/xfce4-volumed
+# try_run_once /usr/bin/xfce4-volumed
 
 try_run_once /usr/bin/xscreensaver -no-splash
 

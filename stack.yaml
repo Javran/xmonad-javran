@@ -3,7 +3,10 @@ extra-package-dbs: []
 packages:
 - '.'
 extra-deps:
+- X11-1.8
 - X11-xft-0.3.1
-- xmonad-contrib-0.12
+- primitive-0.6.2.0
+- xmonad-0.13
+- xmonad-contrib-0.13
 - xmonad-entryhelper-0.1.0.0
 resolver: lts-7.19

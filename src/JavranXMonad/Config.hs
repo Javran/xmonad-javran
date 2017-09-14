@@ -105,6 +105,8 @@ myManageHook = composeAll
     , className =? "net-minecraft-MinecraftLauncher" --> doFloat
     , className =? "Gnuplot" --> doFloat
     , className =? "FLTK" --> doFloat
+    , className =? "poi"   --> doFloat
+    , className =? "poi"   --> doShift "4"
     -- not necessary
     -- , className =? "jetbrains-android-studio" --> doFloat
     , className =? "Xfce4-appfinder" --> doFloat
@@ -117,6 +119,7 @@ myManageHook = composeAll
     , title =? "PLT Redex Reduction Graph" --> doFloat
     , fmap ("Fcitx" `isPrefixOf`) title --> doFloat
     , fmap ("Fcitx" `isPrefixOf`) className --> doFloat
+    , stringProperty "WM_WINDOW_ROLE" =? "GtkFileChooserDialog" --> doFloat
     ]
   where
     isJuliaImageView :: Query Bool
@@ -211,7 +214,7 @@ myLogHook h = do
         -- no focus
         (return "<Nothing>")
         -- or try to figure out its title
-        (fmap show . getName) . W.peek
+        (fmap (take 100 . show) . getName) . W.peek
         $ curWindowSet
 
     let layoutDescription = description . W.layout . W.workspace . W.current $ curWindowSet
@@ -247,8 +250,10 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
     , ((mod4Mask, xK_e          ) , spawn "thunar")
     , ((mod4Mask, xK_l          ) , spawn "xscreensaver-command --lock")
     , ((mod4Mask, xK_m          ) , spawn "gmpc")
-    , ((mod4Mask, xK_apostrophe ) , spawn "amixer set Master 5+")
-    , ((mod4Mask, xK_semicolon  ) , spawn "amixer set Master 5-")
+    , ((mod4Mask, xK_apostrophe ) , spawn "pactl set-sink-volume 0 +5%")
+      -- "amixer set Master 5+")
+    , ((mod4Mask, xK_semicolon  ) , spawn "pactl set-sink-volume 0 -5%")
+      -- "amixer set Master 5-")
     , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
     , ((mod4Mask, xK_period     ) , spawn "mpc next")
     , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")

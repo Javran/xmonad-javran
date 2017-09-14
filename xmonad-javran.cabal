@@ -15,6 +15,10 @@ cabal-version:       >=1.10
 executable xmonad-javran
   hs-source-dirs:      src
   main-is:             Main.hs
+  other-modules:       JavranXMonad.Config
+                     , JavranXMonad.State
+                     , JavranXMonad.Utils
+                     , JavranXMonad.Workspace
   build-depends:       base <5,
                        utf8-string,
                        filepath,
@@ -31,6 +35,7 @@ executable xmonad-javran
 executable StreamConverter
   hs-source-dirs:      src
   main-is:             StreamConverter.hs
+  other-modules:       JavranXMonad.Utils
   build-depends:       base <5,
                        json,
                        containers
