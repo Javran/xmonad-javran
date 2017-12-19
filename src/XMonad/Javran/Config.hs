@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# LANGUAGE NamedFieldPuns #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -125,8 +127,7 @@ myManageHook = composeAll
     isJuliaImageView = (== "ImageView") <$> title
 
 -- TODO: close windows in a more decent way.
-myLayoutHook :: Layout Window
-myLayoutHook = Layout $ smartBorders $ fullscreenFull $ avoidStruts mainLayout
+myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
         -- TODO: "3"
@@ -142,8 +143,8 @@ myLayoutHook = Layout $ smartBorders $ fullscreenFull $ avoidStruts mainLayout
             -- Percent of screen to increment by when resizing panes
             delta   = 3/100
 
+
 -- TODO: fullscreen without frame?
-myConfig :: Handle -> XConfig Layout
 myConfig dzenHandle = myEwmh $ def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
