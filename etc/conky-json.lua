@@ -1,12 +1,12 @@
-# based on http://thinkingeek.com/2011/11/21/simple-guide-configure-xmonad-dzen2-conky/
-background no
-out_to_console yes
-out_to_x no
-update_interval 1
+conky.config = {
+   background=false,
+   out_to_console=true,
+   out_to_x=false,
+   update_interval=1,
+}
 
-TEXT
-{ \
-  "cpu_1": "${cpu cpu1}" \
+conky.text = [[\
+{ "cpu_1": "${cpu cpu1}" \
 , "cpu_2": "${cpu cpu2}" \
 , "cpu_3": "${cpu cpu3}" \
 , "cpu_4": "${cpu cpu4}" \
@@ -14,9 +14,9 @@ TEXT
 , "cpu_6": "${cpu cpu6}" \
 , "cpu_7": "${cpu cpu7}" \
 , "cpu_8": "${cpu cpu8}" \
-, "mem"  : "${memperc}"  \
+, "mem"  : "${memperc}" \
 , "date" : "${time %Y-%m-%d}" \
-, "time" : "${time %T}"  \
+, "time" : "${time %T}" \
 , "battery" : "${battery_percent BAT1}" \
 , "adapter" : "${acpiacadapter ADP1}" \
 , "mpdstatus" : "${mpd_status}" \
@@ -25,4 +25,5 @@ TEXT
 , "netspeed_u" : "${upspeedf eth0} ${upspeedf wlan0}" \
 , "freq" : "${freq_g}" \
 , "mail" : "${exec touch /tmp/xmonad_mail_check && cat /tmp/xmonad_mail_check}" \
-}
+} \
+]]

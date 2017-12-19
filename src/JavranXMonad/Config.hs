@@ -49,7 +49,7 @@ pathStreamConvertConf  :: FilePath -> FilePath
 initScript             xmBase = xmBase </> "xmonad-init.sh"
 pathStreamConvert      xmBase = xmBase </> "StreamConverter"
 pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
-conkyConf              xmBase = xmBase </> "conky-json.conf"
+conkyConf              xmBase = xmBase </> "conky-json.lua"
 
 showI :: Int -> String
 showI = show
