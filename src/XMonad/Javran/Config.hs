@@ -154,7 +154,7 @@ myConfig dzenHandle = myEwmh $ def
     , layoutHook = myLayoutHook
     , logHook = myLogHook dzenHandle
     , focusedBorderColor = "cyan"
-    , workspaces = myWorkspaceConf
+    , workspaces = workspaceIds
     , startupHook = myStartupHook
     }
 

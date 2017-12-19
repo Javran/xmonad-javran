@@ -1,41 +1,23 @@
 module XMonad.Javran.Config.Workspace
-  ( myWorkspaceConf
+  ( workspaceIds
   , workspaceName
   ) where
 
 import Data.Maybe (fromMaybe)
+import qualified Data.Map.Strict as M
+import XMonad.Core hiding (workspaces)
 
-wkSpaceAny1 :: String
-wkSpaceAny1 = "any"
+workspaceNames :: [String]
+workspaceNames = words "any1 any2 msg1 ext1 ext2"
 
-wkSpaceAny2 :: String
-wkSpaceAny2 = "any"
+-- sadly WorkspaceId is just a type synonym to String,
+-- so let's just use Int as String in hope of reducing computational work
+-- when testing equalities
+workspaceIds :: [WorkspaceId]
+workspaceIds = zipWith (\x _ -> show x) [1 :: Int ..] workspaceNames
 
-wkSpaceIM   :: String
-wkSpaceIM   = "msg"
-
-wkSpaceExt1 :: String
-wkSpaceExt1 = "ext"
-
-wkSpaceExt2 :: String
-wkSpaceExt2 = "ext"
-
--- fst: the actual workspace name shown in config
--- snd: a short description, should be exactly of length 3
-myWorkspaceList :: [(String, String)]
-myWorkspaceList = zip numList wkSpaceDescriptionList
-    where
-        numList = map show [1..]
-        wkSpaceDescriptionList =
-            [ wkSpaceAny1
-            , wkSpaceAny2
-            , wkSpaceIM
-            , wkSpaceExt1
-            , wkSpaceExt2
-            ]
-
-myWorkspaceConf :: [String]
-myWorkspaceConf = map fst myWorkspaceList
+workspaces :: M.Map WorkspaceId String
+workspaces = M.fromList (zip workspaceIds workspaceNames)
 
 workspaceName :: String -> String
-workspaceName n = fromMaybe "???" $ lookup n myWorkspaceList
+workspaceName n = fromMaybe "???" $ M.lookup n workspaces
