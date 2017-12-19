@@ -11,3 +11,4 @@ else
 fi
 
 # echo command sent $? >>/tmp/vga
+numlockx
