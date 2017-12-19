@@ -1,3 +1,7 @@
+module XMonad.Javran.MailChecker
+  ( main
+  ) where
+
 import Network.HaskellNet.IMAP
 import Network.HaskellNet.IMAP.SSL
 import System.IO

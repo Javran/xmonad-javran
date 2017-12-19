@@ -1,4 +1,6 @@
-module Main where
+module XMonad.Javran.StreamConverter
+  ( main
+  ) where
 
 import Control.Arrow
 import Control.Monad

@@ -34,19 +34,20 @@ executable xmonad-javran
 
 executable StreamConverter
   hs-source-dirs:      src
-  main-is:             StreamConverter.hs
-  other-modules:       XMonad.Javran.Utils
+  main-is:             XMonad/Javran/StreamConverter.hs
+  other-modules:       XMonad.Javran.StreamConverter
+                     , XMonad.Javran.Utils
   build-depends:       base <5,
                        json,
                        containers
-  ghc-options:         -Wall -O2 -threaded
+  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.StreamConverter
   default-language:    Haskell2010
 
 executable MailChecker
   hs-source-dirs:      src
-  main-is:             MailChecker.hs
+  main-is:             XMonad/Javran/MailChecker.hs
   build-depends:       base <5,
                        HaskellNet,
                        HaskellNet-SSL
-  ghc-options:         -Wall -O2 -threaded
+  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.MailChecker
   default-language:    Haskell2010
