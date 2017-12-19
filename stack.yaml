@@ -6,7 +6,8 @@ extra-deps:
 - X11-1.8
 - X11-xft-0.3.1
 - primitive-0.6.2.0
-- xmonad-0.13
 - xmonad-contrib-0.13
 - xmonad-entryhelper-0.1.0.0
+- git: git@github.com:xmonad/xmonad.git
+  commit: 12a45b4b99af17997288815792b8bdb9919091b0
 resolver: lts-9.11

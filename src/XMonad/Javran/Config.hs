@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-module JavranXMonad.Config
+module XMonad.Javran.Config
 ( myConfig
 , initScript
 , dzenCommand
@@ -39,8 +39,8 @@ import qualified XMonad.Util.ExtensibleState as XS
 
 import System.IO
 
-import JavranXMonad.Workspace
-import JavranXMonad.State
+import XMonad.Javran.Config.Workspace
+import XMonad.Javran.Config.State
 import XMonad.Javran.Utils
 
 initScript             :: FilePath -> FilePath

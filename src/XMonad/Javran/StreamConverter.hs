@@ -37,7 +37,7 @@ doConvert template fallbackStr parsedJson = maybe
     $ maybeConvert parsedJson
     where
         maybeConvert :: JSValue -> Maybe [InfoRaw]
-        maybeConvert obj = liftM (map pairToInfoRaw) $ maybeConvertObject obj
+        maybeConvert obj = map pairToInfoRaw <$> maybeConvertObject obj
             where pairToInfoRaw (k,v) = InfoRaw s t v
                     where (s,t) = pairSlotTag k
 

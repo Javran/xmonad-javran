@@ -1,4 +1,4 @@
-module JavranXMonad.Workspace
+module XMonad.Javran.Config.Workspace
   ( myWorkspaceConf
   , workspaceName
   ) where

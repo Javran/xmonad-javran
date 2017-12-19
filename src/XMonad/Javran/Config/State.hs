@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module JavranXMonad.State
+module XMonad.Javran.Config.State
 where
 
 import XMonad.Core

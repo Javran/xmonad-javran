@@ -14,10 +14,11 @@ cabal-version:       >=1.10
 
 executable xmonad-javran
   hs-source-dirs:      src
-  main-is:             Main.hs
-  other-modules:       JavranXMonad.Config
-                     , JavranXMonad.State
-                     , JavranXMonad.Workspace
+  main-is:             XMonad/Javran/Main.hs
+  other-modules:       XMonad.Javran.Main
+                     , XMonad.Javran.Config
+                     , XMonad.Javran.Config.State
+                     , XMonad.Javran.Config.Workspace
                      , XMonad.Javran.Utils
   build-depends:       base <5,
                        utf8-string,
@@ -29,7 +30,7 @@ executable xmonad-javran
                        process,
                        time,
                        xmonad-entryhelper
-  ghc-options:         -Wall -O2 -threaded
+  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.Main
   default-language:    Haskell2010
 
 executable StreamConverter
