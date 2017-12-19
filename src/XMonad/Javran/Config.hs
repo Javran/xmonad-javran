@@ -1,5 +1,5 @@
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -127,6 +127,7 @@ myManageHook = composeAll
     isJuliaImageView = (== "ImageView") <$> title
 
 -- TODO: close windows in a more decent way.
+myLayoutHook :: _
 myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
     where
         imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
@@ -145,6 +146,7 @@ myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
 
 
 -- TODO: fullscreen without frame?
+myConfig :: Handle -> XConfig _
 myConfig dzenHandle = myEwmh $ def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
