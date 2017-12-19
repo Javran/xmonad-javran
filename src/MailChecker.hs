@@ -1,6 +1,5 @@
 import Network.HaskellNet.IMAP
 import Network.HaskellNet.IMAP.SSL
-import Network.HaskellNet.Auth
 import System.IO
 import System.Environment
 

@@ -30,6 +30,7 @@ import XMonad.Hooks.ManageHelpers
 
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 import Data.Monoid
+import qualified Data.Map.Strict as M
 
 import Data.List
 
@@ -39,8 +40,8 @@ import qualified XMonad.Util.ExtensibleState as XS
 import System.IO
 
 import JavranXMonad.Workspace
-import JavranXMonad.Utils
 import JavranXMonad.State
+import XMonad.Javran.Utils
 
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
@@ -180,25 +181,24 @@ dzenColorize colorStr str = concat
 
 -- | make layout description shorter
 shortenLayoutDesc :: String -> String
-shortenLayoutDesc ld = keepStringLength 3 tooShortHdl tooLongHdl $ shortened ld
-    where
-        tooLongHdl = id -- take 3
-        tooShortHdl s = padRight (3 - length s) ' ' s
-        shortened s = fromMaybe s $ lookup s shortenDict
+shortenLayoutDesc ld = case sLen `compare` 3 of
+    LT -> padRight (3 - sLen) ' ' shortenDesc
+    EQ -> shortenDesc
+    GT -> take 3 shortenDesc
+  where
+    knownShortens :: M.Map String String
+    knownShortens = M.fromList
+        [ ( "Full" , " F " )
+        , ( "Tall" , " T " )
+        , ( "Mirror Tall" , "M T")
+        , ( "IM Grid" , "IMG" )
+        , ("IM Mirror Grid" , "IMR" )
+        ]
 
-        shortenDict :: [( String, String )]
-        shortenDict =
-            [ ( "Full"
-              , " F " )
-            , ( "Tall"
-              , " T " )
-            , ( "Mirror Tall"
-              , "M T")
-            , ( "IM Grid"
-              , "IMG" )
-            , ("IM Mirror Grid"
-              , "IMR" )
-            ]
+    -- ld -> shortenDesc, if we happen to know how to shorten
+    -- it properly
+    shortenDesc = fromMaybe ld $ M.lookup ld knownShortens
+    sLen = length shortenDesc
 
 myLogHook :: Handle -> X ()
 myLogHook h = do

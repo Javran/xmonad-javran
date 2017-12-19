@@ -10,8 +10,7 @@ import Text.JSON.String
 import Text.JSON.Types
 
 import qualified Data.Map as M
-
-import JavranXMonad.Utils
+import XMonad.Javran.Utils
 
 -- InfoRaw <slot> <tag> <data>
 data InfoRaw = InfoRaw String (Maybe String) String
@@ -80,7 +79,20 @@ fixStringLen len padChar fallbackStr str =
         (padLeft (len-strLen) padChar)
         (const fallbackStr)
         str
-    where strLen = length str
+    where
+      strLen = length str
+      -- | make sure the resulting string is a fixed length
+      keepStringLength :: Int                 -- ^ fixed length
+                       -> (String -> String)  -- ^ what if it's too short
+                       -> (String -> String)  -- ^ what if it's too long
+                       -> String              -- ^ input
+                       -> String              -- ^ output
+      keepStringLength len tooShortProc tooLongProc input
+          | strLen >  len = tooLongProc  input
+          | strLen == len = input
+          | otherwise     = tooShortProc input
+        where
+          strLen = length input
 
 -- pretty print bit count
 bitToReadableString :: Int -> String
@@ -116,7 +128,7 @@ convertSlots = M.fromList
     , ("mail"       , convertMailCheck  )
     ]
     where
-        convertCpuLoad s = fullOrNum $ keepInRange (0 :: Int,100) $ read s
+        convertCpuLoad s = fullOrNum $ clamp (0 :: Int,100) $ read s
             -- the padChar should never be reached here
             where fullOrNum x = fixStringLen 1 undefined "F" $ show $ x `div` 10
         convertMemLoad s = fixStringLen 2 ' ' "FF" s ++ "%"

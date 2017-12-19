@@ -3,7 +3,6 @@ module Main where
 import System.Process
 import XMonad
 import XMonad.Util.Run (spawnPipe)
-import System.Environment
 import System.Exit
 import JavranXMonad.Config
 

@@ -17,8 +17,8 @@ executable xmonad-javran
   main-is:             Main.hs
   other-modules:       JavranXMonad.Config
                      , JavranXMonad.State
-                     , JavranXMonad.Utils
                      , JavranXMonad.Workspace
+                     , XMonad.Javran.Utils
   build-depends:       base <5,
                        utf8-string,
                        filepath,
@@ -35,7 +35,7 @@ executable xmonad-javran
 executable StreamConverter
   hs-source-dirs:      src
   main-is:             StreamConverter.hs
-  other-modules:       JavranXMonad.Utils
+  other-modules:       XMonad.Javran.Utils
   build-depends:       base <5,
                        json,
                        containers

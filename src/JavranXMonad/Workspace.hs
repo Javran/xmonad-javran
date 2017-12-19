@@ -1,5 +1,7 @@
 module JavranXMonad.Workspace
-where
+  ( myWorkspaceConf
+  , workspaceName
+  ) where
 
 import Data.Maybe (fromMaybe)
 
