@@ -244,7 +244,7 @@ myLogHook h = do
 
 -- | some key bindings
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
-insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
+insKeys XConfig {modMask = modm, workspaces = wkSpace} =
     [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
     , ((mod4Mask, xK_r          ) , spawn "xfce4-terminal")
     , ((mod4Mask, xK_e          ) , spawn "thunar")
@@ -265,15 +265,12 @@ insKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
            spawn $ "/bin/bash " ++ (xmHome </> "on-finalize.sh")
            -- TODO: doesn't seem to work
            -- right now it delays for 5 seconds and then terminates
-           io $ do
-               -- threadDelay $ 5 * 1000 * 1000
-               exitSuccess)
-
+           io exitSuccess)
     ]
     ++ workspaceSwitchAltKeys modm wkSpace
 
 delKeys :: XConfig l -> [(KeyMask, KeySym)]
-delKeys (XConfig {modMask = modm, workspaces = wkSpace}) =
+delKeys XConfig {modMask = modm} =
     [ (modm              , xK_q     )
     , (modm .|. shiftMask, xK_q     )
     ]
@@ -285,8 +282,8 @@ workspaceSwitchAltKeys modMask' wkSpace =
     [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_a, xK_s, xK_d, xK_f, xK_g]]
 
 myEwmhDesktopsEventHook :: Event -> X All
-myEwmhDesktopsEventHook e@(ClientMessageEvent
-    {ev_message_type = mt}) = do
+myEwmhDesktopsEventHook e@ClientMessageEvent
+    {ev_message_type = mt} = do
     a_aw <- getAtom "_NET_ACTIVE_WINDOW"
     curTime <- liftIO getCurrentTime
     StartupTime starupTime <- XS.get
