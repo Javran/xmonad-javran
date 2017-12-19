@@ -74,25 +74,12 @@ fixStringLen :: Int     -- length expected
              -> String  -- input
              -> String  -- output
 fixStringLen len padChar fallbackStr str =
-    keepStringLength
-        len
-        (padLeft (len-strLen) padChar)
-        (const fallbackStr)
-        str
+    case strLen `compare` len of
+        LT -> padLeftCut padChar len str
+        EQ -> str
+        GT -> fallbackStr
     where
       strLen = length str
-      -- | make sure the resulting string is a fixed length
-      keepStringLength :: Int                 -- ^ fixed length
-                       -> (String -> String)  -- ^ what if it's too short
-                       -> (String -> String)  -- ^ what if it's too long
-                       -> String              -- ^ input
-                       -> String              -- ^ output
-      keepStringLength len tooShortProc tooLongProc input
-          | strLen >  len = tooLongProc  input
-          | strLen == len = input
-          | otherwise     = tooShortProc input
-        where
-          strLen = length input
 
 -- pretty print bit count
 bitToReadableString :: Int -> String

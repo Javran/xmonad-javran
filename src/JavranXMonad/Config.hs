@@ -182,7 +182,7 @@ dzenColorize colorStr str = concat
 -- | make layout description shorter
 shortenLayoutDesc :: String -> String
 shortenLayoutDesc ld = case sLen `compare` 3 of
-    LT -> padRight (3 - sLen) ' ' shortenDesc
+    LT -> padRightCut ' ' 3 shortenDesc
     EQ -> shortenDesc
     GT -> take 3 shortenDesc
   where
