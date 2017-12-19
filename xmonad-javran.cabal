@@ -18,6 +18,7 @@ executable xmonad-javran
   other-modules:       XMonad.Javran.Main
                      , XMonad.Javran.Config
                      , XMonad.Javran.Config.State
+                     , XMonad.Javran.Config.Keys
                      , XMonad.Javran.Config.Workspace
                      , XMonad.Javran.Utils
   build-depends:       base <5,

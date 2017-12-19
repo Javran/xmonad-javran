@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# LANGUAGE NamedFieldPuns #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -8,7 +9,6 @@ module XMonad.Javran.Config
 
 -- TODO: xmonad restarter
 
-import System.Exit
 import Codec.Binary.UTF8.String (encodeString)
 import Data.Maybe (isJust, fromMaybe)
 import Data.Ratio ((%))
@@ -20,7 +20,6 @@ import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
 import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks
-import XMonad.Util.CustomKeys (customKeys)
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
 import Data.Time.Clock
@@ -39,6 +38,7 @@ import qualified XMonad.Util.ExtensibleState as XS
 
 import System.IO
 
+import qualified XMonad.Javran.Config.Keys as ConfKeys
 import XMonad.Javran.Config.Workspace
 import XMonad.Javran.Config.State
 import XMonad.Javran.Utils
@@ -148,7 +148,7 @@ myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
 myConfig dzenHandle = myEwmh $ def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
-    , keys = customKeys delKeys insKeys
+    , keys = ConfKeys.keys
     , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
     , handleEventHook = fullscreenEventHook <+> docksEventHook
     , layoutHook = myLayoutHook
@@ -241,45 +241,6 @@ myLogHook h = do
         -- get all workspace instances from stack set
         --   note that this might not be the order defined by config
         allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
-
--- | some key bindings
-insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
-insKeys XConfig {modMask = modm, workspaces = wkSpace} =
-    [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
-    , ((mod4Mask, xK_r          ) , spawn "xfce4-terminal")
-    , ((mod4Mask, xK_e          ) , spawn "thunar")
-    , ((mod4Mask, xK_l          ) , spawn "xscreensaver-command --lock")
-    , ((mod4Mask, xK_m          ) , spawn "gmpc")
-    , ((mod4Mask, xK_apostrophe ) , spawn "pactl set-sink-volume 0 +5%")
-      -- "amixer set Master 5+")
-    , ((mod4Mask, xK_semicolon  ) , spawn "pactl set-sink-volume 0 -5%")
-      -- "amixer set Master 5-")
-    , ((mod4Mask, xK_comma      ) , spawn "mpc prev")
-    , ((mod4Mask, xK_period     ) , spawn "mpc next")
-    , ((mod4Mask, xK_slash      ) , spawn "mpc toggle")
-    , ((modm    , xK_q          ) , spawn "xmonad --restart && \
-                                          \notify-send \"XMonad built on `date`\"")
-      -- TODO: make and run!
-    , ((modm .|. shiftMask, xK_q     ), do
-           xmHome <- getXMonadDir
-           spawn $ "/bin/bash " ++ (xmHome </> "on-finalize.sh")
-           -- TODO: doesn't seem to work
-           -- right now it delays for 5 seconds and then terminates
-           io exitSuccess)
-    ]
-    ++ workspaceSwitchAltKeys modm wkSpace
-
-delKeys :: XConfig l -> [(KeyMask, KeySym)]
-delKeys XConfig {modMask = modm} =
-    [ (modm              , xK_q     )
-    , (modm .|. shiftMask, xK_q     )
-    ]
-
--- | key bindings for moving windows around
-workspaceSwitchAltKeys :: KeyMask  -> [WorkspaceId] -> [((KeyMask, KeySym), X ())]
-workspaceSwitchAltKeys modMask' wkSpace =
-    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_F1 .. xK_F12]] ++
-    [((modMask', k), windows $ W.shift i) | (i, k) <- zip wkSpace [xK_a, xK_s, xK_d, xK_f, xK_g]]
 
 myEwmhDesktopsEventHook :: Event -> X All
 myEwmhDesktopsEventHook e@ClientMessageEvent
