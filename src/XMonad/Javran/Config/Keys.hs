@@ -16,7 +16,7 @@ keys = customKeys delKeys insKeys
 -- | some key bindings
 insKeys :: XConfig l -> [((KeyMask, KeySym), X ())]
 insKeys XConfig {modMask = modm, workspaces = wkSpace} =
-    [ ((mod4Mask, xK_w          ) , spawn "firefox-bin")
+    [ ((mod4Mask, xK_w          ) , spawn "vivaldi")
     , ((mod4Mask, xK_r          ) , spawn "xfce4-terminal")
     , ((mod4Mask, xK_e          ) , spawn "thunar")
     , ((mod4Mask, xK_l          ) , spawn "xscreensaver-command --lock")
