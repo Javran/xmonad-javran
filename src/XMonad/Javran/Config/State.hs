@@ -1,12 +1,9 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-
 module XMonad.Javran.Config.State
 where
 
 import XMonad.Core
-import qualified XMonad.Util.ExtensibleState as XS
 import Data.Time.Clock
-import Data.Typeable
 import Data.Time.Calendar
 
 newtype StartupTime =

@@ -15,8 +15,7 @@ cabal-version:       >=1.10
 executable xmonad-javran
   hs-source-dirs:      src
   main-is:             XMonad/Javran/Main.hs
-  other-modules:       XMonad.Javran.Main
-                     , XMonad.Javran.Config
+  other-modules:       XMonad.Javran.Config
                      , XMonad.Javran.Config.State
                      , XMonad.Javran.Config.Keys
                      , XMonad.Javran.Config.Workspace
@@ -37,8 +36,7 @@ executable xmonad-javran
 executable StreamConverter
   hs-source-dirs:      src
   main-is:             XMonad/Javran/StreamConverter.hs
-  other-modules:       XMonad.Javran.StreamConverter
-                     , XMonad.Javran.Utils
+  other-modules:       XMonad.Javran.Utils
   build-depends:       base <5,
                        json,
                        containers
