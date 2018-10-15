@@ -1,16 +1,11 @@
 {-# LANGUAGE TypeOperators #-}
 import Development.Shake
-import Development.Shake.Command
 import Development.Shake.FilePath
 
 import System.Info
 import Data.List
-import Control.Exception
 import System.Environment as SE
-import System.FilePath.Posix
 import System.Directory as SD
-
-type a :-> t = a
 
 getXMonadDir :: IO FilePath
 getXMonadDir = getAppUserDataDirectory "xmonad"
