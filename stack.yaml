@@ -7,4 +7,6 @@ extra-deps:
 - xmonad-contrib-0.15
 - xmonad-entryhelper-0.1.0.0
 - xmonad-0.15
+- git: https://github.com/Javran/dzen-utils.git
+  commit: 804c289f439c7b155732b7bb1be5e9aaf00b6f6c
 resolver: lts-12.18

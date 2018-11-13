@@ -29,7 +29,8 @@ executable xmonad-javran
                        containers,
                        process,
                        time,
-                       xmonad-entryhelper
+                       xmonad-entryhelper,
+                       dzen-utils
   ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.Main
   default-language:    Haskell2010
 
