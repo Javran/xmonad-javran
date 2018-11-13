@@ -233,16 +233,16 @@ myLogHook h = do
                 ]
 
     io $ hPutStrLn h ("^tw()" ++ outStr)
-    where
-        hasSomeWindows = isJust . W.stack
-        workspaceRepresent wTag wwis w
-            | w == wTag     =  w  -- current workspace: show its tag
-            | w `elem` wwis = "*" -- has some window inside
-            | otherwise     = "." -- normal
+  where
+    hasSomeWindows = isJust . W.stack
+    workspaceRepresent wTag wwis w
+        | w == wTag     =  w  -- current workspace: show its tag
+        | w `elem` wwis = "*" -- has some window inside
+        | otherwise     = "." -- normal
 
-        -- get all workspace instances from stack set
-        --   note that this might not be the order defined by config
-        allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
+    -- get all workspace instances from stack set
+    --   note that this might not be the order defined by config
+    allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
 myEwmhDesktopsEventHook :: Event -> X All
 myEwmhDesktopsEventHook e@ClientMessageEvent
