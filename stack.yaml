@@ -7,4 +7,4 @@ extra-deps:
 - xmonad-contrib-0.15
 - xmonad-entryhelper-0.1.0.0
 - xmonad-0.15
-resolver: lts-12.12
+resolver: lts-12.18
