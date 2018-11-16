@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
-{-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE PartialTypeSignatures, OverloadedStrings #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -24,6 +24,8 @@ import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
 import Data.Time.Clock
 import System.FilePath.Posix
+import Data.Colour.Names
+import Data.Colour.SRGB
 
 import XMonad.Hooks.ManageHelpers
 
@@ -35,6 +37,8 @@ import Data.List
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
+
+import qualified System.Dzen as DZ
 
 import System.IO
 
@@ -200,6 +204,7 @@ shortenLayoutDesc ld = case sLen `compare` 3 of
 
 myLogHook :: Handle -> X ()
 myLogHook h = do
+    let dzenOut = io . hPutStrLn h
     -- retrieve states that we might use
     -- mutable   => state
     -- immutable => xConf
@@ -215,20 +220,32 @@ myLogHook h = do
         (fmap (take 100 . show) . getName) . W.peek
         $ curWindowSet
 
-    let layoutDescription = description . W.layout . W.workspace . W.current $ curWindowSet
-
-    let curWorkspaceTags = workspaces $ config xConf
-    -- wwis : Workspaces that has some Window Inside
-    let wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
-    let curWorkspaceTag = W.currentTag curWindowSet
-    let outStr = encodeString $ intercalate " | "
-                [ dzenColorize "#FFFFFF" $ intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
-                , dzenColorize "#FF6600" $ dzenEscape $ workspaceName curWorkspaceTag
-                , dzenColorize "#FF3322" $ dzenEscape $ shortenLayoutDesc layoutDescription
-                , dzenColorize "#33FFFF" $ dzenEscape   windowTitle
-                ]
-
-    io $ hPutStrLn h ("^tw()" ++ outStr)
+    let layoutDescription =
+          description . W.layout . W.workspace . W.current $ curWindowSet
+        curWorkspaceTags = workspaces $ config xConf
+        -- wwis : Workspaces that has some Window Inside
+        wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
+        curWorkspaceTag = W.currentTag curWindowSet
+        sep :: DZ.DString
+        sep = " | "
+        workspaceInfo :: DZ.DString
+        workspaceInfo = DZ.str $
+          intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
+        curWsName = DZ.str $ workspaceName curWorkspaceTag
+        curLayout = DZ.str $ shortenLayoutDesc layoutDescription
+        winTitle = DZ.str windowTitle
+        dzOutData :: DZ.DString
+        dzOutData = mconcat . intersperse sep $
+            [ DZ.fg white workspaceInfo
+            , DZ.fg (sRGB24 0xFF 0x66 0x00) curWsName
+            , DZ.fg (sRGB24 0xFF 0x33 0x22) curLayout
+            , DZ.fg (sRGB24 0x33 0xFF 0xFF) winTitle
+            ]
+    {-
+      <workspaceInfo> <curWsName> <curLayout> <winTitle>
+      all seperated by <sep>
+    -}
+    dzenOut ("^tw()" ++ DZ.toString dzOutData)
   where
     hasSomeWindows = isJust . W.stack
     workspaceRepresent wTag wwis w
@@ -248,6 +265,6 @@ myEwmhDesktopsEventHook e@ClientMessageEvent
     StartupTime starupTime <- XS.get
     if    mt == a_aw
        && curTime `diffUTCTime` starupTime <= 5.0
-       then return (All True)
+       then pure (All True)
        else ewmhDesktopsEventHook e
 myEwmhDesktopsEventHook e = ewmhDesktopsEventHook e
