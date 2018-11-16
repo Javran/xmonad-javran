@@ -47,22 +47,18 @@ initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
 pathStreamConvert      :: FilePath -> FilePath
 pathStreamConvertConf  :: FilePath -> FilePath
-initScript             xmBase = xmBase </> "xmonad-init.sh"
-pathStreamConvert      xmBase = xmBase </> "StreamConverter"
-pathStreamConvertConf  xmBase = xmBase </> "stream_convert.txt"
-conkyConf              xmBase = xmBase </> "conky-json.lua"
+initScript             = (</> "xmonad-init.sh")
+pathStreamConvert      = (</> "StreamConverter")
+pathStreamConvertConf  = (</> "stream_convert.txt")
+conkyConf              = (</> "conky-json.lua")
 
 showI :: Int -> String
 showI = show
--- gimp layout?
-
-leftScr :: Int
-leftScr = 0
 
 dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
-    , "-x" , showI leftScr
+    , "-x" , showI 0
     , "-w" , showI 900
     , "-ta", "l"
     , "-h" , showI 24
@@ -85,16 +81,13 @@ conkyCommand xmPath = unwords
     , "|"
     , "dzen2"
     , "-w", showI 810
-    , "-x", showI (leftScr+ 900)
+    , "-x", showI 900
     , "-h", showI 24
     , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
     , "-bg", "\"#505050\""
     , "-e", "\"button2=;\""
     -- , "-l", "4"
     ]
-
-isSplash :: Query Bool
-isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
 
 -- command `xprop WM_CLASS` would give you a hint on `className` below
 myManageHook :: Query (Endo WindowSet)
@@ -125,6 +118,9 @@ myManageHook = composeAll
   where
     isJuliaImageView :: Query Bool
     isJuliaImageView = (== "ImageView") <$> title
+
+    isSplash :: Query Bool
+    isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
 
 -- TODO: close windows in a more decent way.
 myLayoutHook :: _
