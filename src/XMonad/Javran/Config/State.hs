@@ -6,9 +6,10 @@ import XMonad.Core
 import Data.Time.Clock
 import Data.Time.Calendar
 
-newtype StartupTime =
-    StartupTime UTCTime
-    deriving (Typeable,Show)
+{- a data type used for blocking EWMH when xmonad is just started -}
+newtype StartupTime
+  = StartupTime UTCTime
+  deriving (Typeable,Show)
 
 -- not persistent state, and we should intialize
 -- the value using the startup time
