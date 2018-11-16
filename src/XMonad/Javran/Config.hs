@@ -9,7 +9,6 @@ module XMonad.Javran.Config
 
 -- TODO: xmonad restarter
 
-import Codec.Binary.UTF8.String (encodeString)
 import Data.Maybe (isJust, fromMaybe)
 import Data.Ratio ((%))
 import XMonad
@@ -18,7 +17,6 @@ import XMonad.Layout.Grid (Grid(..))
 import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
-import XMonad.Hooks.DynamicLog (dzenEscape)
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
@@ -171,16 +169,6 @@ myStartupHook = do
     safeSpawn "/bin/bash" ["/home/javran/.xmonad/on-startup.sh"]
     StartupTime <$> liftIO getCurrentTime >>= XS.put
 
--- | colorize text in dzen
-dzenColorize :: String -> String -> String
-dzenColorize colorStr str = concat
-    [ "^fg("
-    , colorStr
-    , ")"
-    , str
-    , "^fg()"
-    ]
-
 -- | make layout description shorter
 shortenLayoutDesc :: String -> String
 shortenLayoutDesc ld = case sLen `compare` 3 of
@@ -215,7 +203,7 @@ myLogHook h = do
 
     windowTitle <- maybe
         -- no focus
-        (return "<Nothing>")
+        (pure "<Nothing>")
         -- or try to figure out its title
         (fmap (take 100 . show) . getName) . W.peek
         $ curWindowSet
