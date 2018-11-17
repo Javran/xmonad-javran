@@ -218,7 +218,7 @@ myLogHook h = do
         sep = " | "
         workspaceInfo :: DZ.DString
         workspaceInfo = DZ.str $
-          intercalate "" $ map (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
+          concatMap (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
         curWsName = DZ.str $ workspaceName curWorkspaceTag
         curLayout = DZ.str $ shortenLayoutDesc layoutDescription
         winTitle = DZ.str windowTitle
