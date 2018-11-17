@@ -230,6 +230,10 @@ myLogHook h = do
             , DZ.fg (sRGB24 0x33 0xFF 0xFF) winTitle
             ]
     {-
+      TODO: click to switch e.g. exec "xdotool key Hyper_L+5"
+      to create clickable area we'll need to patch dzen-utils though
+    -}
+    {-
       <workspaceInfo> <curWsName> <curLayout> <winTitle>
       all seperated by <sep>
     -}
@@ -251,8 +255,7 @@ myEwmhDesktopsEventHook e@ClientMessageEvent
     a_aw <- getAtom "_NET_ACTIVE_WINDOW"
     curTime <- liftIO getCurrentTime
     StartupTime starupTime <- XS.get
-    if    mt == a_aw
-       && curTime `diffUTCTime` starupTime <= 5.0
-       then pure (All True)
-       else ewmhDesktopsEventHook e
+    if mt == a_aw && curTime `diffUTCTime` starupTime <= 5.0
+      then pure (All True)
+      else ewmhDesktopsEventHook e
 myEwmhDesktopsEventHook e = ewmhDesktopsEventHook e
