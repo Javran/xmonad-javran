@@ -1,7 +1,13 @@
 module XMonad.Javran.Utils
   ( clamp
-  , padLeftCut, padRightCut,
+  , padLeftCut, padRightCut
+  , dzenPutLn
   ) where
+
+import System.IO (Handle)
+import Data.Text (pack)
+import Data.Text.Encoding (encodeUtf8)
+import Data.ByteString (hPut)
 
 -- | @clamp (low,high) v@ returns v if it's in range of @(low,high)@
 --   otherwise the corresponding bound is returned
@@ -29,3 +35,13 @@ padLeftCut pChar l str =
     -- as original string.
     -- by doing this we can avoid traversing the whole string.
     xs = padRightCut pChar l str
+
+
+dzenPutLn :: Handle -> String -> IO ()
+dzenPutLn h xs = hPut h raw
+  where
+    {-
+      note that dzen uses utf-8 encoding, which is the first thing we need to do
+      when converting to dzen-input
+     -}
+    raw = encodeUtf8 (pack xs)

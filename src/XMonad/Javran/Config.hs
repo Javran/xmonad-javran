@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
-{-# LANGUAGE PartialTypeSignatures, OverloadedStrings #-}
+{-# LANGUAGE PartialTypeSignatures, OverloadedStrings, RecordWildCards #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -9,9 +9,11 @@ module XMonad.Javran.Config
 
 -- TODO: xmonad restarter
 
-import Data.Maybe (isJust, fromMaybe)
 import Data.Ratio ((%))
-import Data.ByteString (hPut)
+import Data.Monoid
+import Data.List
+import System.IO
+
 import XMonad
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.Grid (Grid(..))
@@ -19,33 +21,17 @@ import XMonad.Layout.IM (withIM, Property(..))
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.NoBorders
 import XMonad.Hooks.ManageDocks
-import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run
 import Data.Time.Clock
 import System.FilePath.Posix
-import Data.Colour.Names
-import Data.Colour.SRGB
 import XMonad.Hooks.ManageHelpers
-
-import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
-import Data.Monoid
-import qualified Data.Map.Strict as M
-
-import Data.List
-
-import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
-
-import qualified System.Dzen as DZ
-
-import System.IO
+import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 
 import qualified XMonad.Javran.Config.Keys as ConfKeys
 import XMonad.Javran.Config.Workspace
 import XMonad.Javran.Config.State
-import XMonad.Javran.Utils
-import qualified Data.Text as T
-import Data.Text.Encoding (encodeUtf8)
+import XMonad.Javran.Config.LogHook
 
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
@@ -144,7 +130,6 @@ myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
             -- Percent of screen to increment by when resizing panes
             delta   = 3/100
 
-
 -- TODO: fullscreen without frame?
 myConfig :: Handle -> XConfig _
 myConfig dzenHandle = myEwmh $ def
@@ -154,114 +139,24 @@ myConfig dzenHandle = myEwmh $ def
     , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
     , handleEventHook = fullscreenEventHook <+> docksEventHook
     , layoutHook = myLayoutHook
-    , logHook = myLogHook dzenHandle
+    , logHook = mkLogHook dzenHandle
     , focusedBorderColor = "cyan"
     , workspaces = workspaceIds
     , startupHook = myStartupHook
     }
 
 myEwmh :: XConfig a -> XConfig a
-myEwmh c = c { startupHook     = startupHook c     <> ewmhDesktopsStartup
-             , handleEventHook = handleEventHook c <> myEwmhDesktopsEventHook
-             , logHook         = logHook c         <> ewmhDesktopsLogHook
-             }
+myEwmh XConfig {..} = XConfig
+    { startupHook = startupHook <> ewmhDesktopsStartup
+    , handleEventHook = handleEventHook <> myEwmhDesktopsEventHook
+    , logHook = logHook <> ewmhDesktopsLogHook
+    , ..
+    }
 
 myStartupHook :: X ()
 myStartupHook = do
-    safeSpawn "/bin/bash" ["/home/javran/.xmonad/on-startup.sh"]
     StartupTime <$> liftIO getCurrentTime >>= XS.put
-
--- | make layout description shorter
-shortenLayoutDesc :: String -> String
-shortenLayoutDesc ld = case sLen `compare` 3 of
-    LT -> padRightCut ' ' 3 shortenDesc
-    EQ -> shortenDesc
-    GT -> take 3 shortenDesc
-  where
-    knownShortens :: M.Map String String
-    knownShortens = M.fromList
-        [ ( "Full" , " F " )
-        , ( "Tall" , " T " )
-        , ( "Mirror Tall" , "M T")
-        , ( "IM Grid" , "IMG" )
-        , ("IM Mirror Grid" , "IMR" )
-        ]
-
-    -- ld -> shortenDesc, if we happen to know how to shorten
-    -- it properly
-    shortenDesc = fromMaybe ld $ M.lookup ld knownShortens
-    sLen = length shortenDesc
-
-myLogHook :: Handle -> X ()
-myLogHook h = do
-    -- retrieve states that we might use
-    -- mutable   => state
-    -- immutable => xConf
-    state' <- get
-    xConf <- ask
-
-    let curWindowSet = windowset state'
-
-    windowTitle <- maybe
-        -- no focus
-        (pure "<Nothing>")
-        -- or try to figure out its title
-        (fmap (take 100 . show) . getName) . W.peek
-        $ curWindowSet
-
-    let layoutDesc =
-          description . W.layout . W.workspace . W.current $ curWindowSet
-        -- get all workspace instances from stack set
-        --   note that this might not be the order defined by config
-        allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
-        hasSomeWindows = isJust . W.stack
-        curWorkspaceTags = workspaces $ config xConf
-        
-        -- wwis : Workspaces that has some Window Inside
-        wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
-        curWorkspaceTag = W.currentTag curWindowSet
-        sep :: DZ.DString
-        sep = " | "
-        {-
-          representing a single workspace by one styled character
-          current rules are:
-          - a focus workspace gets a colored workspace tag
-          - a workspace that contains at least one window get a normal color tag
-          - otherwise "-"
-         -}
-        workspaceRep wTag w
-          | w == wTag     = DZ.fg cyan $ DZ.str w
-          | w `elem` wwis = DZ.str w
-          | otherwise     = "-"
-
-        workspaceInfo :: DZ.DString
-        workspaceInfo = foldMap
-          (workspaceRep curWorkspaceTag)
-          curWorkspaceTags
-        curWsName = DZ.str $ workspaceName curWorkspaceTag
-        curLayout = DZ.str $ shortenLayoutDesc layoutDesc
-        {-
-          NOTE: dzen seems to decode its input first before rendering,
-          so for any non-ASCII chars we need to do a encodeString,
-          surely the result will look funny but it works for dzen.
-         -}
-        winTitle = DZ.str windowTitle
-        dzOutData :: DZ.DString
-        dzOutData = mconcat . intersperse sep $
-            [ DZ.fg white workspaceInfo
-            , DZ.fg (sRGB24 0xFF 0x66 0x00) curWsName
-            , DZ.fg (sRGB24 0xFF 0x33 0x22) curLayout
-            , DZ.fg (sRGB24 0x33 0xFF 0xFF) winTitle
-            ]
-    {-
-      TODO: click to switch e.g. exec "xdotool key Hyper_L+5"
-      to create clickable area we'll need to patch dzen-utils though
-    -}
-    {-
-      <workspaceInfo> <curWsName> <curLayout> <winTitle>
-      all seperated by <sep>
-    -}
-    io $ hPut h (encodeUtf8 (T.pack ("^tw()" ++ (DZ.toString dzOutData ++ "\n"))))
+    safeSpawn "/bin/bash" ["/home/javran/.xmonad/on-startup.sh"]
 
 myEwmhDesktopsEventHook :: Event -> X All
 myEwmhDesktopsEventHook e@ClientMessageEvent
@@ -269,6 +164,7 @@ myEwmhDesktopsEventHook e@ClientMessageEvent
     a_aw <- getAtom "_NET_ACTIVE_WINDOW"
     curTime <- liftIO getCurrentTime
     StartupTime starupTime <- XS.get
+    -- prevernt ewmh for the first 5 sec window after startup.
     if mt == a_aw && curTime `diffUTCTime` starupTime <= 5.0
       then pure (All True)
       else ewmhDesktopsEventHook e
