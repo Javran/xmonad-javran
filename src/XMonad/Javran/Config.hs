@@ -208,20 +208,37 @@ myLogHook h = do
         (fmap (take 100 . show) . getName) . W.peek
         $ curWindowSet
 
-    let layoutDescription =
+    let layoutDesc =
           description . W.layout . W.workspace . W.current $ curWindowSet
+        -- get all workspace instances from stack set
+        --   note that this might not be the order defined by config
+        allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
+        hasSomeWindows = isJust . W.stack
         curWorkspaceTags = workspaces $ config xConf
+        
         -- wwis : Workspaces that has some Window Inside
         wwis = map W.tag $ filter hasSomeWindows $ allWorkspacesInst curWindowSet
         curWorkspaceTag = W.currentTag curWindowSet
         sep :: DZ.DString
         sep = " | "
+        {-
+          representing a single workspace by one styled character
+          current rules are:
+          - a focus workspace gets a colored workspace tag
+          - a workspace that contains at least one window get a normal color tag
+          - otherwise "-"
+         -}
+        workspaceRep wTag w
+          | w == wTag     = DZ.fg cyan $ DZ.str w
+          | w `elem` wwis = DZ.str w
+          | otherwise     = "-"
+
         workspaceInfo :: DZ.DString
         workspaceInfo = foldMap
-          (DZ.str . workspaceRepresent curWorkspaceTag wwis)
+          (workspaceRep curWorkspaceTag)
           curWorkspaceTags
         curWsName = DZ.str $ workspaceName curWorkspaceTag
-        curLayout = DZ.str $ shortenLayoutDesc layoutDescription
+        curLayout = DZ.str $ shortenLayoutDesc layoutDesc
         winTitle = DZ.str windowTitle
         dzOutData :: DZ.DString
         dzOutData = mconcat . intersperse sep $
@@ -239,16 +256,6 @@ myLogHook h = do
       all seperated by <sep>
     -}
     dzenOut ("^tw()" ++ DZ.toString dzOutData)
-  where
-    hasSomeWindows = isJust . W.stack
-    workspaceRepresent wTag wwis w
-        | w == wTag     =  w  -- current workspace: show its tag
-        | w `elem` wwis = "*" -- has some window inside
-        | otherwise     = "." -- normal
-
-    -- get all workspace instances from stack set
-    --   note that this might not be the order defined by config
-    allWorkspacesInst s = map W.workspace (W.current s : W.visible s) ++ W.hidden s
 
 myEwmhDesktopsEventHook :: Event -> X All
 myEwmhDesktopsEventHook e@ClientMessageEvent
