@@ -11,6 +11,7 @@ module XMonad.Javran.Config
 
 import Data.Maybe (isJust, fromMaybe)
 import Data.Ratio ((%))
+import Data.ByteString (hPut)
 import XMonad
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.Grid (Grid(..))
@@ -24,7 +25,6 @@ import Data.Time.Clock
 import System.FilePath.Posix
 import Data.Colour.Names
 import Data.Colour.SRGB
-import Codec.Binary.UTF8.String (encodeString)
 import XMonad.Hooks.ManageHelpers
 
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -44,6 +44,8 @@ import qualified XMonad.Javran.Config.Keys as ConfKeys
 import XMonad.Javran.Config.Workspace
 import XMonad.Javran.Config.State
 import XMonad.Javran.Utils
+import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
@@ -192,7 +194,6 @@ shortenLayoutDesc ld = case sLen `compare` 3 of
 
 myLogHook :: Handle -> X ()
 myLogHook h = do
-    let dzenOut = io . hPutStrLn h
     -- retrieve states that we might use
     -- mutable   => state
     -- immutable => xConf
@@ -244,7 +245,7 @@ myLogHook h = do
           so for any non-ASCII chars we need to do a encodeString,
           surely the result will look funny but it works for dzen.
          -}
-        winTitle = DZ.str (encodeString windowTitle)
+        winTitle = DZ.str windowTitle
         dzOutData :: DZ.DString
         dzOutData = mconcat . intersperse sep $
             [ DZ.fg white workspaceInfo
@@ -260,7 +261,7 @@ myLogHook h = do
       <workspaceInfo> <curWsName> <curLayout> <winTitle>
       all seperated by <sep>
     -}
-    dzenOut ("^tw()" ++ DZ.toString dzOutData)
+    io $ hPut h (encodeUtf8 (T.pack ("^tw()" ++ (DZ.toString dzOutData ++ "\n"))))
 
 myEwmhDesktopsEventHook :: Event -> X All
 myEwmhDesktopsEventHook e@ClientMessageEvent

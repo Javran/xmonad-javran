@@ -21,17 +21,18 @@ executable xmonad-javran
                      , XMonad.Javran.Config.Workspace
                      , XMonad.Javran.Utils
   build-depends:       base <5,
-                       utf8-string,
                        filepath,
                        xmonad,
                        xmonad-contrib,
                        json,
                        containers,
                        process,
+                       bytestring,
                        time,
                        xmonad-entryhelper,
                        colour,
-                       dzen-utils
+                       dzen-utils,
+                       text
   ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.Main
   default-language:    Haskell2010
 
