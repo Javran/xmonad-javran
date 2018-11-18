@@ -9,17 +9,12 @@ module XMonad.Javran.Config
 
 -- TODO: xmonad restarter
 
-import Data.Ratio ((%))
 import Data.Monoid
 import Data.List
 import System.IO
 
 import XMonad
 import XMonad.Layout.Fullscreen
-import XMonad.Layout.Grid (Grid(..))
-import XMonad.Layout.IM (withIM, Property(..))
-import XMonad.Layout.PerWorkspace (onWorkspace)
-import XMonad.Layout.NoBorders
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.Run
 import Data.Time.Clock
@@ -32,6 +27,7 @@ import qualified XMonad.Javran.Config.Keys as ConfKeys
 import XMonad.Javran.Config.Workspace
 import XMonad.Javran.Config.State
 import XMonad.Javran.Config.LogHook
+import qualified XMonad.Javran.Config.LayoutHook as LyH
 
 initScript             :: FilePath -> FilePath
 conkyConf              :: FilePath -> FilePath
@@ -112,24 +108,6 @@ myManageHook = composeAll
     isSplash :: Query Bool
     isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
 
--- TODO: close windows in a more decent way.
-myLayoutHook :: _
-myLayoutHook = smartBorders $ fullscreenFull $ avoidStruts mainLayout
-    where
-        imLayout = withIM (1%7) (Role "buddy_list") (Grid ||| Mirror Grid)
-        -- TODO: "3"
-        mainLayout = onWorkspace "3" imLayout defaultLayoutHook
-        defaultLayoutHook = tiled ||| Mirror tiled ||| noBorders Full
-          where
-            -- default tiling algorithm partitions the screen into two panes
-            tiled   = Tall nmaster delta ratio
-            -- The default number of windows in the master pane
-            nmaster = 1
-            -- Default proportion of screen occupied by master pane
-            ratio   = 1/2
-            -- Percent of screen to increment by when resizing panes
-            delta   = 3/100
-
 -- TODO: fullscreen without frame?
 myConfig :: Handle -> XConfig _
 myConfig dzenHandle = myEwmh $ def
@@ -138,7 +116,7 @@ myConfig dzenHandle = myEwmh $ def
     , keys = ConfKeys.keys
     , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
     , handleEventHook = fullscreenEventHook <+> docksEventHook
-    , layoutHook = myLayoutHook
+    , layoutHook = LyH.layoutHook
     , logHook = mkLogHook dzenHandle
     , focusedBorderColor = "cyan"
     , workspaces = workspaceIds

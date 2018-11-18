@@ -20,6 +20,7 @@ executable xmonad-javran
                      , XMonad.Javran.Config.Keys
                      , XMonad.Javran.Config.Workspace
                      , XMonad.Javran.Config.LogHook
+                     , XMonad.Javran.Config.LayoutHook
                      , XMonad.Javran.Utils
   build-depends:       base <5
                      , filepath
