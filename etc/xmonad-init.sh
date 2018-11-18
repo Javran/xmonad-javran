@@ -57,7 +57,7 @@ try_run_once ~/.xmonad/MailChecker
 #try_run_once ~/.dropbox-dist/dropboxd
 
 # startup trayer
-pkill -9 trayer
+pkill -9 trayer-srg
 
 try_run_once /usr/bin/trayer-srg \
 	--edge top \
