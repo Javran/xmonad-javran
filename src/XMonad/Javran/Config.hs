@@ -239,6 +239,11 @@ myLogHook h = do
           curWorkspaceTags
         curWsName = DZ.str $ workspaceName curWorkspaceTag
         curLayout = DZ.str $ shortenLayoutDesc layoutDesc
+        {-
+          NOTE: dzen seems to decode its input first before rendering,
+          so for any non-ASCII chars we need to do a encodeString,
+          surely the result will look funny but it works for dzen.
+         -}
         winTitle = DZ.str (encodeString windowTitle)
         dzOutData :: DZ.DString
         dzOutData = mconcat . intersperse sep $
