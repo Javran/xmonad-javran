@@ -1,12 +1,58 @@
 module XMonad.Javran.Main where
 
 import System.Process
-import XMonad
-import XMonad.Util.Run (spawnPipe)
 import System.Exit
+import System.FilePath.Posix
+
+import XMonad
+import qualified XMonad.Util.EntryHelper as EH
+import XMonad.Util.Run (spawnPipe)
+
 import XMonad.Javran.Config
 
-import qualified XMonad.Util.EntryHelper as EH
+conkyConf              :: FilePath -> FilePath
+pathStreamConvert      :: FilePath -> FilePath
+pathStreamConvertConf  :: FilePath -> FilePath
+pathStreamConvert      = (</> "StreamConverter")
+pathStreamConvertConf  = (</> "stream_convert.txt")
+conkyConf              = (</> "conky-json.lua")
+
+showI :: Int -> String
+showI = show
+
+dzenCommand :: String
+dzenCommand = unwords
+    [ "dzen2"
+    , "-x" , showI 0
+    , "-w" , showI 900
+    , "-ta", "l"
+    , "-h" , showI 24
+    , "-fg", "\"#22EE11\""
+    , "-bg", "\"#202020\""
+    , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
+    , "-e", "\"button2=;\""
+    --, "-l", "5"
+    ]
+
+conkyCommand :: FilePath -> String
+conkyCommand xmPath = unwords
+    [ "pkill -9 conky"
+    , ";"
+    , "conky"
+    , "-c", conkyConf xmPath
+    , "|"
+    , pathStreamConvert xmPath
+    , pathStreamConvertConf xmPath
+    , "|"
+    , "dzen2"
+    , "-w", showI 810
+    , "-x", showI 900
+    , "-h", showI 24
+    , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
+    , "-bg", "\"#505050\""
+    , "-e", "\"button2=;\""
+    -- , "-l", "4"
+    ]
 
 main :: IO ()
 main = EH.withCustomHelper mhConf

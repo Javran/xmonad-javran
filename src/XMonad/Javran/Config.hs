@@ -3,8 +3,6 @@
 module XMonad.Javran.Config
 ( myConfig
 , initScript
-, dzenCommand
-, conkyCommand
 ) where
 
 -- TODO: xmonad restarter
@@ -30,51 +28,7 @@ import XMonad.Javran.Config.LogHook
 import qualified XMonad.Javran.Config.LayoutHook as LyH
 
 initScript             :: FilePath -> FilePath
-conkyConf              :: FilePath -> FilePath
-pathStreamConvert      :: FilePath -> FilePath
-pathStreamConvertConf  :: FilePath -> FilePath
 initScript             = (</> "xmonad-init.sh")
-pathStreamConvert      = (</> "StreamConverter")
-pathStreamConvertConf  = (</> "stream_convert.txt")
-conkyConf              = (</> "conky-json.lua")
-
-showI :: Int -> String
-showI = show
-
-dzenCommand :: String
-dzenCommand = unwords
-    [ "dzen2"
-    , "-x" , showI 0
-    , "-w" , showI 900
-    , "-ta", "l"
-    , "-h" , showI 24
-    , "-fg", "\"#22EE11\""
-    , "-bg", "\"#202020\""
-    , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
-    , "-e", "\"button2=;\""
-    --, "-l", "5"
-    ]
-
-conkyCommand :: FilePath -> String
-conkyCommand xmPath = unwords
-    [ "pkill -9 conky"
-    , ";"
-    , "conky"
-    , "-c", conkyConf xmPath
-    , "|"
-    , pathStreamConvert xmPath
-    , pathStreamConvertConf xmPath
-    , "|"
-    , "dzen2"
-    , "-w", showI 810
-    , "-x", showI 900
-    , "-h", showI 24
-    , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
-    , "-bg", "\"#505050\""
-    , "-e", "\"button2=;\""
-    -- , "-l", "4"
-    ]
-
 -- command `xprop WM_CLASS` would give you a hint on `className` below
 myManageHook :: Query (Endo WindowSet)
 myManageHook = composeAll
