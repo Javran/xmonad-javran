@@ -24,7 +24,7 @@ import Data.Time.Clock
 import System.FilePath.Posix
 import Data.Colour.Names
 import Data.Colour.SRGB
-
+import Codec.Binary.UTF8.String (encodeString)
 import XMonad.Hooks.ManageHelpers
 
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
@@ -239,7 +239,7 @@ myLogHook h = do
           curWorkspaceTags
         curWsName = DZ.str $ workspaceName curWorkspaceTag
         curLayout = DZ.str $ shortenLayoutDesc layoutDesc
-        winTitle = DZ.str windowTitle
+        winTitle = DZ.str (encodeString windowTitle)
         dzOutData :: DZ.DString
         dzOutData = mconcat . intersperse sep $
             [ DZ.fg white workspaceInfo
