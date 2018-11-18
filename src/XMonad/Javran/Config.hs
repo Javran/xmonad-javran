@@ -217,8 +217,9 @@ myLogHook h = do
         sep :: DZ.DString
         sep = " | "
         workspaceInfo :: DZ.DString
-        workspaceInfo = DZ.str $
-          concatMap (workspaceRepresent curWorkspaceTag wwis) curWorkspaceTags
+        workspaceInfo = foldMap
+          (DZ.str . workspaceRepresent curWorkspaceTag wwis)
+          curWorkspaceTags
         curWsName = DZ.str $ workspaceName curWorkspaceTag
         curLayout = DZ.str $ shortenLayoutDesc layoutDescription
         winTitle = DZ.str windowTitle
