@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
-{-# LANGUAGE PartialTypeSignatures, OverloadedStrings, RecordWildCards #-}
+{-# LANGUAGE PartialTypeSignatures, OverloadedStrings #-}
 module XMonad.Javran.Config
 ( myConfig
 , initScript
@@ -110,25 +110,17 @@ myManageHook = composeAll
 
 -- TODO: fullscreen without frame?
 myConfig :: Handle -> XConfig _
-myConfig dzenHandle = myEwmh $ def
+myConfig dzenHandle = def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = ConfKeys.keys
-    , manageHook = fullscreenManageHook <+> manageDocks <+> myManageHook
-    , handleEventHook = fullscreenEventHook <+> docksEventHook
+    , manageHook = fullscreenManageHook <> manageDocks <> myManageHook
+    , handleEventHook = fullscreenEventHook <> docksEventHook <> myEwmhDesktopsEventHook
     , layoutHook = LyH.layoutHook
-    , logHook = mkLogHook dzenHandle
+    , logHook = mkLogHook dzenHandle <> ewmhDesktopsLogHook
     , focusedBorderColor = "cyan"
     , workspaces = workspaceIds
-    , startupHook = myStartupHook
-    }
-
-myEwmh :: XConfig a -> XConfig a
-myEwmh XConfig {..} = XConfig
-    { startupHook = startupHook <> ewmhDesktopsStartup
-    , handleEventHook = handleEventHook <> myEwmhDesktopsEventHook
-    , logHook = logHook <> ewmhDesktopsLogHook
-    , ..
+    , startupHook = myStartupHook <> ewmhDesktopsStartup
     }
 
 myStartupHook :: X ()
