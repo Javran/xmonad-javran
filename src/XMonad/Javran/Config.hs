@@ -2,7 +2,6 @@
 {-# LANGUAGE PartialTypeSignatures, OverloadedStrings #-}
 module XMonad.Javran.Config
 ( myConfig
-, initScript
 ) where
 
 -- TODO: xmonad restarter
@@ -15,7 +14,6 @@ import XMonad.Layout.Fullscreen
 import XMonad.Hooks.ManageDocks
 import XMonad.Util.Run
 import Data.Time.Clock
-import System.FilePath.Posix
 import qualified XMonad.Util.ExtensibleState as XS
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 
@@ -26,9 +24,6 @@ import XMonad.Javran.Config.LogHook
 import qualified XMonad.Javran.Config.Keys as ConfKeys
 import qualified XMonad.Javran.Config.LayoutHook as LyH
 import qualified XMonad.Javran.Config.ManageHook as MgmH
-
-initScript             :: FilePath -> FilePath
-initScript             = (</> "xmonad-init.sh")
 
 -- TODO: fullscreen without frame?
 myConfig :: Handle -> XConfig _

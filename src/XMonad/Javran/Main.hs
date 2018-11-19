@@ -13,9 +13,11 @@ import XMonad.Javran.Config
 conkyConf              :: FilePath -> FilePath
 pathStreamConvert      :: FilePath -> FilePath
 pathStreamConvertConf  :: FilePath -> FilePath
+initScript             :: FilePath -> FilePath
 pathStreamConvert      = (</> "StreamConverter")
 pathStreamConvertConf  = (</> "stream_convert.txt")
 conkyConf              = (</> "conky-json.lua")
+initScript             = (</> "xmonad-init.sh")
 
 showI :: Int -> String
 showI = show
