@@ -51,6 +51,18 @@ executable StreamConverter
   ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.StreamConverter
   default-language:    Haskell2010
 
+
+executable SystemInfoBar
+  hs-source-dirs:      src
+  main-is:             XMonad/Javran/SystemInfoBar.hs
+  build-depends:       base <5
+                     , json
+                     , containers
+                     , text
+                     , bytestring
+  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.SystemInfoBar
+  default-language:    Haskell2010
+
 executable MailChecker
   hs-source-dirs:      src
   main-is:             XMonad/Javran/MailChecker.hs
