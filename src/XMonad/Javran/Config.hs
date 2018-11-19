@@ -8,7 +8,6 @@ module XMonad.Javran.Config
 -- TODO: xmonad restarter
 
 import Data.Monoid
-import Data.List
 import System.IO
 
 import XMonad
@@ -17,50 +16,19 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Util.Run
 import Data.Time.Clock
 import System.FilePath.Posix
-import XMonad.Hooks.ManageHelpers
 import qualified XMonad.Util.ExtensibleState as XS
 import XMonad.Hooks.EwmhDesktops hiding (fullscreenEventHook)
 
-import qualified XMonad.Javran.Config.Keys as ConfKeys
 import XMonad.Javran.Config.Workspace
 import XMonad.Javran.Config.State
 import XMonad.Javran.Config.LogHook
+
+import qualified XMonad.Javran.Config.Keys as ConfKeys
 import qualified XMonad.Javran.Config.LayoutHook as LyH
+import qualified XMonad.Javran.Config.ManageHook as MgmH
 
 initScript             :: FilePath -> FilePath
 initScript             = (</> "xmonad-init.sh")
--- command `xprop WM_CLASS` would give you a hint on `className` below
-myManageHook :: Query (Endo WindowSet)
-myManageHook = composeAll
-    [ className =? "Gimp"     --> doFloat
-    -- TODO: "3"
-    , isSplash --> doFloat
-    , className =? "Pidgin"   --> doShift "3"
-    , className =? "net-minecraft-MinecraftLauncher" --> doFloat
-    , className =? "Gnuplot" --> doFloat
-    , className =? "FLTK" --> doFloat
-    , className =? "poi"   --> doFloat
-    , className =? "poi"   --> doShift "4"
-    -- not necessary
-    -- , className =? "jetbrains-android-studio" --> doFloat
-    , className =? "Xfce4-appfinder" --> doFloat
-    , className =? "Nm-connection-editor" --> doFloat
-    , fmap ("@dev" `isPrefixOf`) title --> doFloat
-    , ((&&) <$> fmap (== "Thunar") className
-            <*> fmap (== "File Operation Progress") title)
-       --> doFloat
-    , isJuliaImageView --> doFloat
-    , title =? "PLT Redex Reduction Graph" --> doFloat
-    , fmap ("Fcitx" `isPrefixOf`) title --> doFloat
-    , fmap ("Fcitx" `isPrefixOf`) className --> doFloat
-    , stringProperty "WM_WINDOW_ROLE" =? "GtkFileChooserDialog" --> doFloat
-    ]
-  where
-    isJuliaImageView :: Query Bool
-    isJuliaImageView = (== "ImageView") <$> title
-
-    isSplash :: Query Bool
-    isSplash = isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_SPLASH"
 
 -- TODO: fullscreen without frame?
 myConfig :: Handle -> XConfig _
@@ -68,7 +36,7 @@ myConfig dzenHandle = def
     { modMask = mod3Mask
     , terminal = "xfce4-terminal"
     , keys = ConfKeys.keys
-    , manageHook = fullscreenManageHook <> manageDocks <> myManageHook
+    , manageHook = fullscreenManageHook <> manageDocks <> MgmH.manageHook
     , handleEventHook = fullscreenEventHook <> docksEventHook <> myEwmhDesktopsEventHook
     , layoutHook = LyH.layoutHook
     , logHook = mkLogHook dzenHandle <> ewmhDesktopsLogHook
