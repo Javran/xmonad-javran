@@ -6,7 +6,7 @@ import Data.Function
 import Data.Char
 import Control.Monad
 import Text.ParserCombinators.ReadP
-import Data.Time.Clock (getCurrentTime, UTCTime)
+import Data.Time.Clock
 
 {-
   WIP.
@@ -69,7 +69,7 @@ parseRow raw = case readP_to_S parseLineP raw of
       pure CpuStatRow {..}
     parseLineP = (,) <$> ((,) <$> cpuDesc <*> dataPart) <*> munch (const True)
 
-getCpuStatRaw :: IO ([(String, CpuStatRow Int)], UTCTime)
+getCpuStatRaw :: IO ([CpuStatRow Int], UTCTime)
 getCpuStatRaw = do
   (cpuRawLines, t) <- withFile "/proc/stat" ReadMode $ \handle -> do
     -- get timestamp immediately after the proc stat file is opened,
@@ -83,7 +83,29 @@ getCpuStatRaw = do
     pure (xs, t)
   -- first "cpu ..." line is the total across all CPUs so we ignore it.
   -- assume no parsing error, but we'll like to have leftover input just in case.
-  pure (map (fst . parseRow) $ drop 1 cpuRawLines, t)
+  -- also, hopefully we always get lists of the same length, so we don't really
+  -- need to return cpu tags
+  pure (map (snd . fst . parseRow) $ drop 1 cpuRawLines, t)
+
+computeCpuUsage :: CpuStatRow Int -> CpuStatRow Int -> Double
+computeCpuUsage before after = fI (100 * activeTime) / fI total
+  where
+    fI = fromIntegral @Int @Double
+    diffOn prj = prj after - prj before
+    ioWaitCnt =
+      let diff = diffOn ioWait -- according to doc ioWait has a chance of *decreasing*
+      in if diff < 0 then 0 else diff
+    idleCnt = diffOn idle
+    total =
+        diffOn user
+      + diffOn nice
+      + diffOn system
+      + idleCnt
+      + ioWaitCnt
+      + diffOn irq
+      + diffOn softIrq
+      + diffOn steal
+    activeTime = total - idleCnt - ioWaitCnt
 
 main :: IO ()
 main = getCpuStatRaw >>= print
