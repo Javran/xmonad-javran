@@ -60,6 +60,7 @@ executable SystemInfoBar
                      , containers
                      , text
                      , bytestring
+                     , time
   ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.SystemInfoBar
   default-language:    Haskell2010
 

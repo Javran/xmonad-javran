@@ -6,6 +6,7 @@ import Data.Function
 import Data.Char
 import Control.Monad
 import Text.ParserCombinators.ReadP
+import Control.Concurrent
 import Data.Time.Clock
 
 {-
@@ -110,4 +111,13 @@ computeCpuUsage before after = fI (100 * activeTime) / fI total
     activeTime = total - idleCnt - ioWaitCnt
 
 main :: IO ()
-main = getCpuStatRaw >>= print
+main = do
+    (s, _) <- getCpuStatRaw
+    run s (0 :: Int)
+  where
+    run oldS cnt = do
+      threadDelay 1000000
+      (s, _) <- getCpuStatRaw
+      let res = zipWith computeCpuUsage oldS s
+      print res
+      when (cnt < 10) $ run s (cnt + 1)
