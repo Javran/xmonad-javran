@@ -6,6 +6,7 @@ import Data.Function
 import Data.Char
 import Control.Monad
 import Text.ParserCombinators.ReadP
+import Data.Time.Clock (getCurrentTime, UTCTime)
 
 {-
   WIP.
@@ -68,16 +69,21 @@ parseRow raw = case readP_to_S parseLineP raw of
       pure CpuStatRow {..}
     parseLineP = (,) <$> ((,) <$> cpuDesc <*> dataPart) <*> munch (const True)
 
-getCpuStatRaw :: IO [(String, CpuStatRow Int)]
+getCpuStatRaw :: IO ([(String, CpuStatRow Int)], UTCTime)
 getCpuStatRaw = do
-  cpuRawLines <- withFile "/proc/stat" ReadMode $ \handle -> fix $ \kont -> do
-    raw <- hGetLine handle
-    if take 3 raw == "cpu"
-      then (raw :) <$> kont
-      else pure []
+  (cpuRawLines, t) <- withFile "/proc/stat" ReadMode $ \handle -> do
+    -- get timestamp immediately after the proc stat file is opened,
+    -- by doing so we can make sure we have the accurate time
+    t <- getCurrentTime
+    xs <- fix $ \kont -> do
+        raw <- hGetLine handle
+        if take 3 raw == "cpu"
+          then (raw :) <$> kont
+          else pure []
+    pure (xs, t)
   -- first "cpu ..." line is the total across all CPUs so we ignore it.
   -- assume no parsing error, but we'll like to have leftover input just in case.
-  pure (map (fst . parseRow) $ drop 1 cpuRawLines)
+  pure (map (fst . parseRow) $ drop 1 cpuRawLines, t)
 
 main :: IO ()
 main = getCpuStatRaw >>= print
