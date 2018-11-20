@@ -87,6 +87,8 @@ getCpuStatRaw = do
   -- need to return cpu tags
   pure (map (snd . fst . parseRow) $ drop 1 cpuRawLines, t)
 
+-- reference from conky:
+-- https://github.com/brndnmtthws/conky/blob/f8ff46c2dca4d639c9287790c35999bbaae56010/src/linux.cc#L969-L975
 computeCpuUsage :: CpuStatRow Int -> CpuStatRow Int -> Double
 computeCpuUsage before after = fI (100 * activeTime) / fI total
   where
