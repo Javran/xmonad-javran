@@ -23,12 +23,22 @@ import Data.Time.Clock
 
   system info we are looking at:
 
-  - [ ] CPU usage for each individual ones
+  - [x] CPU usage for each individual ones
 
     + http://e2e.ti.com/support/legacy_forums/embedded/linux/f/354/t/221192
 
   - [ ] CPU freq
+
+    + TODO: now that every CPU can have an dividual freq, how does conky handle that
+      and what should we do with that?
+
   - [ ] memory usage
+
+    + /proc/meminfo: seems to be just (MemTotal - MemAvailable) / MemTotal
+    + MemFree is unused physical RAM, while MemAvailable is available memory
+      if we were to start a new app - which tends to be larger
+      I'm only interested in percentage of memory that are being actually used.
+
   - [ ] network Rx & Tx
   - [ ] mail checker
   - [ ] mpd state
