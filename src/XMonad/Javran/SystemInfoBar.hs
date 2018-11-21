@@ -113,11 +113,17 @@ computeCpuUsage before after = fI (100 * activeTime) / fI total
 main :: IO ()
 main = do
     (s, _) <- getCpuStatRaw
-    run s (0 :: Int)
+    run s
   where
-    run oldS cnt = do
+    pprChar :: Double -> String
+    pprChar x
+      | x >= 100 = "#"
+      | x <= 0   = "0"
+      | otherwise = take 1 $ show @Int (floor $ x/10)
+
+    run oldS = do
       threadDelay 1000000
       (s, _) <- getCpuStatRaw
       let res = zipWith computeCpuUsage oldS s
-      print res
-      when (cnt < 10) $ run s (cnt + 1)
+      putStrLn $ concatMap pprChar res
+      run s
