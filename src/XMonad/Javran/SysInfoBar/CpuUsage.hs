@@ -11,6 +11,7 @@ import Text.ParserCombinators.ReadP
 import Control.Concurrent
 import Data.Time.Clock
 import XMonad.Javran.SysInfoBar.Types
+import Data.Typeable
 
 {-
   WIP.
@@ -141,9 +142,8 @@ worker = do
       putStrLn $ concatMap pprChar res
       run s
 
-data CpuUsageWorker
+data CpuUsageWorker deriving Typeable
 
 instance Worker CpuUsageWorker where
   type WorkerState CpuUsageWorker = [Int]
-  wUniq _ = "CpuUsage"
   runWorker _ _ = worker
