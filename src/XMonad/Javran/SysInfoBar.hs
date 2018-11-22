@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveFunctor, TypeApplications, RecordWildCards #-}
-module XMonad.Javran.SystemInfoBar where
+module XMonad.Javran.SysInfoBar where
 
 import System.IO
 import Data.Function
