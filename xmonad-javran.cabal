@@ -55,13 +55,14 @@ executable StreamConverter
 executable SysInfoBar
   hs-source-dirs:      src
   main-is:             XMonad/Javran/SysInfoBar.hs
+  other-modules:       XMonad.Javran.SysInfoBar.CpuUsage
   build-depends:       base <5
                      , json
                      , containers
                      , text
                      , bytestring
                      , time
-  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.SystemInfoBar
+  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.SysInfoBar
   default-language:    Haskell2010
 
 executable MailChecker
