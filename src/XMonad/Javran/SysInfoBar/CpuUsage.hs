@@ -1,6 +1,6 @@
-{-# LANGUAGE DeriveFunctor, TypeApplications, RecordWildCards #-}
+{-# LANGUAGE DeriveFunctor, TypeApplications, RecordWildCards, TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.CpuUsage
-  ( worker
+  ( CpuUsageWorker
   ) where
 
 import System.IO
@@ -10,6 +10,7 @@ import Control.Monad
 import Text.ParserCombinators.ReadP
 import Control.Concurrent
 import Data.Time.Clock
+import XMonad.Javran.SysInfoBar.Types
 
 {-
   WIP.
@@ -139,3 +140,10 @@ worker = do
       let res = zipWith computeCpuUsage oldS s
       putStrLn $ concatMap pprChar res
       run s
+
+data CpuUsageWorker
+
+instance Worker CpuUsageWorker where
+  type WorkerState CpuUsageWorker = [Int]
+  wUniq _ = "CpuUsage"
+  runWorker _ _ = worker
