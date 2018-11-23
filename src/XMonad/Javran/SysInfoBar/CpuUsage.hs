@@ -12,6 +12,7 @@ import Control.Concurrent
 import Data.Time.Clock
 import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
+import qualified Data.Map.Strict as M
 
 {-
   WIP.
@@ -124,26 +125,29 @@ computeCpuUsage before after = fI (100 * activeTime) / fI total
       + diffOn steal
     activeTime = total - idleCnt - ioWaitCnt
 
-worker :: IO ()
-worker = do
+runWorkerWith :: MVar BarState -> IO ()
+runWorkerWith mv = do
     (s, _) <- getCpuStatRaw
     run s
   where
-    pprChar :: Double -> String
-    pprChar x
-      | x >= 100 = "#"
-      | x <= 0   = "0"
-      | otherwise = take 1 $ show @Int (floor $ x/10)
-
+    simpl :: Double -> Int
+    simpl x
+      | x >= 100 = 10
+      | x <= 0   = 0
+      | otherwise = floor (x/10)
     run oldS = do
       threadDelay 1000000
       (s, _) <- getCpuStatRaw
-      let res = zipWith computeCpuUsage oldS s
-      putStrLn $ concatMap pprChar res
+      let res = SomeWorkerState
+              $ CpuWorkerState
+              $ map simpl
+              $ zipWith computeCpuUsage oldS s
+          k = typeRep (Proxy :: Proxy CpuUsageWorker)
+      modifyMVar_ mv (pure . M.insert k res)
       run s
 
 data CpuUsageWorker deriving Typeable
 
 instance Worker CpuUsageWorker where
-  type WorkerState CpuUsageWorker = [Int]
-  runWorker _ _ = worker
+  data WorkerState CpuUsageWorker = CpuWorkerState [Int]
+  runWorker _ = runWorkerWith
