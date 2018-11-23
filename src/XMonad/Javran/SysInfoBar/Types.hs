@@ -18,5 +18,7 @@ type BarState = M.Map TypeRep SomeWorkerState
 class Typeable w => Worker w where
   data WorkerState w :: *
   runWorker :: forall p. p w -> MVar BarState -> IO ()
+  getWorkerState :: SomeWorkerState -> Maybe (WorkerState w)
+  getWorkerState (SomeWorkerState s) = cast s
 
 data SomeWorkerState = forall w. Worker w => SomeWorkerState (WorkerState w)
