@@ -57,6 +57,7 @@ executable SysInfoBar
   main-is:             XMonad/Javran/SysInfoBar.hs
   other-modules:       XMonad.Javran.SysInfoBar.Types
                      , XMonad.Javran.SysInfoBar.CpuUsage
+                     , XMonad.Javran.SysInfoBar.MemUsage
   build-depends:       base <5
                      , json
                      , containers
