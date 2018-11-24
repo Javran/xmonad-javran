@@ -16,6 +16,8 @@ type WorkerUniq = String
 type BarState = M.Map TypeRep SomeWorkerState
 
 class Typeable w => Worker w where
+  -- WState is the internal state shared in MVar
+  -- WStateRep contains all info necessary for rendering
   data WState w :: *
   type WStateRep w :: *
   runWorker :: forall p. p w -> MVar BarState -> IO ()
