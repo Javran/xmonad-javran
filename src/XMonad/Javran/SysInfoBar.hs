@@ -30,8 +30,8 @@ import qualified Data.Map.Strict as M
 
   - [ ] CPU freq
 
-    + TODO: now that every CPU can have an dividual freq, how does conky handle that
-      and what should we do with that?
+    + conky uses "freq_q" to show cpu freq in GHz, when number is omitted,
+      CPU #1 is shown. here we might prefer showing the maximum GHz across all available CPUs
 
   - [x] memory usage
 
