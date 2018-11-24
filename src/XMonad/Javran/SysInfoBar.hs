@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, ExistentialQuantification, FlexibleContexts #-}
 module XMonad.Javran.SysInfoBar where
 
 import XMonad.Javran.SysInfoBar.Types
@@ -53,31 +53,30 @@ import qualified Data.Map.Strict as M
     to render things in dzen-format
 
  -}
+data EWorker = forall w. (Worker w, Show (WStateRep w)) => EWorker (Proxy w)
+
+workers =
+  [ EWorker (Proxy :: Proxy CpuUsageWorker)
+  , EWorker (Proxy :: Proxy MemUsageWorker)
+  ]
 
 main :: IO ()
 main = do
     mSt <- newMVar def
-    _ <- forkIO $ runWorker (Proxy :: Proxy CpuUsageWorker) mSt
-    _ <- forkIO $ runWorker (Proxy :: Proxy MemUsageWorker) mSt
+    _ <- mapM (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
     fix $ \run -> do
       threadDelay 500000
       mv <- tryReadMVar mSt
-      putStrLn "CpuUsage:"
-      case mv of
-        Just m
-          | k <- typeRep (Proxy :: Proxy CpuUsageWorker)
-          , (Just s) <- M.lookup k m
-          , (Just (s' :: WState CpuUsageWorker)) <- getWorkerState s
-            ->
-            print (getStateRep s')
-        _ -> putStrLn "<empty>"
-      putStrLn "MemUsage:"
-      case mv of
-        Just m
-          | k <- typeRep (Proxy :: Proxy MemUsageWorker)
-          , (Just s) <- M.lookup k m
-          , (Just (s' :: WState MemUsageWorker)) <- getWorkerState s
-            ->
-            print (getStateRep s')
-        _ -> putStrLn "<empty>"
+      let viz :: forall w. (Worker w, Show (WStateRep w)) => Proxy w -> IO ()
+          viz wt = do
+              putStrLn $ show (typeRep wt) ++ ":"
+              case mv of
+                Just m
+                  | k <- typeRep wt
+                  , (Just s) <- M.lookup k m
+                  , (Just (s' :: WState w)) <- getWorkerState s
+                    ->
+                    print (getStateRep s')
+                _ -> putStrLn "<empty>"
+      mapM_ (\(EWorker wt) -> viz wt) workers
       run
