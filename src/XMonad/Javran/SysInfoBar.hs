@@ -20,8 +20,8 @@ main = do
         Just m
           | k <- typeRep (Proxy :: Proxy CpuUsageWorker)
           , (Just s) <- M.lookup k m
-          , (Just (s' :: WorkerState CpuUsageWorker)) <- getWorkerState s
+          , (Just (s' :: WState CpuUsageWorker)) <- getWorkerState s
             ->
-            print (toShowable s')
+            print (getStateRep s')
         _ -> putStrLn "<empty>"
       run

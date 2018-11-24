@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveFunctor, TypeApplications, RecordWildCards, TypeFamilies, ScopedTypeVariables #-}
 module XMonad.Javran.SysInfoBar.CpuUsage
   ( CpuUsageWorker
-  , toShowable
   ) where
 
 import System.IO
@@ -147,11 +146,10 @@ runWorkerWith mv = do
       modifyMVar_ mv (pure . M.insert k res)
       run s
 
-toShowable :: WorkerState CpuUsageWorker -> [Int]
-toShowable (CpuWorkerState xs) = xs
-
 data CpuUsageWorker deriving Typeable
 
 instance Worker CpuUsageWorker where
-  data WorkerState CpuUsageWorker = CpuWorkerState [Int]
+  data WState CpuUsageWorker = CpuWorkerState [Int]
+  type WStateRep CpuUsageWorker = [Int]
   runWorker _ = runWorkerWith
+  getStateRep (CpuWorkerState xs) = xs

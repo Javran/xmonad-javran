@@ -16,9 +16,11 @@ type WorkerUniq = String
 type BarState = M.Map TypeRep SomeWorkerState
 
 class Typeable w => Worker w where
-  data WorkerState w :: *
+  data WState w :: *
+  type WStateRep w :: *
   runWorker :: forall p. p w -> MVar BarState -> IO ()
-  getWorkerState :: SomeWorkerState -> Maybe (WorkerState w)
+  getWorkerState :: SomeWorkerState -> Maybe (WState w)
   getWorkerState (SomeWorkerState s) = cast s
+  getStateRep :: WState w -> WStateRep w
 
-data SomeWorkerState = forall w. Worker w => SomeWorkerState (WorkerState w)
+data SomeWorkerState = forall w. Worker w => SomeWorkerState (WState w)
