@@ -39,7 +39,7 @@ getMemInfoRaw = do
     parseRawField :: String -> ReadP Int
     parseRawField fieldName =
       string fieldName >> char ':' >> skipSpaces >>
-      (read <$> munch1 isDigit) <* string "kB"
+      (read <$> munch1 isDigit) <* string " kB"
 
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = fix $ \run -> do

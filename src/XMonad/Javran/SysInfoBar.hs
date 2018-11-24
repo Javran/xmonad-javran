@@ -1,8 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module XMonad.Javran.SysInfoBar where
 
-import XMonad.Javran.SysInfoBar.CpuUsage
 import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.CpuUsage
+import XMonad.Javran.SysInfoBar.MemUsage
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -32,7 +33,7 @@ import qualified Data.Map.Strict as M
     + TODO: now that every CPU can have an dividual freq, how does conky handle that
       and what should we do with that?
 
-  - [ ] memory usage
+  - [x] memory usage
 
     + /proc/meminfo: seems to be just (MemTotal - MemAvailable) / MemTotal
     + MemFree is unused physical RAM, while MemAvailable is available memory
@@ -57,14 +58,25 @@ main :: IO ()
 main = do
     mSt <- newMVar def
     _ <- forkIO $ runWorker (Proxy :: Proxy CpuUsageWorker) mSt
+    _ <- forkIO $ runWorker (Proxy :: Proxy MemUsageWorker) mSt
     fix $ \run -> do
       threadDelay 500000
       mv <- tryReadMVar mSt
+      putStrLn "CpuUsage:"
       case mv of
         Just m
           | k <- typeRep (Proxy :: Proxy CpuUsageWorker)
           , (Just s) <- M.lookup k m
           , (Just (s' :: WState CpuUsageWorker)) <- getWorkerState s
+            ->
+            print (getStateRep s')
+        _ -> putStrLn "<empty>"
+      putStrLn "MemUsage:"
+      case mv of
+        Just m
+          | k <- typeRep (Proxy :: Proxy MemUsageWorker)
+          , (Just s) <- M.lookup k m
+          , (Just (s' :: WState MemUsageWorker)) <- getWorkerState s
             ->
             print (getStateRep s')
         _ -> putStrLn "<empty>"
