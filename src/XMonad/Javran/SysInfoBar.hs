@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, ExistentialQuantification, FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables, ExistentialQuantification, FlexibleContexts, ConstraintKinds #-}
 module XMonad.Javran.SysInfoBar where
 
 import XMonad.Javran.SysInfoBar.Types
@@ -53,8 +53,11 @@ import qualified Data.Map.Strict as M
     to render things in dzen-format
 
  -}
-data EWorker = forall w. (Worker w, Show (WStateRep w)) => EWorker (Proxy w)
+data EWorker = forall w. PrintableWorker w => EWorker (Proxy w)
 
+type PrintableWorker w = (Worker w, Show (WStateRep w))
+
+workers :: [EWorker]
 workers =
   [ EWorker (Proxy :: Proxy CpuUsageWorker)
   , EWorker (Proxy :: Proxy MemUsageWorker)
@@ -63,11 +66,11 @@ workers =
 main :: IO ()
 main = do
     mSt <- newMVar def
-    _ <- mapM (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
+    mapM_ (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
     fix $ \run -> do
       threadDelay 500000
       mv <- tryReadMVar mSt
-      let viz :: forall w. (Worker w, Show (WStateRep w)) => Proxy w -> IO ()
+      let viz :: forall w. PrintableWorker w => Proxy w -> IO ()
           viz wt = do
               putStrLn $ show (typeRep wt) ++ ":"
               case mv of

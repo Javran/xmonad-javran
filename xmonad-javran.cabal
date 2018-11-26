@@ -65,7 +65,8 @@ executable SysInfoBar
                      , bytestring
                      , time
                      , data-default
-  ghc-options:         -Wall -O2 -threaded -main-is XMonad.Javran.SysInfoBar
+                     , lens
+  ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N -main-is XMonad.Javran.SysInfoBar
   default-language:    Haskell2010
 
 executable MailChecker
