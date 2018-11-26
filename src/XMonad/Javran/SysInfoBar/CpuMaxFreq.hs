@@ -25,5 +25,5 @@ getCpuFreqs = mapMaybe parseLine . lines <$> readFile "/proc/cpuinfo"
       -- read should be safe because ReadP is a MonadFail
       (read <$> munch1 (not . isSpace)) <* skipSpaces <* eof
 
-getCpuMaxFreq :: IO (Maybe (Max Double))
-getCpuMaxFreq = ((Just . sconcat . fmap Max) <=< NE.nonEmpty) <$> getCpuFreqs
+getCpuMaxFreq :: IO (Maybe Double)
+getCpuMaxFreq = fmap maximum . NE.nonEmpty <$> getCpuFreqs
