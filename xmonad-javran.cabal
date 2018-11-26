@@ -58,6 +58,7 @@ executable SysInfoBar
   other-modules:       XMonad.Javran.SysInfoBar.Types
                      , XMonad.Javran.SysInfoBar.CpuUsage
                      , XMonad.Javran.SysInfoBar.MemUsage
+                     , XMonad.Javran.SysInfoBar.CpuMaxFreq
   build-depends:       base <5
                      , json
                      , containers

@@ -4,6 +4,7 @@ module XMonad.Javran.SysInfoBar where
 import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.SysInfoBar.CpuUsage
 import XMonad.Javran.SysInfoBar.MemUsage
+import XMonad.Javran.SysInfoBar.CpuMaxFreq
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -28,10 +29,10 @@ import qualified Data.Map.Strict as M
 
     + http://e2e.ti.com/support/legacy_forums/embedded/linux/f/354/t/221192
 
-  - [ ] CPU freq
+  - [x] CPU freq
 
     + conky uses "freq_q" to show cpu freq in GHz, when number is omitted,
-      CPU #1 is shown. here we might prefer showing the maximum GHz across all available CPUs
+      CPU #1 is shown. here we prefer showing the maximum GHz across all available CPUs
 
   - [x] memory usage
 
@@ -61,6 +62,7 @@ workers :: [EWorker]
 workers =
   [ EWorker (Proxy :: Proxy CpuUsageWorker)
   , EWorker (Proxy :: Proxy MemUsageWorker)
+  , EWorker (Proxy :: Proxy CpuMaxFreqWorker)
   ]
 
 main :: IO ()
