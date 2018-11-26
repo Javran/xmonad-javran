@@ -6,6 +6,8 @@ import Data.Maybe
 import Data.Char
 import Text.ParserCombinators.ReadP
 import Data.Semigroup
+import Control.Monad
+import qualified Data.List.NonEmpty as NE
 
 import Control.Lens
 
@@ -23,6 +25,5 @@ getCpuFreqs = mapMaybe parseLine . lines <$> readFile "/proc/cpuinfo"
       -- read should be safe because ReadP is a MonadFail
       (read <$> munch1 (not . isSpace)) <* skipSpaces <* eof
 
-getCpuMaxFreq :: IO (Maybe Double)
-getCpuMaxFreq =
-  au (iso (fmap getMax) (Just . Max)) foldMap <$> getCpuFreqs
+getCpuMaxFreq :: IO (Maybe (Max Double))
+getCpuMaxFreq = ((Just . sconcat . fmap Max) <=< NE.nonEmpty) <$> getCpuFreqs
