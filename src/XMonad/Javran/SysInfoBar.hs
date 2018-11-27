@@ -46,8 +46,7 @@ import qualified Data.Map.Strict as M
   - [ ] mpd state
   - [ ] whether battery is charging
   - [ ] battery remaining
-  - [ ] date
-  - [ ] time
+  - [ ] date & time
 
   + stage 1 is to grab these info in a constant interval (say 1 sec)
   + stage 2 is to have a process working on this, and impl another component

@@ -48,8 +48,8 @@ runWorkerWith mv = fix $ \run -> do
       denom = mTotal
       k = typeRep (Proxy :: Proxy MemUsageWorker)
       res = SomeWorkerState (MemWState (numer, denom))
-  modifyMVar_ mv (pure . M.insert k res)  
-  threadDelay 1000000      
+  modifyMVar_ mv (pure . M.insert k res)
+  threadDelay 1000000
   run
 
 data MemUsageWorker deriving Typeable
