@@ -5,6 +5,7 @@ import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.SysInfoBar.CpuUsage
 import XMonad.Javran.SysInfoBar.MemUsage
 import XMonad.Javran.SysInfoBar.CpuMaxFreq
+import XMonad.Javran.SysInfoBar.DateTime
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -46,7 +47,7 @@ import qualified Data.Map.Strict as M
   - [ ] mpd state
   - [ ] whether battery is charging
   - [ ] battery remaining
-  - [ ] date & time
+  - [x] date & time
 
   + stage 1 is to grab these info in a constant interval (say 1 sec)
   + stage 2 is to have a process working on this, and impl another component
@@ -62,6 +63,7 @@ workers =
   [ EWorker (Proxy :: Proxy CpuUsageWorker)
   , EWorker (Proxy :: Proxy MemUsageWorker)
   , EWorker (Proxy :: Proxy CpuMaxFreqWorker)
+  , EWorker (Proxy :: Proxy DateTimeWorker)
   ]
 
 main :: IO ()

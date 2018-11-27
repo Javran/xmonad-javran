@@ -8,14 +8,13 @@ import Data.Typeable
 import Control.Concurrent
 import Data.Function
 import qualified Data.Map.Strict as M
-import Data.Time.Clock.POSIX
-import Data.Time.Format
+import Data.Time
 
 type DateTimeResult = (String, String)
 
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = fix $ \run -> do
-  t <- getCurrentTime
+  t <- getZonedTime
   let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
       timeStr = formatTime defaultTimeLocale "%T" t
       k = typeRep (Proxy :: Proxy DateTimeWorker)
