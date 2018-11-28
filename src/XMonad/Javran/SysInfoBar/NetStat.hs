@@ -3,18 +3,13 @@ module XMonad.Javran.SysInfoBar.NetStat
   ( NetStatWorker
   ) where
 
-import System.IO
-import Data.Function
 import Data.Char
-import Control.Monad
 import Text.ParserCombinators.ReadP
 import Control.Concurrent
-import Data.Time.Clock
 import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
 import qualified Data.Map.Strict as M
 import Data.Monoid
-import Control.Lens
 import Data.Coerce
 
 {-
@@ -36,12 +31,16 @@ parseNetStat =
     parseRawLine :: String -> (Sum Int, Sum Int)
     parseRawLine raw = case readP_to_S parse raw of
         [(r, [])] -> coerce r
-        _ -> mempty
+        _ -> (0, 0)
     parse :: ReadP (Int, Int)
-    parse =
-        skipSpaces *>
-        munch1 (/= ':') *> skipSpaces *>
-        ((munch1 isDigit `sepBy1` skipSpaces) >>= getInfo) <* skipSpaces <* eof
+    parse = do
+        skipSpaces
+        ifn <- munch1 (/= ':')
+        case ifn of
+          "lo" -> pure (0,0)
+          _ ->
+            char ':' *> skipSpaces *>
+            ((munch1 isDigit `sepBy1` skipSpaces) >>= getInfo) <* skipSpaces
     getInfo :: [String] -> ReadP (Int, Int)
     getInfo [ rBytes, _rPackets, _rErrs, _rDrop, _rFifo, _rFrame, _rCompressed, _rMulticase
             , tBytes, _tPackets, _tErrs, _tDrop, _tFifo, _tColls, _tCarrier, _tCompressed
@@ -51,13 +50,13 @@ parseNetStat =
 getRxTxInfo :: IO NetInfo
 getRxTxInfo = parseNetStat <$> readFile "/proc/net/dev"
 
-
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = getRxTxInfo >>= run
   where
     run (oldRx, oldTx) = do
       threadDelay 1000000
       p@(rx, tx) <- getRxTxInfo
+      putStrLn $ "=====" ++ show p
       let res = SomeWorkerState $ St (rx - oldRx, tx - oldTx)
           k = typeRep (Proxy :: Proxy NetStatWorker)
       modifyMVar_ mv (pure . M.insert k res)
