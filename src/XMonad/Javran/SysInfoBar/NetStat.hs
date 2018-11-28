@@ -31,20 +31,20 @@ parseNetStat =
     parseRawLine :: String -> (Sum Int, Sum Int)
     parseRawLine raw = case readP_to_S parse raw of
         [(r, [])] -> coerce r
-        _ -> (0, 0)
-    parse :: ReadP (Int, Int)
+        _ -> mempty
+    parse :: ReadP (Sum Int, Sum Int)
     parse = do
         skipSpaces
         ifn <- munch1 (/= ':')
         case ifn of
-          "lo" -> pure (0,0)
+          -- ignore loopback interface
+          "lo" -> pure mempty
           _ ->
             char ':' *> skipSpaces *>
             ((munch1 isDigit `sepBy1` skipSpaces) >>= getInfo) <* skipSpaces
-    getInfo :: [String] -> ReadP (Int, Int)
     getInfo [ rBytes, _rPackets, _rErrs, _rDrop, _rFifo, _rFrame, _rCompressed, _rMulticase
             , tBytes, _tPackets, _tErrs, _tDrop, _tFifo, _tColls, _tCarrier, _tCompressed
-            ] = pure (read rBytes, read tBytes)
+            ] = pure (Sum $ read rBytes, Sum $ read tBytes)
     getInfo _ = fail "parse error"
 
 getRxTxInfo :: IO NetInfo
@@ -56,7 +56,6 @@ runWorkerWith mv = getRxTxInfo >>= run
     run (oldRx, oldTx) = do
       threadDelay 1000000
       p@(rx, tx) <- getRxTxInfo
-      putStrLn $ "=====" ++ show p
       let res = SomeWorkerState $ St (rx - oldRx, tx - oldTx)
           k = typeRep (Proxy :: Proxy NetStatWorker)
       modifyMVar_ mv (pure . M.insert k res)
