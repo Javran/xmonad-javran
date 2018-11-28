@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.NetStat
   ( NetStatWorker
   ) where
@@ -51,4 +51,22 @@ parseNetStat =
 getRxTxInfo :: IO NetInfo
 getRxTxInfo = parseNetStat <$> readFile "/proc/net/dev"
 
+
+runWorkerWith :: MVar BarState -> IO ()
+runWorkerWith mv = getRxTxInfo >>= run
+  where
+    run (oldRx, oldTx) = do
+      threadDelay 1000000
+      p@(rx, tx) <- getRxTxInfo
+      let res = SomeWorkerState $ St (rx - oldRx, tx - oldTx)
+          k = typeRep (Proxy :: Proxy NetStatWorker)
+      modifyMVar_ mv (pure . M.insert k res)
+      run p
+
 data NetStatWorker
+
+instance Worker NetStatWorker where
+  data WState NetStatWorker = St NetInfo
+  type WStateRep NetStatWorker = NetInfo
+  runWorker _ = runWorkerWith
+  getStateRep (St s) = s
