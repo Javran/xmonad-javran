@@ -43,7 +43,7 @@ import qualified Data.Map.Strict as M
       if we were to start a new app - which tends to be larger
       I'm only interested in percentage of memory that are being actually used.
 
-  - [ ] network Rx & Tx
+  - [x] network Rx & Tx
   - [ ] mail checker
   - [ ] mpd state
   - [ ] whether battery is charging
