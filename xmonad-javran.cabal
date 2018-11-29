@@ -61,6 +61,7 @@ executable SysInfoBar
                      , XMonad.Javran.SysInfoBar.CpuMaxFreq
                      , XMonad.Javran.SysInfoBar.DateTime
                      , XMonad.Javran.SysInfoBar.NetStat
+                     , XMonad.Javran.SysInfoBar.Mpd
   build-depends:       base <5
                      , json
                      , containers

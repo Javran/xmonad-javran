@@ -7,6 +7,7 @@ import XMonad.Javran.SysInfoBar.MemUsage
 import XMonad.Javran.SysInfoBar.CpuMaxFreq
 import XMonad.Javran.SysInfoBar.DateTime
 import XMonad.Javran.SysInfoBar.NetStat
+import XMonad.Javran.SysInfoBar.Mpd
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -66,6 +67,7 @@ workers =
   , EWorker (Proxy :: Proxy CpuMaxFreqWorker)
   , EWorker (Proxy :: Proxy NetStatWorker)
   , EWorker (Proxy :: Proxy DateTimeWorker)
+  , EWorker (Proxy :: Proxy MpdWorker)
   ]
 
 main :: IO ()
