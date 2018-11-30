@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, LambdaCase #-}
 module XMonad.Javran.SysInfoBar.Battery
   (
   ) where
@@ -33,22 +33,22 @@ getBatteryPath = catch tryGet (handleExc Nothing)
   where
     handleExc :: a -> IOException -> IO a
     handleExc x _ =  pure x
+
+    testProperBatDir :: FilePath -> IO (Maybe FilePath)
+    testProperBatDir sub = catch doTest (handleExc Nothing)
+      where
+        doTest = do
+          guard (take 3 sub == "BAT")
+          let path = sysPowerSupply ++ sub
+          "Battery\n" <- readFile (path ++ "/type")
+          pure (Just path)    
     tryGet :: IO (Maybe FilePath)
     tryGet = do
-      let testProperBatDir :: FilePath -> IO (Maybe FilePath)
-          testProperBatDir sub = catch doTest (handleExc Nothing)
-            where
-              doTest = do
-                guard (take 3 sub == "BAT")
-                let path = sysPowerSupply ++ sub
-                ["Battery"] <- lines <$> readFile (path ++ "/type")
-                pure (Just path)
       ps <- listDirectory sysPowerSupply
-      fix (\run curPs -> case curPs of
-        [] -> pure Nothing
-        (p:remainPs) -> do
-          r <- testProperBatDir p
-          case r of
-            Just _ -> pure r
-            Nothing -> run remainPs
+      fix (\run -> \case
+          [] -> pure Nothing
+          p:remainingPs -> testProperBatDir p >>= \r ->
+              case r of
+                Just _ -> pure r
+                Nothing -> run remainingPs
           ) ps
