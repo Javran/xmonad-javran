@@ -62,6 +62,7 @@ executable SysInfoBar
                      , XMonad.Javran.SysInfoBar.DateTime
                      , XMonad.Javran.SysInfoBar.NetStat
                      , XMonad.Javran.SysInfoBar.Mpd
+                     , XMonad.Javran.SysInfoBar.Battery
   build-depends:       base <5
                      , json
                      , containers

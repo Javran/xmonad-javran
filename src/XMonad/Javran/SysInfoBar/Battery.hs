@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.Battery
-  (
+  ( BatteryWorker
   ) where
 
 {-
@@ -71,7 +71,7 @@ runWorkerWith mv = do
             getBatStat = do
               c <- read . head . lines <$> readFile (batPath ++ "/capacity")
               rawS <- readFile (batPath ++ "/status")
-              pure (Just (c, rawS /= "Discharging" && rawS /= "Not charging"))
+              pure (Just (c, rawS /= "Discharging\n" && rawS /= "Not charging\n"))
         r <- catch getBatStat (handleExc Nothing)
         case r of
           Nothing -> pure ()

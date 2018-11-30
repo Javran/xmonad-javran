@@ -8,6 +8,7 @@ import XMonad.Javran.SysInfoBar.CpuMaxFreq
 import XMonad.Javran.SysInfoBar.DateTime
 import XMonad.Javran.SysInfoBar.NetStat
 import XMonad.Javran.SysInfoBar.Mpd
+import XMonad.Javran.SysInfoBar.Battery
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -47,8 +48,7 @@ import qualified Data.Map.Strict as M
   - [x] network Rx & Tx
   - [ ] mail checker
   - [x] mpd state
-  - [ ] whether battery is charging & battery remaining
-
+  - [x] whether battery is charging & battery remaining
   - [x] date & time
 
   + stage 1 is to grab these info in a constant interval (say 1 sec)
@@ -68,6 +68,7 @@ workers =
   , EWorker (Proxy :: Proxy NetStatWorker)
   , EWorker (Proxy :: Proxy DateTimeWorker)
   , EWorker (Proxy :: Proxy MpdWorker)
+  , EWorker (Proxy :: Proxy BatteryWorker)
   ]
 
 main :: IO ()
