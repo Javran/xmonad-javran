@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, LambdaCase #-}
+{-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.Battery
   (
   ) where
@@ -22,17 +22,24 @@ import Control.Exception
 import Control.Monad
 import Data.Function
 import System.Directory
+import XMonad.Javran.SysInfoBar.Types
+import Data.Typeable
+import Control.Concurrent
+import qualified Data.Map.Strict as M
+
+type BatState = (Int, Bool) -- (<capacity>, <isCharging?>)
 
 data BatteryWorker
 
 sysPowerSupply :: FilePath
 sysPowerSupply = "/sys/class/power_supply/"
 
+handleExc :: a -> IOException -> IO a
+handleExc x _ =  pure x
+
 getBatteryPath :: IO (Maybe FilePath)
 getBatteryPath = catch tryGet (handleExc Nothing)
   where
-    handleExc :: a -> IOException -> IO a
-    handleExc x _ =  pure x
 
     testProperBatDir :: FilePath -> IO (Maybe FilePath)
     testProperBatDir sub = catch doTest (handleExc Nothing)
@@ -41,7 +48,7 @@ getBatteryPath = catch tryGet (handleExc Nothing)
           guard (take 3 sub == "BAT")
           let path = sysPowerSupply ++ sub
           "Battery\n" <- readFile (path ++ "/type")
-          pure (Just path)    
+          pure (Just path)
     tryGet :: IO (Maybe FilePath)
     tryGet = do
       ps <- listDirectory sysPowerSupply
@@ -52,3 +59,31 @@ getBatteryPath = catch tryGet (handleExc Nothing)
                 Just _ -> pure r
                 Nothing -> run remainingPs
           ) ps
+
+runWorkerWith :: MVar BarState -> IO ()
+runWorkerWith mv = do
+    -- determine battery path on startup and then lock on it.
+    mBatPath <- getBatteryPath
+    case mBatPath of
+      Nothing -> pure ()
+      Just batPath -> fix $ \run -> do
+        let getBatStat :: IO (Maybe BatState)
+            getBatStat = do
+              c <- read . head . lines <$> readFile (batPath ++ "/capacity")
+              rawS <- readFile (batPath ++ "/status")
+              pure (Just (c, rawS /= "Discharging" && rawS /= "Not charging"))
+        r <- catch getBatStat (handleExc Nothing)
+        case r of
+          Nothing -> pure ()
+          Just p ->
+            let k = typeRep (Proxy :: Proxy BatteryWorker)
+                res = SomeWorkerState (St p)
+            in modifyMVar_ mv (pure . M.insert k res)
+        threadDelay 1000000
+        run
+
+instance Worker BatteryWorker where
+  data WState BatteryWorker = St BatState
+  type WStateRep BatteryWorker = BatState
+  runWorker _ = runWorkerWith
+  getStateRep (St x) = x
