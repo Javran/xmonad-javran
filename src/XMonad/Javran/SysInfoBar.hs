@@ -49,14 +49,6 @@ import qualified Data.Map.Strict as M
   - [x] mpd state
   - [ ] whether battery is charging & battery remaining
 
-    ref: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-power
-    - it seems reasonable to assume that we'll have at most one battery.
-    - /sys/class/power_supply/<XXX>/type must be "Battery", and "BAT" is a prefix
-    - /sys/class/power_supply/<XXX>/capacity: 0 ~ 100 (int)
-    - /sys/class/power_supply/<XXX>/status: we just want to know whether it's charging:
-      "Discharging" or "Not charging" will be negative indicators
-      (Note: for some reason my laptop shows "Unknown" when power is plugged in.)
-
   - [x] date & time
 
   + stage 1 is to grab these info in a constant interval (say 1 sec)

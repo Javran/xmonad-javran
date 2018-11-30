@@ -9,4 +9,4 @@ extra-deps:
 - xmonad-0.15
 - git: https://github.com/Javran/dzen-utils.git
   commit: 804c289f439c7b155732b7bb1be5e9aaf00b6f6c
-resolver: lts-12.18
+resolver: lts-12.20
