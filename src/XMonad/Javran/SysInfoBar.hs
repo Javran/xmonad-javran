@@ -9,6 +9,7 @@ import XMonad.Javran.SysInfoBar.DateTime
 import XMonad.Javran.SysInfoBar.NetStat
 import XMonad.Javran.SysInfoBar.Mpd
 import XMonad.Javran.SysInfoBar.Battery
+import XMonad.Javran.SysInfoBar.Mail
 import Data.Default
 import Data.Function
 import Data.Typeable
@@ -25,8 +26,6 @@ import qualified Data.Map.Strict as M
 -}
 
 {-
-  TODO
-
   system info we are looking at:
 
   - [x] CPU usage for each individual ones
@@ -46,15 +45,10 @@ import qualified Data.Map.Strict as M
       I'm only interested in percentage of memory that are being actually used.
 
   - [x] network Rx & Tx
-  - [ ] mail checker
+  - [x] mail checker
   - [x] mpd state
   - [x] whether battery is charging & battery remaining
   - [x] date & time
-
-  + stage 1 is to grab these info in a constant interval (say 1 sec)
-  + stage 2 is to have a process working on this, and impl another component
-    to render things in dzen-format
-
  -}
 data EWorker = forall w. PrintableWorker w => EWorker (Proxy w)
 
@@ -69,6 +63,7 @@ workers =
   , EWorker (Proxy :: Proxy DateTimeWorker)
   , EWorker (Proxy :: Proxy MpdWorker)
   , EWorker (Proxy :: Proxy BatteryWorker)
+  , EWorker (Proxy :: Proxy MailWorker)
   ]
 
 main :: IO ()
