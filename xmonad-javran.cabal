@@ -63,6 +63,7 @@ executable SysInfoBar
                      , XMonad.Javran.SysInfoBar.NetStat
                      , XMonad.Javran.SysInfoBar.Mpd
                      , XMonad.Javran.SysInfoBar.Battery
+                     , XMonad.Javran.SysInfoBar.Mail
   build-depends:       base <5
                      , json
                      , containers
@@ -73,6 +74,9 @@ executable SysInfoBar
                      , lens
                      , libmpd
                      , directory
+                     , HaskellNet
+                     , HaskellNet-SSL
+
   ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N -main-is XMonad.Javran.SysInfoBar
   default-language:    Haskell2010
 
