@@ -40,7 +40,6 @@ handleExc x _ =  pure x
 getBatteryPath :: IO (Maybe FilePath)
 getBatteryPath = catch tryGet (handleExc Nothing)
   where
-
     testProperBatDir :: FilePath -> IO (Maybe FilePath)
     testProperBatDir sub = catch doTest (handleExc Nothing)
       where
