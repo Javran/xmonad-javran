@@ -1,20 +1,27 @@
-{-# LANGUAGE ScopedTypeVariables, ExistentialQuantification, FlexibleContexts, ConstraintKinds #-}
+{-# LANGUAGE
+    ScopedTypeVariables
+  , ExistentialQuantification
+  , FlexibleContexts
+  , ConstraintKinds
+  , TemplateHaskell
+  #-}
 module XMonad.Javran.SysInfoBar where
 
 import XMonad.Javran.SysInfoBar.Types
-import XMonad.Javran.SysInfoBar.CpuUsage
-import XMonad.Javran.SysInfoBar.MemUsage
-import XMonad.Javran.SysInfoBar.CpuMaxFreq
-import XMonad.Javran.SysInfoBar.DateTime
-import XMonad.Javran.SysInfoBar.NetStat
-import XMonad.Javran.SysInfoBar.Mpd
-import XMonad.Javran.SysInfoBar.Battery
-import XMonad.Javran.SysInfoBar.Mail
+import XMonad.Javran.SysInfoBar.CpuUsage ()
+import XMonad.Javran.SysInfoBar.MemUsage ()
+import XMonad.Javran.SysInfoBar.CpuMaxFreq ()
+import XMonad.Javran.SysInfoBar.DateTime ()
+import XMonad.Javran.SysInfoBar.NetStat ()
+import XMonad.Javran.SysInfoBar.Mpd ()
+import XMonad.Javran.SysInfoBar.Battery ()
+import XMonad.Javran.SysInfoBar.Mail ()
 import Data.Default
 import Data.Function
 import Data.Typeable
 import Control.Concurrent
 import qualified Data.Map.Strict as M
+import XMonad.Javran.SysInfoBar.TH
 
 {-
   WIP.
@@ -55,16 +62,7 @@ data EWorker = forall w. PrintableWorker w => EWorker (Proxy w)
 type PrintableWorker w = (Worker w, Show (WStateRep w))
 
 workers :: [EWorker]
-workers =
-  [ EWorker (Proxy :: Proxy CpuUsage)
-  , EWorker (Proxy :: Proxy MemUsage)
-  , EWorker (Proxy :: Proxy CpuMaxFreq)
-  , EWorker (Proxy :: Proxy NetStat)
-  , EWorker (Proxy :: Proxy DateTime)
-  , EWorker (Proxy :: Proxy Mpd)
-  , EWorker (Proxy :: Proxy Battery)
-  , EWorker (Proxy :: Proxy Mail)
-  ]
+workers = $(genWorkers)
 
 main :: IO ()
 main = do
