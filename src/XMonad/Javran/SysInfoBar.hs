@@ -24,12 +24,12 @@ import qualified Data.Map.Strict as M
 import XMonad.Javran.SysInfoBar.TH
 
 {-
-  WIP.
 
   this module aims at eliminating the need for
   current conky ==> StreamConverter ==> dzen pipeline,
-  simplifying it into a single SystemInfoBar,
-  in which it manages a separated instance of dzen.
+  simplifying it into SystemInfoBar ==> dzen,
+  in which we manage a separated instance of dzen.
+
 -}
 
 {-
