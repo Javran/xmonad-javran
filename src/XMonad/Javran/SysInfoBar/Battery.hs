@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.Battery
-  ( BatteryWorker
+  ( Battery
   ) where
 
 {-
@@ -29,7 +29,7 @@ import qualified Data.Map.Strict as M
 
 type BatState = (Int, Bool) -- (<capacity>, <isCharging?>)
 
-data BatteryWorker
+data Battery
 
 sysPowerSupply :: FilePath
 sysPowerSupply = "/sys/class/power_supply/"
@@ -75,14 +75,14 @@ runWorkerWith mv = do
         case r of
           Nothing -> pure ()
           Just p ->
-            let k = typeRep (Proxy :: Proxy BatteryWorker)
+            let k = typeRep (Proxy :: Proxy Battery)
                 res = SomeWorkerState (St p)
             in modifyMVar_ mv (pure . M.insert k res)
         threadDelay 1000000
         run
 
-instance Worker BatteryWorker where
-  data WState BatteryWorker = St BatState
-  type WStateRep BatteryWorker = BatState
+instance Worker Battery where
+  data WState Battery = St BatState
+  type WStateRep Battery = BatState
   runWorker _ = runWorkerWith
   getStateRep (St x) = x

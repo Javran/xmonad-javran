@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies, RecordWildCards #-}
 module XMonad.Javran.SysInfoBar.MemUsage
-  ( MemUsageWorker
+  ( MemUsage
   ) where
 
 import System.IO
@@ -46,16 +46,16 @@ runWorkerWith mv = fix $ \run -> do
   MemInfoRaw {..} <- getMemInfoRaw
   let numer = mTotal - mAvailable
       denom = mTotal
-      k = typeRep (Proxy :: Proxy MemUsageWorker)
-      res = SomeWorkerState (MemWState (numer, denom))
+      k = typeRep (Proxy :: Proxy MemUsage)
+      res = SomeWorkerState (St (numer, denom))
   modifyMVar_ mv (pure . M.insert k res)
   threadDelay 1000000
   run
 
-data MemUsageWorker deriving Typeable
+data MemUsage deriving Typeable
 
-instance Worker MemUsageWorker where
-  data WState MemUsageWorker = MemWState (Int, Int)
-  type WStateRep MemUsageWorker = (Int, Int)
+instance Worker MemUsage where
+  data WState MemUsage = St (Int, Int)
+  type WStateRep MemUsage = (Int, Int)
   runWorker _ = runWorkerWith
-  getStateRep (MemWState x) = x
+  getStateRep (St x) = x

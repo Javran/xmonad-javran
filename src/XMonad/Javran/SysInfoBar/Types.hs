@@ -15,12 +15,6 @@ import Control.Concurrent.MVar
 type WorkerUniq = String
 type BarState = M.Map TypeRep SomeWorkerState
 
-{-
-  TODO:
-
-  - it's unnecessary to say XXXXWorker as XXXX is good enough
-  - the constructor is just for ensuring injectivity and can be name as short as possible
--}
 class Typeable w => Worker w where
   -- WState is the internal state shared in MVar
   -- WStateRep contains all info necessary for rendering

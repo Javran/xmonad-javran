@@ -56,14 +56,14 @@ type PrintableWorker w = (Worker w, Show (WStateRep w))
 
 workers :: [EWorker]
 workers =
-  [ EWorker (Proxy :: Proxy CpuUsageWorker)
-  , EWorker (Proxy :: Proxy MemUsageWorker)
-  , EWorker (Proxy :: Proxy CpuMaxFreqWorker)
-  , EWorker (Proxy :: Proxy NetStatWorker)
-  , EWorker (Proxy :: Proxy DateTimeWorker)
-  , EWorker (Proxy :: Proxy MpdWorker)
-  , EWorker (Proxy :: Proxy BatteryWorker)
-  , EWorker (Proxy :: Proxy MailWorker)
+  [ EWorker (Proxy :: Proxy CpuUsage)
+  , EWorker (Proxy :: Proxy MemUsage)
+  , EWorker (Proxy :: Proxy CpuMaxFreq)
+  , EWorker (Proxy :: Proxy NetStat)
+  , EWorker (Proxy :: Proxy DateTime)
+  , EWorker (Proxy :: Proxy Mpd)
+  , EWorker (Proxy :: Proxy Battery)
+  , EWorker (Proxy :: Proxy Mail)
   ]
 
 main :: IO ()

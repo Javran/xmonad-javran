@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.DateTime
-  ( DateTimeWorker
+  ( DateTime
   ) where
 
 import XMonad.Javran.SysInfoBar.Types
@@ -17,16 +17,16 @@ runWorkerWith mv = fix $ \run -> do
   t <- getZonedTime
   let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
       timeStr = formatTime defaultTimeLocale "%T" t
-      k = typeRep (Proxy :: Proxy DateTimeWorker)
-      res = SomeWorkerState (DTSt (dateStr, timeStr))
+      k = typeRep (Proxy :: Proxy DateTime)
+      res = SomeWorkerState (St (dateStr, timeStr))
   modifyMVar_ mv (pure . M.insert k res)
   threadDelay 500000
   run
 
-data DateTimeWorker
+data DateTime
 
-instance Worker DateTimeWorker where
-  data WState DateTimeWorker = DTSt DateTimeResult
-  type WStateRep DateTimeWorker = DateTimeResult
+instance Worker DateTime where
+  data WState DateTime = St DateTimeResult
+  type WStateRep DateTime = DateTimeResult
   runWorker _ = runWorkerWith
-  getStateRep (DTSt x) = x
+  getStateRep (St x) = x

@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.Mail
-  ( MailWorker
+  ( Mail
   ) where
 
 import System.IO
@@ -54,7 +54,7 @@ runWorkerWith mv = run Nothing
       mResult <- getUnreadMailCount conn
       case mResult of
         Just _ -> do
-          let k = typeRep (Proxy :: Proxy MailWorker)  
+          let k = typeRep (Proxy :: Proxy Mail)  
           modifyMVar_ mv (pure . M.insert k (SomeWorkerState (St mResult)))
           sleep >> redo
         Nothing ->
@@ -71,10 +71,10 @@ runWorkerWith mv = run Nothing
     sleep = threadDelay (oneSec * 60 * 10)
     oneSec =  1000000
 
-data MailWorker
+data Mail
 
-instance Worker MailWorker where
-  data WState MailWorker = St (Maybe Int)
-  type WStateRep MailWorker = Maybe Int
+instance Worker Mail where
+  data WState Mail = St (Maybe Int)
+  type WStateRep Mail = Maybe Int
   runWorker _ = runWorkerWith
   getStateRep (St v) = v

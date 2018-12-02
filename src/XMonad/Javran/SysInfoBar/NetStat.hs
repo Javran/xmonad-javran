@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.NetStat
-  ( NetStatWorker
+  ( NetStat
   ) where
 
 import Data.Char
@@ -57,14 +57,14 @@ runWorkerWith mv = getRxTxInfo >>= run
       threadDelay 1000000
       p@(rx, tx) <- getRxTxInfo
       let res = SomeWorkerState $ St (rx - oldRx, tx - oldTx)
-          k = typeRep (Proxy :: Proxy NetStatWorker)
+          k = typeRep (Proxy :: Proxy NetStat)
       modifyMVar_ mv (pure . M.insert k res)
       run p
 
-data NetStatWorker
+data NetStat
 
-instance Worker NetStatWorker where
-  data WState NetStatWorker = St NetInfo
-  type WStateRep NetStatWorker = NetInfo
+instance Worker NetStat where
+  data WState NetStat = St NetInfo
+  type WStateRep NetStat = NetInfo
   runWorker _ = runWorkerWith
   getStateRep (St s) = s
