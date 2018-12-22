@@ -78,6 +78,7 @@ executable SysInfoBar
                      , HaskellNet
                      , HaskellNet-SSL
                      , template-haskell
+                     , process
 
   ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N -main-is XMonad.Javran.SysInfoBar
   default-language:    Haskell2010

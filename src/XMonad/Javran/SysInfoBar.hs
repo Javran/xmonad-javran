@@ -22,6 +22,8 @@ import Control.Concurrent
 import qualified Data.Map.Strict as M
 import XMonad.Javran.SysInfoBar.TH
 import Control.Monad
+import System.Process
+import System.IO
 
 {-
 
@@ -64,14 +66,33 @@ type PrintableWorker w = (Worker w, Show (WStateRep w))
 workers :: [EWorker]
 workers = $(genWorkers)
 
+spawnDzen :: IO (Handle, ProcessHandle)
+spawnDzen = tr <$> createProcess cp
+  where
+    tr (Just hInp, _, _, hProc) = (hInp, hProc)
+    tr _ = error "failed while trying to spawn dzen"
+    cp = initCp { std_in = CreatePipe }
+      where
+        initCp = proc "/usr/bin/dzen2"
+          [ "-w", "810"
+          , "-x", "900"
+          -- TODO: remove -y after done
+          , "-y", "24"
+          , "-h", "24"
+          , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
+          , "-bg", "#505050"
+          ]
+
 main :: IO ()
 main = do
+    (hOut, hp) <- spawnDzen
+    hSetBuffering hOut LineBuffering
     mSt <- newMVar def
     mapM_ (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
     forever $ do
       threadDelay 500000
       mv <- tryReadMVar mSt
-      let viz :: forall w. PrintableWorker w => Proxy w -> IO ()
+      let viz :: forall w. PrintableWorker w => Proxy w -> IO String
           viz wt = do
               putStrLn $ show (typeRep wt) ++ ":"
               case mv of
@@ -79,7 +100,7 @@ main = do
                   | k <- typeRep wt
                   , (Just s) <- M.lookup k m
                   , (Just (s' :: WState w)) <- getWorkerState s
-                    ->
-                    print (getStateRep s')
-                _ -> putStrLn "<empty>"
-      mapM_ (\(EWorker wt) -> viz wt) workers
+                    -> pure $ "[" ++ show (getStateRep s') ++ "]"
+                _ -> pure "<x>"
+      xs <- mapM (\(EWorker wt) -> viz wt) workers
+      hPutStrLn hOut (unwords xs)
