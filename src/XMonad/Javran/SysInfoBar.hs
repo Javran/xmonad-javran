@@ -17,11 +17,11 @@ import XMonad.Javran.SysInfoBar.Mpd ()
 import XMonad.Javran.SysInfoBar.Battery ()
 import XMonad.Javran.SysInfoBar.Mail ()
 import Data.Default
-import Data.Function
 import Data.Typeable
 import Control.Concurrent
 import qualified Data.Map.Strict as M
 import XMonad.Javran.SysInfoBar.TH
+import Control.Monad
 
 {-
 
@@ -68,7 +68,7 @@ main :: IO ()
 main = do
     mSt <- newMVar def
     mapM_ (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
-    fix $ \run -> do
+    forever $ do
       threadDelay 500000
       mv <- tryReadMVar mSt
       let viz :: forall w. PrintableWorker w => Proxy w -> IO ()
@@ -83,4 +83,3 @@ main = do
                     print (getStateRep s')
                 _ -> putStrLn "<empty>"
       mapM_ (\(EWorker wt) -> viz wt) workers
-      run
