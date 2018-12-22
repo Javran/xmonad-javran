@@ -67,10 +67,12 @@ workers :: [EWorker]
 workers = $(genWorkers)
 
 spawnDzen :: IO (Handle, ProcessHandle)
-spawnDzen = tr <$> createProcess cp
+spawnDzen = createProcess cp >>= trAndSet
   where
-    tr (Just hInp, _, _, hProc) = (hInp, hProc)
-    tr _ = error "failed while trying to spawn dzen"
+    trAndSet (Just hInp, _, _, hProc) = do
+      hSetBuffering hInp LineBuffering
+      pure (hInp, hProc)
+    trAndSet _ = error "failed while trying to spawn dzen"
     cp = initCp { std_in = CreatePipe }
       where
         initCp = proc "/usr/bin/dzen2"
@@ -85,8 +87,7 @@ spawnDzen = tr <$> createProcess cp
 
 main :: IO ()
 main = do
-    (hOut, hp) <- spawnDzen
-    hSetBuffering hOut LineBuffering
+    (hOut, _) <- spawnDzen
     mSt <- newMVar def
     mapM_ (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
     forever $ do
