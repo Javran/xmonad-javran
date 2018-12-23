@@ -80,6 +80,7 @@ executable SysInfoBar
                      , template-haskell
                      , process
                      , dzen-utils
+                     , colour
 
   ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N -main-is XMonad.Javran.SysInfoBar
   default-language:    Haskell2010
