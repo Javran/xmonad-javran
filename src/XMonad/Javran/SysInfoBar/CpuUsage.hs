@@ -14,6 +14,7 @@ module XMonad.Javran.SysInfoBar.CpuUsage
 import System.IO
 import Data.Function
 import Data.Char
+import Data.String
 import Control.Monad
 import Text.ParserCombinators.ReadP
 import Control.Concurrent
@@ -22,6 +23,7 @@ import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
 import qualified Data.Map.Strict as M
 import System.Dzen
+import Data.Colour.Names
 
 data CpuStatRow a = CpuStatRow
   { user :: a
@@ -116,8 +118,10 @@ renderCpuUsage :: [Int] -> DString
 renderCpuUsage xs = "[" <> foldMap render xs <> "]"
   where
     render :: Int -> DString
-    render 10 = "X"
-    render n = str (show n)
+    render n
+      | n >= 9 = fg red (if n > 9 then "X" else "9")
+      | n >= 5 = fg orange (fromString (show n))
+      | otherwise = fromString (show n)
 
 data CpuUsage deriving Typeable
 
