@@ -8,7 +8,7 @@
 module XMonad.Javran.SysInfoBar where
 
 import XMonad.Javran.SysInfoBar.Types
-import XMonad.Javran.SysInfoBar.CpuUsage ()
+import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage, renderCpuUsage)
 import XMonad.Javran.SysInfoBar.MemUsage ()
 import XMonad.Javran.SysInfoBar.CpuMaxFreq ()
 import XMonad.Javran.SysInfoBar.DateTime ()
@@ -24,7 +24,7 @@ import XMonad.Javran.SysInfoBar.TH
 import Control.Monad
 import System.Process
 import System.IO
-
+import qualified System.Dzen as Dz
 {-
 
   this module aims at eliminating the need for
@@ -93,15 +93,11 @@ main = do
     forever $ do
       threadDelay 500000
       mv <- tryReadMVar mSt
-      let viz :: forall w. PrintableWorker w => Proxy w -> IO String
-          viz wt = do
-              putStrLn $ show (typeRep wt) ++ ":"
-              case mv of
-                Just m
-                  | k <- typeRep wt
-                  , (Just s) <- M.lookup k m
-                  , (Just (s' :: WState w)) <- getWorkerState s
-                    -> pure $ "[" ++ show (getStateRep s') ++ "]"
-                _ -> pure "<x>"
-      xs <- mapM (\(EWorker wt) -> viz wt) workers
-      hPutStrLn hOut (unwords xs)
+      let uTy = Proxy :: Proxy CpuUsage
+          uRep = typeRep uTy
+      case mv of
+        Just m
+          | Just s <- M.lookup uRep m
+          ,  (Just (s' :: WState CpuUsage)) <- getWorkerState s
+            -> hPutStrLn hOut (Dz.toString (renderCpuUsage (getStateRep s')))
+        _ -> pure ()

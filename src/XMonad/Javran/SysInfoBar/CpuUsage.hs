@@ -1,6 +1,14 @@
-{-# LANGUAGE DeriveFunctor, TypeApplications, RecordWildCards, TypeFamilies, ScopedTypeVariables #-}
+{-# LANGUAGE
+    DeriveFunctor
+  , TypeApplications
+  , RecordWildCards
+  , TypeFamilies
+  , ScopedTypeVariables
+  , OverloadedStrings
+  #-}
 module XMonad.Javran.SysInfoBar.CpuUsage
   ( CpuUsage
+  , renderCpuUsage
   ) where
 
 import System.IO
@@ -13,6 +21,7 @@ import Data.Time.Clock
 import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
 import qualified Data.Map.Strict as M
+import System.Dzen
 
 data CpuStatRow a = CpuStatRow
   { user :: a
@@ -101,6 +110,14 @@ runWorkerWith mv = do
           k = typeRep (Proxy :: Proxy CpuUsage)
       modifyMVar_ mv (pure . M.insert k res)
       run s
+
+
+renderCpuUsage :: [Int] -> DString
+renderCpuUsage xs = "[" <> foldMap render xs <> "]"
+  where
+    render :: Int -> DString
+    render 10 = "X"
+    render n = str (show n)
 
 data CpuUsage deriving Typeable
 
