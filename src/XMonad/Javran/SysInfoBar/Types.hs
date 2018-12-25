@@ -4,6 +4,8 @@ module XMonad.Javran.SysInfoBar.Types where
 import qualified Data.Map.Strict as M
 import Data.Typeable
 import Control.Concurrent.MVar
+import System.Dzen
+
 {-
   we have one to one relation between worker and running threads
   (established by making sure there's at most one thread for each
@@ -26,3 +28,6 @@ class Typeable w => Worker w where
   getStateRep :: WState w -> WStateRep w
 
 data SomeWorkerState = forall w. Worker w => SomeWorkerState (WState w)
+
+class Worker w => RenderableWorker w where
+  wRender :: forall p. p w -> WStateRep w -> DString
