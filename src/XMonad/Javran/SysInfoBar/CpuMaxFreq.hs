@@ -1,9 +1,10 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies, LambdaCase, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.CpuMaxFreq
   ( CpuMaxFreq
   ) where
 
 import Data.Maybe
+import Data.String
 import Data.Char
 import Text.ParserCombinators.ReadP
 import qualified Data.List.NonEmpty as NE
@@ -12,6 +13,8 @@ import XMonad.Javran.SysInfoBar.Types
 import Control.Concurrent
 import Data.Typeable
 import Data.Function
+import Text.Printf
+import qualified System.Dzen as Dz
 
 getCpuFreqs :: IO [Double]
 getCpuFreqs = mapMaybe parseLine . lines <$> readFile "/proc/cpuinfo"
@@ -45,3 +48,11 @@ instance Worker CpuMaxFreq where
   type WStateRep CpuMaxFreq = Maybe Double
   runWorker _ = runWorkerWith
   getStateRep (St v) = v
+
+instance RenderableWorker CpuMaxFreq where
+  wRender _ = \case
+    Nothing -> "????GHz"
+    Just d ->
+      let content :: String
+          content = printf "%4.2fGHz" d
+      in fromString content

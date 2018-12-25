@@ -4,13 +4,14 @@
   , FlexibleContexts
   , ConstraintKinds
   , TemplateHaskell
+  , OverloadedStrings
   #-}
 module XMonad.Javran.SysInfoBar where
 
 import XMonad.Javran.SysInfoBar.Types
-import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage, renderCpuUsage)
+import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar.MemUsage ()
-import XMonad.Javran.SysInfoBar.CpuMaxFreq ()
+import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.DateTime ()
 import XMonad.Javran.SysInfoBar.NetStat ()
 import XMonad.Javran.SysInfoBar.Mpd ()
@@ -65,7 +66,7 @@ data EWorker = forall w. RenderableWorker w => EWorker (Proxy w)
 type PrintableWorker w = (Worker w, Show (WStateRep w))
 
 workers :: [EWorker]
-workers = [EWorker (Proxy :: Proxy CpuUsage)]
+workers = [EWorker (Proxy :: Proxy CpuUsage), EWorker (Proxy :: Proxy CpuMaxFreq)]
 
 spawnDzen :: IO (Handle, ProcessHandle)
 spawnDzen = createProcess cp >>= trAndSet
@@ -96,11 +97,17 @@ main = do
       mv <- tryReadMVar mSt
       let uTy = Proxy :: Proxy CpuUsage
           uRep = typeRep uTy
+          uTy1 = Proxy :: Proxy CpuMaxFreq
+          uRep1 = typeRep uTy1
       case mv of
         Just m
           | Just s <- M.lookup uRep m
-          ,  (Just (s' :: WState CpuUsage)) <- getWorkerState s
+          , (Just (s' :: WState CpuUsage)) <- getWorkerState s
+          , content <- Dz.fg yellow $ wRender uTy (getStateRep s')
+          , Just s1 <- M.lookup uRep1 m
+          , (Just (s1' :: WState CpuMaxFreq)) <- getWorkerState s1
+          , content1 <- Dz.fg red $ wRender uTy1 (getStateRep s1')
             ->
-              let content = Dz.fg yellow $ wRender uTy (getStateRep s')
-              in hPutStrLn hOut (Dz.toString content)
+              -- TODO: obviously we don't need all parts to all be available to function.
+              hPutStrLn hOut (Dz.toString $ content <> " " <> content1)
         _ -> pure ()
