@@ -130,3 +130,6 @@ instance Worker CpuUsage where
   type WStateRep CpuUsage = [Int]
   runWorker _ = runWorkerWith
   getStateRep (CpuWorkerState xs) = xs
+
+instance RenderableWorker CpuUsage where
+  wRender _ = renderCpuUsage

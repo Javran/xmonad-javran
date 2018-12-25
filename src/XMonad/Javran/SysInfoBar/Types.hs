@@ -30,4 +30,7 @@ class Typeable w => Worker w where
 data SomeWorkerState = forall w. Worker w => SomeWorkerState (WState w)
 
 class Worker w => RenderableWorker w where
+  -- the idea is that we always output DString,
+  -- which avoids any complication
+  -- involved with Printer
   wRender :: forall p. p w -> WStateRep w -> DString

@@ -25,6 +25,7 @@ import Control.Monad
 import System.Process
 import System.IO
 import qualified System.Dzen as Dz
+import Data.Colour.Names
 {-
 
   this module aims at eliminating the need for
@@ -59,12 +60,12 @@ import qualified System.Dzen as Dz
   - [x] whether battery is charging & battery remaining
   - [x] date & time
  -}
-data EWorker = forall w. PrintableWorker w => EWorker (Proxy w)
+data EWorker = forall w. RenderableWorker w => EWorker (Proxy w)
 
 type PrintableWorker w = (Worker w, Show (WStateRep w))
 
 workers :: [EWorker]
-workers = $(genWorkers)
+workers = [EWorker (Proxy :: Proxy CpuUsage)]
 
 spawnDzen :: IO (Handle, ProcessHandle)
 spawnDzen = createProcess cp >>= trAndSet
@@ -99,5 +100,7 @@ main = do
         Just m
           | Just s <- M.lookup uRep m
           ,  (Just (s' :: WState CpuUsage)) <- getWorkerState s
-            -> hPutStrLn hOut (Dz.toString (renderCpuUsage (getStateRep s')))
+            ->
+              let content = Dz.fg yellow $ wRender uTy (getStateRep s')
+              in hPutStrLn hOut (Dz.toString content)
         _ -> pure ()
