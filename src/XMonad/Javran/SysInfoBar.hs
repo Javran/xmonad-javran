@@ -3,8 +3,9 @@
   , ExistentialQuantification
   , FlexibleContexts
   , ConstraintKinds
-  , TemplateHaskell
   , OverloadedStrings
+  , LambdaCase
+  , RankNTypes
   #-}
 module XMonad.Javran.SysInfoBar where
 
@@ -21,12 +22,14 @@ import Data.Default
 import Data.Typeable
 import Control.Concurrent
 import qualified Data.Map.Strict as M
-import XMonad.Javran.SysInfoBar.TH
+-- import XMonad.Javran.SysInfoBar.TH
 import Control.Monad
 import System.Process
 import System.IO
 import qualified System.Dzen as Dz
-import Data.Colour.Names
+import Data.Maybe
+import Data.Colour.SRGB
+
 {-
 
   this module aims at eliminating the need for
@@ -61,12 +64,15 @@ import Data.Colour.Names
   - [x] whether battery is charging & battery remaining
   - [x] date & time
  -}
-data EWorker = forall w. RenderableWorker w => EWorker (Proxy w)
+data EWorker = forall w. RenderableWorker w => EW (Proxy w)
 
 type PrintableWorker w = (Worker w, Show (WStateRep w))
 
-workers :: [EWorker]
-workers = [EWorker (Proxy :: Proxy CpuUsage), EWorker (Proxy :: Proxy CpuMaxFreq)]
+workerSpecs :: [(EWorker, Dz.DString -> Dz.DString)]
+workerSpecs =
+  [ (EW (Proxy :: Proxy CpuUsage), Dz.fg (sRGB24read "#FFFF00"))
+  , (EW (Proxy :: Proxy CpuMaxFreq), Dz.fg (sRGB24read "#FF80A0"))
+  ]
 
 spawnDzen :: IO (Handle, ProcessHandle)
 spawnDzen = createProcess cp >>= trAndSet
@@ -91,23 +97,20 @@ main :: IO ()
 main = do
     (hOut, _) <- spawnDzen
     mSt <- newMVar def
-    mapM_ (forkIO . (\(EWorker wt) -> runWorker wt mSt)) workers
+    mapM_ (forkIO . (\(EW wt) -> runWorker wt mSt) . fst) workerSpecs
     forever $ do
       threadDelay 500000
-      mv <- tryReadMVar mSt
-      let uTy = Proxy :: Proxy CpuUsage
-          uRep = typeRep uTy
-          uTy1 = Proxy :: Proxy CpuMaxFreq
-          uRep1 = typeRep uTy1
-      case mv of
-        Just m
-          | Just s <- M.lookup uRep m
-          , (Just (s' :: WState CpuUsage)) <- getWorkerState s
-          , content <- Dz.fg yellow $ wRender uTy (getStateRep s')
-          , Just s1 <- M.lookup uRep1 m
-          , (Just (s1' :: WState CpuMaxFreq)) <- getWorkerState s1
-          , content1 <- Dz.fg red $ wRender uTy1 (getStateRep s1')
-            ->
-              -- TODO: obviously we don't need all parts to all be available to function.
-              hPutStrLn hOut (Dz.toString $ content <> " " <> content1)
+      tryReadMVar mSt >>= \case
+        Just m ->
+          let renderWidget :: (EWorker, Dz.DString -> Dz.DString) -> Maybe Dz.DString
+              renderWidget (EW (ty :: Proxy w), after) = do
+                  s <- M.lookup (typeRep ty) m
+                  s' <- getWorkerState s :: Maybe (WState w)
+                  pure $ after (wRender ty (getStateRep s' :: WStateRep w))
+              rendered :: Dz.DString
+              rendered =
+                  foldr (\x xs -> x <> " " <> xs) mempty
+                . mapMaybe renderWidget
+                $ workerSpecs
+          in hPutStrLn hOut (Dz.toString rendered)
         _ -> pure ()
