@@ -10,7 +10,6 @@ import XMonad.Javran.SysInfoBar.Types
 import Data.Char
 import Data.Typeable
 import Control.Concurrent
-import Data.Function
 import qualified Data.Map.Strict as M
 
 {-
@@ -42,7 +41,7 @@ getMemInfoRaw = do
       (read <$> munch1 isDigit) <* string " kB"
 
 runWorkerWith :: MVar BarState -> IO ()
-runWorkerWith mv = fix $ \run -> do
+runWorkerWith mv = forever $ do
   MemInfoRaw {..} <- getMemInfoRaw
   let numer = mTotal - mAvailable
       denom = mTotal
@@ -50,7 +49,6 @@ runWorkerWith mv = fix $ \run -> do
       res = SomeWorkerState (St (numer, denom))
   modifyMVar_ mv (pure . M.insert k res)
   threadDelay 1000000
-  run
 
 data MemUsage deriving Typeable
 

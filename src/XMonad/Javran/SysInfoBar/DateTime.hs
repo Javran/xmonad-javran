@@ -6,14 +6,14 @@ module XMonad.Javran.SysInfoBar.DateTime
 import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
 import Control.Concurrent
-import Data.Function
 import qualified Data.Map.Strict as M
 import Data.Time
+import Control.Monad
 
 type DateTimeResult = (String, String)
 
 runWorkerWith :: MVar BarState -> IO ()
-runWorkerWith mv = fix $ \run -> do
+runWorkerWith mv = forever $ do
   t <- getZonedTime
   let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
       timeStr = formatTime defaultTimeLocale "%T" t
@@ -21,7 +21,6 @@ runWorkerWith mv = fix $ \run -> do
       res = SomeWorkerState (St (dateStr, timeStr))
   modifyMVar_ mv (pure . M.insert k res)
   threadDelay 500000
-  run
 
 data DateTime
 

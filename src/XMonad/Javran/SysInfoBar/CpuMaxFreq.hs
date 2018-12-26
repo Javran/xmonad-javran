@@ -12,9 +12,8 @@ import qualified Data.Map.Strict as M
 import XMonad.Javran.SysInfoBar.Types
 import Control.Concurrent
 import Data.Typeable
-import Data.Function
 import Text.Printf
-import qualified System.Dzen as Dz
+import Control.Monad
 
 getCpuFreqs :: IO [Double]
 getCpuFreqs = mapMaybe parseLine . lines <$> readFile "/proc/cpuinfo"
@@ -34,12 +33,11 @@ getCpuMaxFreqGHz :: IO (Maybe Double)
 getCpuMaxFreqGHz = fmap ((/1000) . maximum) . NE.nonEmpty <$> getCpuFreqs
 
 runWorkerWith :: MVar BarState -> IO ()
-runWorkerWith mv = fix $ \run -> do
+runWorkerWith mv = forever $ do
   v <- getCpuMaxFreqGHz
   let k = typeRep (Proxy :: Proxy CpuMaxFreq)  
   modifyMVar_ mv (pure . M.insert k (SomeWorkerState (St v)))
   threadDelay 1000000
-  run
 
 data CpuMaxFreq
 
