@@ -103,10 +103,9 @@ main = do
       tryReadMVar mSt >>= \case
         Just m ->
           let renderWidget :: (EWorker, Dz.DString -> Dz.DString) -> Maybe Dz.DString
-              renderWidget (EW (ty :: Proxy w), after) = do
-                  s <- M.lookup (typeRep ty) m
-                  s' <- getWorkerState s :: Maybe (WState w)
-                  pure $ after (wRender ty (getStateRep s' :: WStateRep w))
+              renderWidget (EW p@(ty :: Proxy w), after) = do
+                  s <- extractWStateRep p m
+                  pure $ after (wRender ty s)
               rendered :: Dz.DString
               rendered =
                   foldr (\x xs -> x <> " " <> xs) mempty

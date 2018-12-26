@@ -1,4 +1,4 @@
-{-# LANGUAGE ExistentialQuantification, TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification, TypeFamilies, ScopedTypeVariables #-}
 module XMonad.Javran.SysInfoBar.Types where
 
 import qualified Data.Map.Strict as M
@@ -20,12 +20,23 @@ type BarState = M.Map TypeRep SomeWorkerState
 class Typeable w => Worker w where
   -- WState is the internal state shared in MVar
   -- WStateRep contains all info necessary for rendering
+  -- N.B. the distinction between WState and WStateRep is necessary
+  -- to ensure the injectivity
   data WState w :: *
   type WStateRep w :: *
   runWorker :: forall p. p w -> MVar BarState -> IO ()
   getWorkerState :: SomeWorkerState -> Maybe (WState w)
   getWorkerState (SomeWorkerState s) = cast s
   getStateRep :: WState w -> WStateRep w
+
+  extractWState :: BarState -> Maybe (WState w)
+  extractWState m =
+    M.lookup (typeRep (Proxy :: Proxy w)) m >>=
+    getWorkerState
+
+  extractWStateRep :: forall p. p w -> BarState -> Maybe (WStateRep w)
+  extractWStateRep _ m =
+    getStateRep <$> (extractWState m :: Maybe (WState w))
 
 data SomeWorkerState = forall w. Worker w => SomeWorkerState (WState w)
 
