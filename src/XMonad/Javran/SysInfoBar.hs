@@ -9,6 +9,17 @@
   #-}
 module XMonad.Javran.SysInfoBar where
 
+import Data.Typeable
+import Control.Concurrent
+import Control.Monad
+import Data.Maybe
+import System.Process
+import System.IO
+
+import Data.Default
+import Data.Colour.SRGB
+import qualified System.Dzen as Dz
+
 import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar.MemUsage ()
@@ -18,17 +29,6 @@ import XMonad.Javran.SysInfoBar.NetStat ()
 import XMonad.Javran.SysInfoBar.Mpd ()
 import XMonad.Javran.SysInfoBar.Battery ()
 import XMonad.Javran.SysInfoBar.Mail ()
-import Data.Default
-import Data.Typeable
-import Control.Concurrent
-import qualified Data.Map.Strict as M
--- import XMonad.Javran.SysInfoBar.TH
-import Control.Monad
-import System.Process
-import System.IO
-import qualified System.Dzen as Dz
-import Data.Maybe
-import Data.Colour.SRGB
 
 {-
 
