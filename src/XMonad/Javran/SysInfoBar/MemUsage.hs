@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, RecordWildCards #-}
+{-# LANGUAGE TypeFamilies, RecordWildCards, MultiWayIf, TypeApplications #-}
 module XMonad.Javran.SysInfoBar.MemUsage
   ( MemUsage
   ) where
@@ -11,6 +11,8 @@ import Data.Char
 import Data.Typeable
 import Control.Concurrent
 import qualified Data.Map.Strict as M
+import Data.String
+import Text.Printf
 
 {-
   ref: <linux kernel source>/fs/meminfo.c
@@ -57,3 +59,16 @@ instance Worker MemUsage where
   type WStateRep MemUsage = (Int, Int)
   runWorker _ = runWorkerWith
   getStateRep (St x) = x
+
+instance RenderableWorker MemUsage where
+  wRender _ (numer, denom) = fromString ("M:" ++ msg)
+    where
+      fI = fromIntegral @_ @Double
+      msg :: String
+      msg =
+        if | numer > denom -> "ERR"
+           | numer == denom -> "##%" -- fully occupied
+           | numer < 0 -> "ERR"
+           | otherwise ->
+               let pc = fI numer * 100 / fI denom
+               in printf "%2d%%" (floor pc :: Int)
