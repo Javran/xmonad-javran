@@ -64,6 +64,7 @@ executable SysInfoBar
                      , XMonad.Javran.SysInfoBar.Mpd
                      , XMonad.Javran.SysInfoBar.Battery
                      , XMonad.Javran.SysInfoBar.Mail
+                     , XMonad.Javran.SysInfoBar.TopProc
                      , XMonad.Javran.SysInfoBar.TH
   build-depends:       base <5
                      , json

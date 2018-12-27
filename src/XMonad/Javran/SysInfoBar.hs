@@ -63,6 +63,7 @@ import XMonad.Javran.SysInfoBar.Mail ()
   - [x] mpd state
   - [x] whether battery is charging & battery remaining
   - [x] date & time
+  - [x] top proc: process with top cpu utilization
  -}
 data EWorker = forall w. RenderableWorker w => EW (Proxy w)
 
