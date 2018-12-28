@@ -24,6 +24,7 @@ import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
+import XMonad.Javran.SysInfoBar.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar.DateTime ()
 import XMonad.Javran.SysInfoBar.NetStat ()
 import XMonad.Javran.SysInfoBar.Mpd ()
@@ -74,6 +75,7 @@ workerSpecs =
   [ (EW (Proxy :: Proxy CpuUsage), Dz.fg (sRGB24read "#FFFF00"))
   , (EW (Proxy :: Proxy CpuMaxFreq), Dz.fg (sRGB24read "#FF80A0"))
   , (EW (Proxy :: Proxy MemUsage), Dz.fg (sRGB24read "#00FF00"))
+  , (EW (Proxy :: Proxy TopProc), Dz.fg (sRGB24read "#FF00FF"))
   ]
 
 spawnDzen :: IO (Handle, ProcessHandle)
