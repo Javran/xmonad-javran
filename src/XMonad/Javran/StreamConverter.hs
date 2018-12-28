@@ -83,9 +83,9 @@ fixStringLen len padChar fallbackStr str =
     where
       strLen = length str
 
--- pretty print bit count
-bitToReadableString :: Int -> String
-bitToReadableString b
+-- pretty print byte count
+byteToReadableString :: Int -> String
+byteToReadableString b
     | b < unitKiB && b       < 1000 = fixLen $ show b       ++   "B"
     | b < unitKiB                   =                       "0.9KiB"
     | b < unitMiB && bDivKiB < 1000 = fixLen $ show bDivKiB ++ "KiB"
@@ -121,7 +121,7 @@ convertSlots = M.fromList
             -- the padChar should never be reached here
             where fullOrNum x = fixStringLen 1 undefined "F" $ show $ x `div` 10
         convertMemLoad s = fixStringLen 2 ' ' "FF" s ++ "%"
-        convertNetspeed s = bitToReadableString speedB
+        convertNetspeed s = byteToReadableString speedB
             where
                 speedKiB = sum $ map read $ words s :: Float
                 speedB = floor $ 1024 * speedKiB
