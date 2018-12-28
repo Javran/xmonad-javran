@@ -25,8 +25,8 @@ import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar.TopProc (TopProc)
+import XMonad.Javran.SysInfoBar.NetStat (NetStat)
 import XMonad.Javran.SysInfoBar.DateTime ()
-import XMonad.Javran.SysInfoBar.NetStat ()
 import XMonad.Javran.SysInfoBar.Mpd ()
 import XMonad.Javran.SysInfoBar.Battery ()
 import XMonad.Javran.SysInfoBar.Mail ()
@@ -76,6 +76,8 @@ workerSpecs =
   , (EW (Proxy :: Proxy CpuMaxFreq), Dz.fg (sRGB24read "#FF80A0"))
   , (EW (Proxy :: Proxy MemUsage), Dz.fg (sRGB24read "#00FF00"))
   , (EW (Proxy :: Proxy TopProc), Dz.fg (sRGB24read "#FF00FF"))
+    -- since NetStat are two small "widgets", we'll let it do its own coloring.
+  , (EW (Proxy :: Proxy NetStat), id)
   ]
 
 spawnDzen :: IO (Handle, ProcessHandle)

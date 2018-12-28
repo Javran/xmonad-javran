@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.NetStat
   ( NetStat
   ) where
@@ -11,6 +11,10 @@ import Data.Typeable
 import qualified Data.Map.Strict as M
 import Data.Monoid
 import Data.Coerce
+import Data.Colour.SRGB
+import qualified System.Dzen as Dz
+import XMonad.Javran.Utils
+import Data.String
 
 {-
   refs:
@@ -68,3 +72,16 @@ instance Worker NetStat where
   type WStateRep NetStat = NetInfo
   runWorker _ = runWorkerWith
   getStateRep (St s) = s
+
+instance RenderableWorker NetStat where
+  wRender _ (rBytes, tBytes) =
+      rContent <> " " <> tContent
+    where
+      rContent =
+          Dz.fg (sRGB24read "#80FF80")
+        . fromString
+        $ "R:" ++ byteToReadableString rBytes
+      tContent =
+          Dz.fg (sRGB24read "#8080FF")
+        . fromString
+        $ "T:" ++ byteToReadableString tBytes
