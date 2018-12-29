@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.Battery
   ( Battery
   ) where
@@ -26,6 +26,8 @@ import XMonad.Javran.SysInfoBar.Types
 import Data.Typeable
 import Control.Concurrent
 import qualified Data.Map.Strict as M
+import Text.Printf
+import Data.String
 
 type BatState = (Int, Bool) -- (<capacity>, <isCharging?>)
 
@@ -86,3 +88,12 @@ instance Worker Battery where
   type WStateRep Battery = BatState
   runWorker _ = runWorkerWith
   getStateRep (St x) = x
+
+instance RenderableWorker Battery where
+  wRender _ (capa, charge) = chgRdr <> capRdr
+    where
+      chgRdr = if charge then "+" else "="
+      capRdr =
+        if capa == 100
+          then "Ful"
+          else fromString (printf "%2d%%" capa)
