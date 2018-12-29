@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies, OverloadedStrings, LambdaCase #-}
 module XMonad.Javran.SysInfoBar.Mpd
   ( Mpd
   ) where
@@ -25,3 +25,12 @@ instance Worker Mpd where
   type WStateRep Mpd = Maybe Mpd.State
   runWorker _ = runWorkerWith
   getStateRep (St s) = s
+
+instance RenderableWorker Mpd where
+  wRender _ mpdSt = "[" <> st <> "]"
+    where
+      st = case mpdSt of
+        Nothing -> "?"
+        Just Mpd.Playing -> ">"
+        Just Mpd.Stopped -> "|"
+        Just Mpd.Paused -> "|"
