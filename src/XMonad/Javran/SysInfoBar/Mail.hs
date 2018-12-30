@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies, LambdaCase, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.Mail
   ( Mail
   ) where
@@ -15,6 +15,8 @@ import Control.Concurrent
 import Data.Typeable
 import Data.Function
 import qualified Data.Map.Strict as M
+import Text.Printf
+import Data.String
 
 type AuthInfo = (String, String)
 
@@ -44,7 +46,6 @@ getUnreadMailCount :: IMAPConnection -> IO (Maybe Int)
 getUnreadMailCount c = catch getCount ioErrorHandler
   where
     getCount = Just . length <$> search c [NOTs (FLAG Seen)]
-
 
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = run Nothing
@@ -78,3 +79,11 @@ instance Worker Mail where
   type WStateRep Mail = Maybe Int
   runWorker _ = runWorkerWith
   getStateRep (St v) = v
+
+instance RenderableWorker Mail where
+  wRender _ = \case
+    Nothing -> "----"
+    Just count ->
+      if count > 9999
+        then ">=1k"
+        else fromString (printf "%4d" count)
