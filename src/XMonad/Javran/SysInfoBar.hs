@@ -26,10 +26,21 @@ import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar.NetStat (NetStat)
+import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
 import XMonad.Javran.SysInfoBar.Battery (Battery)
 import XMonad.Javran.SysInfoBar.DateTime (DateTime)
-import XMonad.Javran.SysInfoBar.Mail ()
+
+{-
+  TODO: eliminate RenderableWorker
+
+  - this is not the right thing to do: Worker are supposed to
+    get info from the system and that's it. how it should be presented
+    to the user isn't Worker's work.
+  - we are lucky that TypeRep is a class of Eq, which means user can take a WStateRep
+    and its corresponding Worker type and do different things accordingly - and that
+    got to be a better solution.
+ -}
 
 {-
 
@@ -78,6 +89,7 @@ workerSpecs =
   , (EW (Proxy :: Proxy TopProc), Dz.fg (sRGB24read "#FF00FF"))
     -- since NetStat are two small "widgets", we'll let it do its own coloring.
   , (EW (Proxy :: Proxy NetStat), id)
+  , (EW (Proxy :: Proxy Mail), Dz.fg (sRGB24read "#FFFFFF"))
   , (EW (Proxy :: Proxy Mpd), Dz.fg (sRGB24read "#FF80FF"))
   , (EW (Proxy :: Proxy Battery), Dz.fg (sRGB24read "#FF8080"))
     -- same reason as that of NetStat.
