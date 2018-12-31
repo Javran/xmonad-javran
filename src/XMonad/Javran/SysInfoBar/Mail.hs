@@ -69,7 +69,7 @@ runWorkerWith mv = run Nothing
         Nothing -> sleep >> run Nothing
 
     sleep :: IO ()
-    sleep = threadDelay (oneSec * 60 * 10)
+    sleep = threadDelay (oneSec * 60 * 5)
     oneSec =  1000000
 
 data Mail
