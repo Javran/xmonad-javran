@@ -11,11 +11,9 @@ import XMonad.Util.Run (spawnPipe)
 import XMonad.Javran.Config
 
 conkyConf              :: FilePath -> FilePath
-pathStreamConvert      :: FilePath -> FilePath
-pathStreamConvertConf  :: FilePath -> FilePath
+pathSysInfoBar         :: FilePath -> FilePath
 initScript             :: FilePath -> FilePath
-pathStreamConvert      = (</> "StreamConverter")
-pathStreamConvertConf  = (</> "stream_convert.txt")
+pathSysInfoBar         = (</> "SysInfoBar")
 conkyConf              = (</> "conky-json.lua")
 initScript             = (</> "xmonad-init.sh")
 
@@ -36,26 +34,6 @@ dzenCommand = unwords
     --, "-l", "5"
     ]
 
-conkyCommand :: FilePath -> String
-conkyCommand xmPath = unwords
-    [ "pkill -9 conky"
-    , ";"
-    , "conky"
-    , "-c", conkyConf xmPath
-    , "|"
-    , pathStreamConvert xmPath
-    , pathStreamConvertConf xmPath
-    , "|"
-    , "dzen2"
-    , "-w", showI 810
-    , "-x", showI 900
-    , "-h", showI 24
-    , "-fn", "\"DejaVu Sans Mono:pixelsize=15:antialias=true\""
-    , "-bg", "\"#505050\""
-    , "-e", "\"button2=;\""
-    -- , "-l", "4"
-    ]
-
 main :: IO ()
 main = EH.withCustomHelper mhConf
   where
@@ -69,7 +47,6 @@ main = EH.withCustomHelper mhConf
                 -- spawn $ "/bin/bash " ++ initScript
                 -- TODO: use startup hook instead of initScript
                 dzenHandle <- spawnPipe dzenCommand
-                _ <- spawnPipe $ conkyCommand basePath
                 xmonad (myConfig dzenHandle)
         , EH.compile = \force -> EH.withLock ExitSuccess $ do
               let cmd = if force

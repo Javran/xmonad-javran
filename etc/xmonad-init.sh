@@ -54,6 +54,8 @@ try_run_once /usr/bin/fcitx -dr
 
 try_run_once ~/.xmonad/MailChecker
 
+try_run_once ~/.xmonad/SysInfoBar
+
 #try_run_once ~/.dropbox-dist/dropboxd
 
 # startup trayer

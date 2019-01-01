@@ -108,8 +108,6 @@ spawnDzen = createProcess cp >>= trAndSet
         initCp = proc "/usr/bin/dzen2"
           [ "-w", "810"
           , "-x", "900"
-          -- TODO: remove -y after done
-          , "-y", "24"
           , "-h", "24"
           , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
           , "-bg", "#505050"
