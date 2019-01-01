@@ -1,4 +1,6 @@
-module XMonad.Javran.Main where
+module XMonad.Javran.Main
+  ( main
+  ) where
 
 import System.Process
 import System.Exit
@@ -10,11 +12,7 @@ import XMonad.Util.Run (spawnPipe)
 
 import XMonad.Javran.Config
 
-conkyConf              :: FilePath -> FilePath
-pathSysInfoBar         :: FilePath -> FilePath
 initScript             :: FilePath -> FilePath
-pathSysInfoBar         = (</> "SysInfoBar")
-conkyConf              = (</> "conky-json.lua")
 initScript             = (</> "xmonad-init.sh")
 
 showI :: Int -> String
