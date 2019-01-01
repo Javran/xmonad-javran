@@ -1,7 +1,5 @@
-- try getting rid of conky?
+- try getting rid of conky? (almost done)
 
     we just need to get some system info for dzen2 bar, not using its UI anyways.
 
-- refactor to use dzen-utils
-
-    descriptive code are always welcome.
+- since xmonad now allows custom build, entryhelper can be removed
