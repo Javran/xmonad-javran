@@ -17,6 +17,7 @@ import Data.Function
 import qualified Data.Map.Strict as M
 import Text.Printf
 import Data.String
+import System.Dzen.Internal (primStr)
 
 type AuthInfo = (String, String)
 
@@ -81,9 +82,16 @@ instance Worker Mail where
   getStateRep (St v) = v
 
 instance RenderableWorker Mail where
-  wRender _ = \case
-    Nothing -> "----"
-    Just count ->
-      if count > 9999
-        then ">=1k"
-        else fromString (printf "%4d" count)
+  wRender _ mCount =
+      primStr (caPre <> content <> caPost) (Just (length content))
+    where
+      caPre, caPost :: String
+      caPre = "^ca(1, xdg-open https://mail.google.com/)"
+      caPost = "^ca()"
+      content :: String
+      content = case mCount of
+        Nothing -> "----"
+        Just count ->
+          if count > 9999
+            then ">=1k"
+            else fromString (printf "%4d" count)
