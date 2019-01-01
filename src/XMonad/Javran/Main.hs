@@ -46,6 +46,7 @@ main = EH.withCustomHelper mhConf
                 -- exitCode <- waitForProcess hInit
                 -- spawn $ "/bin/bash " ++ initScript
                 -- TODO: use startup hook instead of initScript
+                -- TODO: this part seems to be executed twice, find out what happened.
                 dzenHandle <- spawnPipe dzenCommand
                 xmonad (myConfig dzenHandle)
         , EH.compile = \force -> EH.withLock ExitSuccess $ do
