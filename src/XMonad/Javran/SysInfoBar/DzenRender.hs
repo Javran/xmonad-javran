@@ -38,13 +38,11 @@ renderCpuUsage xs = "[" <> foldMap rdr xs <> "]"
       | otherwise = fromString (show n)
 
 render :: forall w. Worker w => Proxy w -> WStateRep w -> DString
-render p st = fromMaybe fallback (getAlt result)
+render p st = fromMaybe fallback (getAlt (Alt result))
   where
     fallback :: DString
     fallback = fromString (show (typeRep p))
-    result :: Alt Maybe DString
-    result = case eqT :: Maybe (w :~: CpuUsage)  of
-      Just Refl ->
-        -- observe that w ~ <CertainType> so that WStateRep w is a concrete type
-        Alt (Just (renderCpuUsage st))
-      Nothing -> mzero
+    result :: Maybe DString
+    result = (eqT :: Maybe (w :~: CpuUsage)) >>= \case
+      Refl -> Just (renderCpuUsage st)
+
