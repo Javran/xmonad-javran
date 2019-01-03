@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, LambdaCase, OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.TopProc
   ( TopProc
   ) where
@@ -11,7 +11,6 @@ import System.Process
 import Control.Monad
 import System.IO
 import Data.Maybe
-import Data.String
 
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = forever $ do
@@ -35,9 +34,3 @@ instance Worker TopProc where
   type WStateRep TopProc = Maybe String
   runWorker _ = runWorkerWith
   getStateRep (St x) = x
-
-instance RenderableWorker TopProc where
-  wRender _ = \case
-    Nothing -> "------"
-    Just xs | length xs <= 6 -> fromString $ take 6 (xs ++ repeat ' ')
-    Just xs -> fromString $ take 4 xs ++ ".."

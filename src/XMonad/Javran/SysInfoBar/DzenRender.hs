@@ -8,7 +8,9 @@
   , TypeApplications
   , MultiWayIf
   #-}
-module XMonad.Javran.SysInfoBar.DzenRender where
+module XMonad.Javran.SysInfoBar.DzenRender
+  ( render
+  ) where
 
 import System.Dzen
 import Data.Proxy
@@ -133,21 +135,21 @@ render p st =
     handlers :: [Maybe DString]
     handlers =
         [ eqT @w @CpuUsage <&>
-            \Refl -> renderCpuUsage st
+            \Refl -> fg (sRGB24read "#FFFF00") $ renderCpuUsage st
         , eqT @w @CpuMaxFreq <&>
-            \Refl -> renderCpuMaxFreq st
+            \Refl -> fg (sRGB24read "#FF80A0") $ renderCpuMaxFreq st
         , eqT @w @MemUsage <&>
-            \Refl -> renderMemUsage st
+            \Refl -> fg (sRGB24read "#00FF00") $ renderMemUsage st
         , eqT @w @TopProc <&>
-            \Refl -> renderTopProc st
+            \Refl -> fg (sRGB24read "#FF00FF") $ renderTopProc st
         , eqT @w @NetStat <&>
             \Refl -> renderNetStat st
         , eqT @w @Mail <&>
-            \Refl -> renderMail st
+            \Refl -> fg (sRGB24read "#FFFFFF") $ renderMail st
         , eqT @w @Mpd <&>
-            \Refl -> renderMpd st
+            \Refl -> fg (sRGB24read "#FF80FF") $ renderMpd st
         , eqT @w @Battery <&>
-            \Refl -> renderBattery st
+            \Refl -> fg (sRGB24read "#FF8080") $ renderBattery st
         , eqT @w @DateTime <&>
             \Refl -> renderDateTime st
         ]

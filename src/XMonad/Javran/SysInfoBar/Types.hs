@@ -4,7 +4,6 @@ module XMonad.Javran.SysInfoBar.Types where
 import qualified Data.Map.Strict as M
 import Data.Typeable
 import Control.Concurrent.MVar
-import System.Dzen
 
 {-
   we have one to one relation between worker and running threads
@@ -39,9 +38,3 @@ class Typeable w => Worker w where
     getStateRep <$> (extractWState m :: Maybe (WState w))
 
 data SomeWorkerState = forall w. Worker w => SomeWorkerState (WState w)
-
-class Worker w => RenderableWorker w where
-  -- the idea is that we always output DString,
-  -- which avoids any complication
-  -- involved with Printer
-  wRender :: forall p. p w -> WStateRep w -> DString

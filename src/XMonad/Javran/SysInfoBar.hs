@@ -17,7 +17,6 @@ import System.Process
 import System.IO
 
 import Data.Default
-import Data.Colour.SRGB
 import qualified System.Dzen as Dz
 
 import XMonad.Javran.SysInfoBar.Types
@@ -30,6 +29,8 @@ import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
 import XMonad.Javran.SysInfoBar.Battery (Battery)
 import XMonad.Javran.SysInfoBar.DateTime (DateTime)
+
+import XMonad.Javran.SysInfoBar.DzenRender (render)
 
 {-
   TODO: eliminate RenderableWorker
@@ -77,23 +78,19 @@ import XMonad.Javran.SysInfoBar.DateTime (DateTime)
   - [x] date & time
   - [x] top proc: process with top cpu utilization
  -}
-data EWorker = forall w. RenderableWorker w => EW (Proxy w)
+data EWorker = forall w. Worker w => EW (Proxy w)
 
-type PrintableWorker w = (Worker w, Show (WStateRep w))
-
-workerSpecs :: [(EWorker, Dz.DString -> Dz.DString)]
-workerSpecs =
-  [ (EW (Proxy :: Proxy CpuUsage), Dz.fg (sRGB24read "#FFFF00"))
-  , (EW (Proxy :: Proxy CpuMaxFreq), Dz.fg (sRGB24read "#FF80A0"))
-  , (EW (Proxy :: Proxy MemUsage), Dz.fg (sRGB24read "#00FF00"))
-  , (EW (Proxy :: Proxy TopProc), Dz.fg (sRGB24read "#FF00FF"))
-    -- since NetStat are two small "widgets", we'll let it do its own coloring.
-  , (EW (Proxy :: Proxy NetStat), id)
-  , (EW (Proxy :: Proxy Mail), Dz.fg (sRGB24read "#FFFFFF"))
-  , (EW (Proxy :: Proxy Mpd), Dz.fg (sRGB24read "#FF80FF"))
-  , (EW (Proxy :: Proxy Battery), Dz.fg (sRGB24read "#FF8080"))
-    -- same reason as that of NetStat.
-  , (EW (Proxy :: Proxy DateTime), id)
+workers :: [EWorker]
+workers =
+  [ EW (Proxy :: Proxy CpuUsage)
+  , EW (Proxy :: Proxy CpuMaxFreq)
+  , EW (Proxy :: Proxy MemUsage)
+  , EW (Proxy :: Proxy TopProc)
+  , EW (Proxy :: Proxy NetStat)
+  , EW (Proxy :: Proxy Mail)
+  , EW (Proxy :: Proxy Mpd)
+  , EW (Proxy :: Proxy Battery)
+  , EW (Proxy :: Proxy DateTime)
   ]
 
 spawnDzen :: IO (Handle, ProcessHandle)
@@ -117,19 +114,17 @@ main :: IO ()
 main = do
     (hOut, _) <- spawnDzen
     mSt <- newMVar def
-    mapM_ (forkIO . (\(EW wt) -> runWorker wt mSt) . fst) workerSpecs
+    mapM_ (forkIO . (\(EW wt) -> runWorker wt mSt)) workers
     forever $ do
       threadDelay 500000
       tryReadMVar mSt >>= \case
         Just m ->
-          let renderWidget :: (EWorker, Dz.DString -> Dz.DString) -> Maybe Dz.DString
-              renderWidget (EW p@(ty :: Proxy w), after) = do
-                  s <- extractWStateRep p m
-                  pure $ after (wRender ty s)
+          let renderWidget :: EWorker -> Maybe Dz.DString
+              renderWidget (EW p) = render p <$> extractWStateRep p m
               rendered :: Dz.DString
               rendered =
                   foldr (\x xs -> x <> " " <> xs) mempty
                 . mapMaybe renderWidget
-                $ workerSpecs
+                $ workers
           in hPutStrLn hOut (Dz.toString rendered)
         _ -> pure ()

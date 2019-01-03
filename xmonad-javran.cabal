@@ -53,6 +53,7 @@ executable SysInfoBar
                      , XMonad.Javran.SysInfoBar.Mail
                      , XMonad.Javran.SysInfoBar.TopProc
                      , XMonad.Javran.SysInfoBar.TH
+                     , XMonad.Javran.SysInfoBar.DzenRender
                      , XMonad.Javran.Utils
   build-depends:       base <5
                      , json
