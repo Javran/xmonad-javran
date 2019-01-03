@@ -6,6 +6,7 @@
   , TypeOperators
   , TypeFamilies
   , TypeApplications
+  , MultiWayIf
   #-}
 module XMonad.Javran.SysInfoBar.DzenRender where
 
@@ -18,15 +19,17 @@ import Data.Colour.Names
 import Data.Maybe
 import Text.Printf
 import Control.Lens ((<&>))
+import Data.Colour.SRGB
 
+import XMonad.Javran.Utils
 import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
-
-{- TODO
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar.NetStat (NetStat)
+
+{- TODO
 import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
 import XMonad.Javran.SysInfoBar.Battery (Battery)
@@ -50,6 +53,38 @@ renderCpuMaxFreq = \case
           content = printf "%4.2fGHz" d
       in fromString content
 
+renderMemUsage :: (Int, Int) -> DString
+renderMemUsage (numer, denom) = fromString ("M:" ++ msg)
+  where
+    fI = fromIntegral @_ @Double
+    msg :: String
+    msg = if
+        | numer > denom -> "ERR"
+        | numer == denom -> "##%" -- fully occupied
+        | numer < 0 -> "ERR"
+        | otherwise ->
+            let pc = fI numer * 100 / fI denom
+            in printf "%2d%%" (floor pc :: Int)
+
+renderTopProc :: Maybe String -> DString
+renderTopProc = \case
+    Nothing -> "------"
+    Just xs | length xs <= 6 -> fromString $ take 6 (xs ++ repeat ' ')
+    Just xs -> fromString $ take 4 xs ++ ".."
+
+renderNetStat :: (Int, Int) -> DString
+renderNetStat (rBytes, tBytes) =
+    rContent <> " " <> tContent
+  where
+    rContent =
+        fg (sRGB24read "#80FF80")
+      . fromString
+      $ "R:" ++ byteToReadableString rBytes
+    tContent =
+        fg (sRGB24read "#8080FF")
+      . fromString
+      $ "T:" ++ byteToReadableString tBytes
+
 render :: forall w. Worker w => Proxy w -> WStateRep w -> DString
 render p st =
     -- try typecasting and pick first one that has succeeded
@@ -61,7 +96,13 @@ render p st =
             \Refl -> renderCpuUsage st
         , eqT @w @CpuMaxFreq <&>
             \Refl -> renderCpuMaxFreq st
+        , eqT @w @MemUsage <&>
+            \Refl -> renderMemUsage st
+        , eqT @w @TopProc <&>
+            \Refl -> renderTopProc st
+        , eqT @w @NetStat <&>
+            \Refl -> renderNetStat st
         ]
-        
+
     fallback :: DString
     fallback = fromString (show (typeRep p))
