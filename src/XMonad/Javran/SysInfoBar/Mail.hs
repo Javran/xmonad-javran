@@ -17,6 +17,7 @@ import Data.Function
 import qualified Data.Map.Strict as M
 import Text.Printf
 import Data.String
+import Data.Time
 import System.Dzen.Internal (primStr)
 
 type AuthInfo = (String, String)
@@ -48,26 +49,45 @@ getUnreadMailCount c = catch getCount ioErrorHandler
   where
     getCount = Just . length <$> search c [NOTs (FLAG Seen)]
 
+
+appendLog :: String -> IO ()
+appendLog msg = do
+  t <- getZonedTime
+  let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
+      timeStr = formatTime defaultTimeLocale "%T" t
+      header = "[" <> dateStr <> " " <> timeStr <> "]"
+  appendFile "/tmp/mail.log" (header <> " " <> msg <> "\n")
+  
 runWorkerWith :: MVar BarState -> IO ()
-runWorkerWith mv = run Nothing
+runWorkerWith mv =
+    appendLog "start working" >>
+    run Nothing
   where
     run :: Maybe IMAPConnection -> IO ()
     run (Just conn) = fix $ \redo -> do
       mResult <- getUnreadMailCount conn
       case mResult of
         Just _ -> do
-          let k = typeRep (Proxy :: Proxy Mail)  
+          appendLog "mail checked successfully"
+          let k = typeRep (Proxy :: Proxy Mail)
           modifyMVar_ mv (pure . M.insert k (SomeWorkerState (St mResult)))
           sleep >> redo
         Nothing ->
+          appendLog "connection is down" >>
           -- connection is down
           sleep >> run Nothing
     run Nothing = do
+      appendLog "prepare connection"
       -- try to prepare a connection if possible
       mc <- prepareConn
       case mc of
-        Just _ -> run mc
-        Nothing -> sleep >> run Nothing
+        Just _ ->
+          appendLog "connection established" >>
+          run mc
+        Nothing ->
+          appendLog "cannot establish connection" >>
+          sleep >>
+          run Nothing
 
     sleep :: IO ()
     sleep = threadDelay (oneSec * 60 * 5)
