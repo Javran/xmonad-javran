@@ -20,6 +20,8 @@ import Data.Maybe
 import Text.Printf
 import Control.Lens ((<&>))
 import Data.Colour.SRGB
+import System.Dzen.Internal (primStr)
+import qualified Network.MPD as Mpd
 
 import XMonad.Javran.Utils
 import XMonad.Javran.SysInfoBar.Types
@@ -28,13 +30,10 @@ import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar.NetStat (NetStat)
-
-{- TODO
 import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
 import XMonad.Javran.SysInfoBar.Battery (Battery)
 import XMonad.Javran.SysInfoBar.DateTime (DateTime)
--}
 
 renderCpuUsage :: [Int] -> DString
 renderCpuUsage xs = "[" <> foldMap rdr xs <> "]"
@@ -85,6 +84,47 @@ renderNetStat (rBytes, tBytes) =
       . fromString
       $ "T:" ++ byteToReadableString tBytes
 
+renderMail :: Maybe Int -> DString
+renderMail mCount =
+    primStr (caPre <> content <> caPost) (Just (length content))
+  where
+    caPre, caPost :: String
+    caPre = "^ca(1, xdg-open https://mail.google.com/)"
+    caPost = "^ca()"
+    content :: String
+    content =
+      case mCount of
+        Nothing -> "----"
+        Just count ->
+          if count > 9999
+            then ">=1k"
+            else fromString (printf "%4d" count)
+
+renderMpd :: Maybe Mpd.State -> DString
+renderMpd mpdSt = "[" <> st <> "]"
+  where
+    st =
+      case mpdSt of
+        Nothing -> "?"
+        Just Mpd.Playing -> ">"
+        Just Mpd.Stopped -> "|"
+        Just Mpd.Paused -> "|"
+
+renderBattery :: (Int, Bool) -> DString
+renderBattery (capa, charge) = chgRdr <> capRdr
+  where
+    chgRdr = if charge then "+" else "="
+    capRdr =
+      if capa == 100
+        then "Ful"
+        else fromString (printf "%2d%%" capa)
+
+renderDateTime :: (String, String) -> DString
+renderDateTime (dateStr, timeStr) = dStr <> " " <> tStr
+  where
+    dStr = fg (sRGB24read "#80FFFF") (fromString dateStr)
+    tStr = fg (sRGB24read "#FFFF80") (fromString timeStr)
+
 render :: forall w. Worker w => Proxy w -> WStateRep w -> DString
 render p st =
     -- try typecasting and pick first one that has succeeded
@@ -102,6 +142,14 @@ render p st =
             \Refl -> renderTopProc st
         , eqT @w @NetStat <&>
             \Refl -> renderNetStat st
+        , eqT @w @Mail <&>
+            \Refl -> renderMail st
+        , eqT @w @Mpd <&>
+            \Refl -> renderMpd st
+        , eqT @w @Battery <&>
+            \Refl -> renderBattery st
+        , eqT @w @DateTime <&>
+            \Refl -> renderDateTime st
         ]
 
     fallback :: DString
