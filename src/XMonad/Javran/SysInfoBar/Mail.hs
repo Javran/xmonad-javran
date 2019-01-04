@@ -28,8 +28,11 @@ getAuthInfo = do
     hClose h
     pure (user, pswd)
 
-ioErrorHandler :: IOException -> IO (Maybe a)
-ioErrorHandler _ = pure Nothing
+-- TODO: changing to capture all errors in hope that we can understand what's broken
+ioErrorHandler :: SomeException -> IO (Maybe a)
+ioErrorHandler e = do
+  appendLog $ "exception caught: " ++ displayException e
+  pure Nothing
 
 prepareConn :: IO (Maybe IMAPConnection)
 prepareConn = catch prep ioErrorHandler
@@ -45,7 +48,6 @@ getUnreadMailCount :: IMAPConnection -> IO (Maybe Int)
 getUnreadMailCount c = catch getCount ioErrorHandler
   where
     getCount = Just . length <$> search c [NOTs (FLAG Seen)]
-
 
 appendLog :: String -> IO ()
 appendLog msg = do
