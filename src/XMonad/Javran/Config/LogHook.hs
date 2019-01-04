@@ -91,9 +91,9 @@ mkLogHook h = do
         dzOutData :: DZ.DString
         dzOutData = mconcat . intersperse sep $
             [ DZ.fg white workspaceInfo
-            , DZ.fg (sRGB24 0xFF 0x66 0x00) curWsName
-            , DZ.fg (sRGB24 0xFF 0x33 0x22) curLayout
-            , DZ.fg (sRGB24 0x33 0xFF 0xFF) winTitle
+            , DZ.fg (sRGB24read "#FF6600") curWsName
+            , DZ.fg (sRGB24read "#FF3322") curLayout
+            , DZ.fg (sRGB24read "#33FFFF") winTitle
             ]
     {-
       TODO: click to switch e.g. exec "xdotool key Hyper_L+5"

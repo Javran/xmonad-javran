@@ -33,50 +33,30 @@ import XMonad.Javran.SysInfoBar.DateTime (DateTime)
 import XMonad.Javran.SysInfoBar.DzenRender (render)
 
 {-
-  TODO: eliminate RenderableWorker
-
-  - this is not the right thing to do: Worker are supposed to
-    get info from the system and that's it. how it should be presented
-    to the user isn't Worker's work.
-  - we are lucky that TypeRep is a class of Eq, which means user can take a WStateRep
-    and its corresponding Worker type and do different things accordingly - and that
-    got to be a better solution.
- -}
-
-{-
-
-  this module aims at eliminating the need for
-  current conky ==> StreamConverter ==> dzen pipeline,
-  simplifying it into SystemInfoBar ==> dzen,
-  in which we manage a separated instance of dzen.
-
--}
-
-{-
   system info we are looking at:
 
-  - [x] CPU usage for each individual ones
+  - CPU usage for each individual ones
 
     + http://e2e.ti.com/support/legacy_forums/embedded/linux/f/354/t/221192
 
-  - [x] CPU freq
+  - CPU freq
 
     + conky uses "freq_q" to show cpu freq in GHz, when number is omitted,
       CPU #1 is shown. here we prefer showing the maximum GHz across all available CPUs
 
-  - [x] memory usage
+  - memory usage
 
     + /proc/meminfo: seems to be just (MemTotal - MemAvailable) / MemTotal
     + MemFree is unused physical RAM, while MemAvailable is available memory
       if we were to start a new app - which tends to be larger
       I'm only interested in percentage of memory that are being actually used.
 
-  - [x] network Rx & Tx
-  - [x] mail checker
-  - [x] mpd state
-  - [x] whether battery is charging & battery remaining
-  - [x] date & time
-  - [x] top proc: process with top cpu utilization
+  - network Rx & Tx
+  - mail checker
+  - mpd state
+  - whether battery is charging & battery remaining
+  - date & time
+  - top proc: process with top cpu utilization
  -}
 data EWorker = forall w. Worker w => EW (Proxy w)
 
