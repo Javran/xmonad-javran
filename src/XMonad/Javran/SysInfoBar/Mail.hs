@@ -29,22 +29,17 @@ getAuthInfo = do
     pure (user, pswd)
 
 {-
-  TODO: changing to capture all errors in hope that we can understand what's broken
-
-  NOTE: exception caught:
-
-  Data.ByteString.last: empty ByteString
-  CallStack (from HasCallStack):
-    error, called at libraries/bytestring/Data/ByteString.hs:1877:23 in bytestring-0.10.8.2:Data.ByteString
-
+  capture all exceptions happened in the library call,
+  this is a shotgun approach, but for our task that is required to
+  run all the time, this is the safest way.
  -}
-ioErrorHandler :: SomeException -> IO (Maybe a)
-ioErrorHandler e = do
+errHandler :: SomeException -> IO (Maybe a)
+errHandler e = do
   appendLog $ "exception caught: " ++ displayException e
   pure Nothing
 
 prepareConn :: IO (Maybe IMAPConnection)
-prepareConn = catch prep ioErrorHandler
+prepareConn = catch prep errHandler
   where
     prep = do
         c <- connectIMAPSSL "imap.gmail.com"
@@ -54,7 +49,7 @@ prepareConn = catch prep ioErrorHandler
         pure (Just c)
 
 getUnreadMailCount :: IMAPConnection -> IO (Maybe Int)
-getUnreadMailCount c = catch getCount ioErrorHandler
+getUnreadMailCount c = catch getCount errHandler
   where
     getCount = Just . length <$> search c [NOTs (FLAG Seen)]
 
