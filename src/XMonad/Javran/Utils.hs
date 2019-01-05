@@ -4,12 +4,14 @@ module XMonad.Javran.Utils
   , dzenPutLn
   , fixStringLen
   , byteToReadableString
+  , appendLogTo
   ) where
 
 import System.IO (Handle)
 import Data.Text (pack)
 import Data.Text.Encoding (encodeUtf8)
 import Data.ByteString (hPut)
+import Data.Time
 
 -- | @clamp (low,high) v@ returns v if it's in range of @(low,high)@
 --   otherwise the corresponding bound is returned
@@ -81,3 +83,11 @@ byteToReadableString b
         unitGiB = 1024 *  unitMiB
         bDivKiB = b `div` unitKiB
         bDivMiB = b `div` unitMiB
+
+appendLogTo :: FilePath -> String -> IO ()
+appendLogTo logPath msg = do
+  t <- getZonedTime
+  let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
+      timeStr = formatTime defaultTimeLocale "%T" t
+      header = "[" <> dateStr <> " " <> timeStr <> "]"
+  appendFile logPath (header <> " " <> msg <> "\n")

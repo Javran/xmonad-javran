@@ -10,12 +10,14 @@ import Network.HaskellNet.IMAP
 import Network.HaskellNet.IMAP.Connection
 import Network.HaskellNet.IMAP.SSL
 import Control.Exception
-import XMonad.Javran.SysInfoBar.Types
+
 import Control.Concurrent
 import Data.Typeable
 import Data.Function
 import qualified Data.Map.Strict as M
-import Data.Time
+
+import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.Utils
 
 type AuthInfo = (String, String)
 
@@ -54,12 +56,7 @@ getUnreadMailCount c = catch getCount errHandler
     getCount = Just . length <$> search c [NOTs (FLAG Seen)]
 
 appendLog :: String -> IO ()
-appendLog msg = do
-  t <- getZonedTime
-  let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
-      timeStr = formatTime defaultTimeLocale "%T" t
-      header = "[" <> dateStr <> " " <> timeStr <> "]"
-  appendFile "/tmp/mail.log" (header <> " " <> msg <> "\n")
+appendLog = appendLogTo "/tmp/mail.log"
   
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv =
