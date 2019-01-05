@@ -28,7 +28,16 @@ getAuthInfo = do
     hClose h
     pure (user, pswd)
 
--- TODO: changing to capture all errors in hope that we can understand what's broken
+{-
+  TODO: changing to capture all errors in hope that we can understand what's broken
+
+  NOTE: exception caught:
+
+  Data.ByteString.last: empty ByteString
+  CallStack (from HasCallStack):
+    error, called at libraries/bytestring/Data/ByteString.hs:1877:23 in bytestring-0.10.8.2:Data.ByteString
+
+ -}
 ioErrorHandler :: SomeException -> IO (Maybe a)
 ioErrorHandler e = do
   appendLog $ "exception caught: " ++ displayException e
