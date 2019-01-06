@@ -1,5 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
-{-# LANGUAGE PartialTypeSignatures, OverloadedStrings #-}
+{-# LANGUAGE
+    PartialTypeSignatures
+  , OverloadedStrings
+  , RecordWildCards
+  #-}
 module XMonad.Javran.Config
 ( myConfig
 ) where
@@ -46,13 +50,12 @@ myStartupHook = do
     safeSpawn "/bin/bash" ["/home/javran/.xmonad/on-startup.sh"]
 
 myEwmhDesktopsEventHook :: Event -> X All
-myEwmhDesktopsEventHook e@ClientMessageEvent
-    {ev_message_type = mt} = do
+myEwmhDesktopsEventHook e@ClientMessageEvent{..} = do
     a_aw <- getAtom "_NET_ACTIVE_WINDOW"
     curTime <- liftIO getCurrentTime
     StartupTime starupTime <- XS.get
     -- prevernt ewmh for the first 5 sec window after startup.
-    if mt == a_aw && curTime `diffUTCTime` starupTime <= 5.0
+    if ev_message_type == a_aw && curTime `diffUTCTime` starupTime <= 5.0
       then pure (All True)
       else ewmhDesktopsEventHook e
 myEwmhDesktopsEventHook e = ewmhDesktopsEventHook e
