@@ -10,8 +10,11 @@ import XMonad.Core hiding (workspaces)
 workspaceNames :: [String]
 workspaceNames = words "any1 any2 msg1 ext1 ext2"
 
+-- sadly WorkspaceId is just a type synonym to String,
+-- so let's just use Int as String in hope of reducing computational work
+-- when testing equalities
 workspaceIds :: [WorkspaceId]
-workspaceIds = show <$> [1 :: Int ..]
+workspaceIds = zipWith (\x _ -> show x) [1 :: Int ..] workspaceNames
 
 workspaces :: M.Map WorkspaceId String
 workspaces = M.fromList (zip workspaceIds workspaceNames)
