@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module XMonad.Javran.Main
   ( main
   ) where
@@ -12,25 +13,21 @@ import XMonad.Util.Run (spawnPipe)
 
 import XMonad.Javran.Config
 
-initScript             :: FilePath -> FilePath
-initScript             = (</> "xmonad-init.sh")
-
-showI :: Int -> String
-showI = show
-
 dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
-    , "-x" , showI 0
-    , "-w" , showI 900
+    , "-x" , sI 0
+    , "-w" , sI 900
     , "-ta", "l"
-    , "-h" , showI 24
+    , "-h" , sI 24
     , "-fg", "\"#22EE11\""
     , "-bg", "\"#202020\""
     , "-fn", "\"WenQuanYi MicroHei Mono:pixelsize=15:antialias=true\""
     , "-e", "\"button2=;\""
     --, "-l", "5"
     ]
+  where
+    sI = show @Int
 
 main :: IO ()
 main = EH.withCustomHelper mhConf
@@ -38,7 +35,7 @@ main = EH.withCustomHelper mhConf
     mhConf = EH.defaultConfig  {
           EH.run = do
                 basePath <- getXMonadDir
-                let cmd = "/bin/bash " ++ initScript basePath
+                let cmd = "/bin/bash " ++ (basePath </> "xmonad-init.sh")
                 _ <- runCommand cmd
                 -- TODO: next line kills xmonad itself...why?
                 -- exitCode <- waitForProcess hInit
