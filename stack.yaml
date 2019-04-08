@@ -3,10 +3,13 @@ extra-package-dbs: []
 packages:
 - '.'
 extra-deps:
-- X11-1.8
+- X11-1.9
 - xmonad-contrib-0.15
 - xmonad-entryhelper-0.1.0.0
 - xmonad-0.15
 - git: https://github.com/Javran/dzen-utils.git
   commit: 44bb4228c7b0a7413b0f5751bfaacf9c0e229362
-resolver: lts-12.20
+- git: https://github.com/jtdaugherty/HaskellNet.git
+  commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
+- HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157
+resolver: lts-13.15
