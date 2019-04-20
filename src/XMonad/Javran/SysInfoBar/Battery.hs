@@ -44,7 +44,8 @@ getBatteryPath = catch tryGet (handleExc Nothing)
     testProperBatDir sub = catch doTest (handleExc Nothing)
       where
         doTest = do
-          guard (take 3 sub == "BAT")
+          let batMagic = "BAT"
+          guard (take (length batMagic) sub == batMagic)
           let path = sysPowerSupply ++ sub
           "Battery\n" <- readFile (path ++ "/type")
           pure (Just path)

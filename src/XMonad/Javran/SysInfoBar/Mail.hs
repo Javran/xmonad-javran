@@ -57,7 +57,7 @@ getUnreadMailCount c = catch getCount errHandler
 
 appendLog :: String -> IO ()
 appendLog = appendLogTo "/tmp/mail.log"
-  
+
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = run Nothing
   where
