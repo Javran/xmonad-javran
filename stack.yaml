@@ -12,4 +12,4 @@ extra-deps:
 - git: https://github.com/jtdaugherty/HaskellNet.git
   commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
 - HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157
-resolver: lts-13.15
+resolver: lts-13.20
