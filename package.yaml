@@ -1,0 +1,51 @@
+name: xmonad-javran
+version: 0.1.0.0
+github:  "Javran/xmonad-javran"
+license: MIT
+author: "Javran Cheng"
+maintainer: "Javran.C@gmail.com"
+copyright: "Copyright: (c) 2014-2019 Javran Cheng"
+description: "Javran's xmonad config"
+
+dependencies:
+- base
+- filepath
+- xmonad
+- xmonad-contrib
+- json
+- containers
+- process
+- bytestring
+- time
+- xmonad-entryhelper
+- colour
+- dzen-utils
+- text
+- data-default
+- template-haskell
+- libmpd
+- directory
+- HaskellNet
+- HaskellNet-SSL
+- lens
+
+executables:
+  xmonad-javran:
+    source-dirs: src
+    main: XMonad.Javran.Main
+    ghc-options:
+      - -threaded
+      - -O2
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -main-is XMonad/Javran/Main
+
+  SysInfoBar:
+    source-dirs: src
+    main: XMonad.Javran.SysInfoBar
+    ghc-options:
+      - -threaded
+      - -O2
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -main-is XMonad/Javran/SysInfoBar

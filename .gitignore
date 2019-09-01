@@ -27,3 +27,5 @@ StreamConvert
 /.stack-work/
 /dist-newstyle/
 /stack.yaml.lock
+
+xmonad-javran.cabal
