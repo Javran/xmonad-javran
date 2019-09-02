@@ -9,25 +9,25 @@ description: "Javran's xmonad config"
 
 dependencies:
 - base
-- filepath
-- xmonad
-- xmonad-contrib
-- json
-- containers
-- process
 - bytestring
-- time
-- xmonad-entryhelper
 - colour
-- dzen-utils
-- text
+- containers
 - data-default
-- template-haskell
-- libmpd
 - directory
+- dzen-utils
+- filepath
 - HaskellNet
 - HaskellNet-SSL
+- json
 - lens
+- libmpd
+- process
+- template-haskell
+- text
+- time
+- xmonad
+- xmonad-contrib
+- xmonad-entryhelper
 
 executables:
   xmonad-javran:
