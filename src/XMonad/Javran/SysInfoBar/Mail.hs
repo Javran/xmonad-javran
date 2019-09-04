@@ -3,17 +3,17 @@ module XMonad.Javran.SysInfoBar.Mail
   ( Mail
   ) where
 
-import System.IO
-import System.Environment
-
+import Control.Concurrent
+import Control.DeepSeq
+import Control.Exception
+import Data.Function
+import Data.Typeable
 import Network.HaskellNet.IMAP
 import Network.HaskellNet.IMAP.Connection
 import Network.HaskellNet.IMAP.SSL
-import Control.Exception
+import System.Environment
+import System.IO
 
-import Control.Concurrent
-import Data.Typeable
-import Data.Function
 import qualified Data.Map.Strict as M
 
 import XMonad.Javran.SysInfoBar.Types
@@ -53,7 +53,7 @@ prepareConn = catch prep errHandler
 getUnreadMailCount :: IMAPConnection -> IO (Maybe Int)
 getUnreadMailCount c = catch getCount errHandler
   where
-    getCount = Just . length <$> search c [NOTs (FLAG Seen)]
+    getCount = Just . length <$!!> search c [NOTs (FLAG Seen)]
 
 appendLog :: String -> IO ()
 appendLog = appendLogTo "/tmp/mail.log"

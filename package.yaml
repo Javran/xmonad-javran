@@ -13,6 +13,7 @@ dependencies:
 - colour
 - containers
 - data-default
+- deepseq
 - directory
 - dzen-utils
 - filepath
