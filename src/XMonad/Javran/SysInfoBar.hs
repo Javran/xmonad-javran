@@ -60,16 +60,6 @@ import XMonad.Javran.SysInfoBar.DzenRender (render)
  -}
 data EWorker = forall w. Worker w => EW (Proxy w)
 
-{-
-  TODO: potental improvements
-
-  - now I feel this use case is not a very good use of existential types,
-    as we still have many boilerplate to write and in addition,
-    we don't get much since all plugins' interfaces are the same.
-
- - switch to async tasks. I feel that way we can get a bit more control.
-
- -}
 workers :: [EWorker]
 workers =
   [ EW (Proxy :: Proxy CpuUsage)
