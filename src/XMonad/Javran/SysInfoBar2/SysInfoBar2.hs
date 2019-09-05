@@ -15,3 +15,21 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2 where
    send response back.
 
  -}
+
+{-
+  Design revisit:
+
+  - there's no need of storing states in a shared dict.
+    we can just let workers pass rendered messages (in the form of thunk),
+    together with a timestamp. so main thread knows that a thread
+    might be dead for random reasons and try to kill and restart it.
+
+  - messages goes into a queue in main thread, which then reads and handles the actual updating
+    (optimization: if multiple messages are passed from same thread, we can only take the latest one)
+
+  - for the health check idea above to work, defined a deadline for each worker.
+
+  - threads should really be identified with thread ids - using type as identifier
+    limits us to use one thread for each type, which is not necessary.
+
+ -}
