@@ -17,9 +17,12 @@ data MessagePayload
 
 type MessageQueue = Seq.Seq (ThreadId, (UTCTime, MessagePayload))
 
+-- main thread will provide such a callback for sending messages.
+type SendMessage = ThreadId -> MessagePayload -> IO ()
+
 class Worker w where
   -- interface to start the worker
-  workerStart :: Proxy w -> MVar MessageQueue -> IO ()
+  workerStart :: Proxy w -> SendMessage -> IO ()
   -- if worker doesn't send a message within this time limit,
   -- it's considered dead therefore killed & restarted
   workerDeadline :: Proxy w -> Int

@@ -8,6 +8,10 @@
   #-}
 module XMonad.Javran.SysInfoBar.CpuUsage
   ( CpuUsage
+  , CpuStatRow(..)
+  , parseRow
+  , getCpuStatRaw
+  , computeCpuUsage
   ) where
 
 import System.IO
