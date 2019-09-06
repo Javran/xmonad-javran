@@ -1,3 +1,6 @@
+{-# LANGUAGE
+    ExistentialQuantification
+  #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2 where
 
 {-
@@ -31,5 +34,33 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2 where
 
   - threads should really be identified with thread ids - using type as identifier
     limits us to use one thread for each type, which is not necessary.
+
+ -}
+
+import Data.Proxy
+import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
+import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
+
+data EWorker = forall w. Worker w => EW (Proxy w)
+
+-- this list specifies stuff that we want to show
+-- on the status bar in that order.
+-- at runtime each element will be identified by its index here
+-- and assigned a thread for doing the actual work.
+-- unlike first version, duplicated elements are allowed.
+workersSpec :: [EWorker]
+workersSpec =
+  [ EW (Proxy :: Proxy CpuUsage)
+  , EW (Proxy :: Proxy DateTime)
+  ]
+
+{-
+  main thread loop:
+
+  - handle message, and render to dzen2
+  - worker maintenance: kill / restart workers if needed
+  - sleep and wait for update
+  - loop
 
  -}
