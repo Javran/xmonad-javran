@@ -1,7 +1,9 @@
 {-# LANGUAGE
     ExistentialQuantification
   #-}
-module XMonad.Javran.SysInfoBar2.SysInfoBar2 where
+module XMonad.Javran.SysInfoBar2.SysInfoBar2
+  ( main
+  ) where
 
 {-
   A playground for trying out idea for improved design of SysInfoBar.
@@ -38,22 +40,38 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2 where
  -}
 
 import Data.Proxy
+import Control.Concurrent
+import Data.Time.Clock
+
+import qualified Data.Vector as V
+import qualified Data.IntMap.Strict as IM
+
 import XMonad.Javran.SysInfoBar2.Types
 import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
 data EWorker = forall w. Worker w => EW (Proxy w)
 
--- this list specifies stuff that we want to show
+-- this vector specifies stuff that we want to show
 -- on the status bar in that order.
 -- at runtime each element will be identified by its index here
 -- and assigned a thread for doing the actual work.
 -- unlike first version, duplicated elements are allowed.
-workersSpec :: [EWorker]
-workersSpec =
+workersSpec :: V.Vector EWorker
+workersSpec = V.fromList
   [ EW (Proxy :: Proxy CpuUsage)
   , EW (Proxy :: Proxy DateTime)
   ]
+
+data WorkerRep
+  = WorkerRep
+  { wrId :: Int
+  , wrLastKnown :: UTCTime -- last time it sends a message / initialized to creation time.
+  , wrThreadId :: ThreadId
+  }
+
+-- runtime representation of workers.
+type WorkersRep = IM.IntMap (EWorker, WorkerRep)
 
 {-
   main thread loop:
@@ -64,3 +82,6 @@ workersSpec =
   - loop
 
  -}
+
+main :: IO ()
+main = pure ()

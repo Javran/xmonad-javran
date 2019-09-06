@@ -26,6 +26,7 @@ dependencies:
 - template-haskell
 - text
 - time
+- vector
 - xmonad
 - xmonad-contrib
 - xmonad-entryhelper
