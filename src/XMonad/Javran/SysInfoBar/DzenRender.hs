@@ -11,6 +11,7 @@
 module XMonad.Javran.SysInfoBar.DzenRender
   ( render
   , renderCpuUsage
+  , renderDateTime
   ) where
 
 import System.Dzen
