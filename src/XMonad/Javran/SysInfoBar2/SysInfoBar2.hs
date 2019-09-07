@@ -2,6 +2,7 @@
     ExistentialQuantification
   , FlexibleContexts
   , LambdaCase
+  , RecordWildCards
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
   ( main
@@ -45,8 +46,8 @@ import Data.Proxy
 import Control.Concurrent
 import Control.Monad
 import Data.Time.Clock
-import Data.Function
 import Control.Monad.State.Strict
+import Control.Concurrent.Async
 
 import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
@@ -73,7 +74,7 @@ data WorkerRep
   = WorkerRep
   { wrId :: Int
   , wrLastKnown :: UTCTime -- last time it sends a message / initialized to creation time.
-  , wrThreadId :: ThreadId
+  , wrAsync :: Async ()
   }
 
 -- runtime representation of workers.
@@ -96,18 +97,24 @@ mainLoop mQueue = evalStateT $ forever $ do
     q <- swapMVar mQueue Seq.empty
     putStrLn $ "Received " <> show (Seq.length q) <> " messages"
 
-  let maintainWorker wId tyWorker =
+  let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
-          Nothing ->
+          Nothing -> do
             -- this instance is missing, we need to start it.
-            pure ()
+            let sendMessage :: ThreadId -> MessagePayload -> IO ()
+                sendMessage tid mp = do
+                  t <- getCurrentTime
+                  modifyMVar_ mQueue (pure . (Seq.|> (tid, (t, mp))))
+            let wrId = wId
+            wrAsync <- liftIO $ async $ workerStart tyWorker sendMessage
+            wrLastKnown <- liftIO getCurrentTime
+            modify (IM.insert wId WorkerRep {..})
           Just _ ->
             -- need some other handling to see whether this one is still "living"
             pure ()
   V.imapM_ maintainWorker workersSpec
   -- TODO: handle async tasks
   liftIO $ threadDelay $ 200 * 1000
-
 
 main :: IO ()
 main = do

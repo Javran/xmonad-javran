@@ -8,6 +8,7 @@ copyright: "Copyright: (c) 2014-2019 Javran Cheng"
 description: "Javran's xmonad config"
 
 dependencies:
+- async
 - base
 - bytestring
 - colour
