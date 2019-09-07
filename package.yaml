@@ -22,6 +22,7 @@ dependencies:
 - json
 - lens
 - libmpd
+- mtl
 - process
 - template-haskell
 - text

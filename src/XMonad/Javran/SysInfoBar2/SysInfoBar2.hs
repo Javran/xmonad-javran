@@ -1,5 +1,7 @@
 {-# LANGUAGE
     ExistentialQuantification
+  , FlexibleContexts
+  , LambdaCase
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
   ( main
@@ -44,6 +46,7 @@ import Control.Concurrent
 import Control.Monad
 import Data.Time.Clock
 import Data.Function
+import Control.Monad.State.Strict
 
 import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
@@ -87,10 +90,24 @@ type WorkersRep = IM.IntMap WorkerRep
  -}
 
 mainLoop :: MVar MessageQueue -> WorkersRep -> IO ()
-mainLoop mQueue wState = do
-  let wState' = wState
-  threadDelay $ 200 * 1000
-  mainLoop mQueue wState'
+mainLoop mQueue = evalStateT $ forever $ do
+  -- TODO: process incoming message
+  liftIO $ do
+    q <- swapMVar mQueue Seq.empty
+    putStrLn $ "Received " <> show (Seq.length q) <> " messages"
+
+  let maintainWorker wId tyWorker =
+        gets (IM.lookup wId) >>= \case
+          Nothing ->
+            -- this instance is missing, we need to start it.
+            pure ()
+          Just _ ->
+            -- need some other handling to see whether this one is still "living"
+            pure ()
+  V.imapM_ maintainWorker workersSpec
+  -- TODO: handle async tasks
+  liftIO $ threadDelay $ 200 * 1000
+
 
 main :: IO ()
 main = do
