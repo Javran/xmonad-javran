@@ -41,10 +41,13 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2
 
 import Data.Proxy
 import Control.Concurrent
+import Control.Monad
 import Data.Time.Clock
+import Data.Function
 
 import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
+import qualified Data.Sequence as Seq
 
 import XMonad.Javran.SysInfoBar2.Types
 import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
@@ -71,7 +74,7 @@ data WorkerRep
   }
 
 -- runtime representation of workers.
-type WorkersRep = IM.IntMap (EWorker, WorkerRep)
+type WorkersRep = IM.IntMap WorkerRep
 
 {-
   main thread loop:
@@ -83,5 +86,14 @@ type WorkersRep = IM.IntMap (EWorker, WorkerRep)
 
  -}
 
+mainLoop :: MVar MessageQueue -> WorkersRep -> IO ()
+mainLoop mQueue wState = do
+  let wState' = wState
+  threadDelay $ 200 * 1000
+  mainLoop mQueue wState'
+
 main :: IO ()
-main = pure ()
+main = do
+  mQueue <- newMVar Seq.empty
+  mainLoop mQueue IM.empty
+
