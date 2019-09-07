@@ -32,4 +32,4 @@ instance Worker CpuUsage where
     (s, _) <- CU.getCpuStatRaw
     startLoop sendMessage s
 
-  workerDeadline _ = 10 * 1000 * 1000
+  workerDeadline _ = 10

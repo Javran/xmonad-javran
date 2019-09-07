@@ -111,13 +111,23 @@ mainLoop mQueue = evalStateT $ forever $ do
                 sendMessage mp = do
                   let tId = asyncThreadId wrAsync
                   t <- getCurrentTime
+                  -- note that the reason that we are using thread id
+                  -- instead of worker id is to prevent a "zombie" thread
+                  -- from sending invalid data.
                   modifyMVar_ mQueue (pure . (Seq.|> (tId, (t, mp))))
             wrLastKnown <- liftIO getCurrentTime
             modify (IM.insert wId WorkerRep {..})
           Just WorkerRep {..} -> liftIO (poll wrAsync) >>= \case
-            Nothing ->
-              -- TODO: thread is alive, check last known time
-              pure ()
+            Nothing -> do
+              curT <- liftIO getCurrentTime
+              let lastContactDur = round $ diffUTCTime curT wrLastKnown
+              when (lastContactDur > workerDeadline tyWorker) $ do
+                liftIO $ do
+                  putStrLn $
+                    "Worker #" <> show wId
+                    <> " doesn't contact within deadline, canceling it."
+                  throwTo (asyncThreadId wrAsync) AsyncCancelled
+                modify (IM.delete wId)
             Just r -> do
               liftIO $ do
                 case r of

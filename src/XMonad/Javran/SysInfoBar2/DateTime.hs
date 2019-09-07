@@ -23,4 +23,4 @@ instance Worker DateTime where
       sendMsg dateStr timeStr
       threadDelay 500000
 
-  workerDeadline _ = 10 * 1000 * 1000
+  workerDeadline _ = 4
