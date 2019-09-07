@@ -3,6 +3,7 @@
   , FlexibleContexts
   , LambdaCase
   , RecordWildCards
+  , RecursiveDo
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
   ( main
@@ -101,22 +102,21 @@ mainLoop mQueue = evalStateT $ forever $ do
 
   let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
-          Nothing -> do
+          Nothing -> mdo
             -- this instance is missing, we need to start it.
-            let sendMessage :: ThreadId -> MessagePayload -> IO ()
-                sendMessage tid mp = do
-                  -- TODO: I just realized that leaving tid to client is not necessary.
-                  t <- getCurrentTime
-                  modifyMVar_ mQueue (pure . (Seq.|> (tid, (t, mp))))
             let wrId = wId
             wrAsync <- liftIO $ async $ workerStart tyWorker sendMessage
+            let sendMessage :: MessagePayload -> IO ()
+                sendMessage mp = do
+                  let tId = asyncThreadId wrAsync
+                  t <- getCurrentTime
+                  modifyMVar_ mQueue (pure . (Seq.|> (tId, (t, mp))))
             wrLastKnown <- liftIO getCurrentTime
             modify (IM.insert wId WorkerRep {..})
           Just _ ->
-            -- need some other handling to see whether this one is still "living"
+            -- TODO: need some other handling to see whether this one is still "living"
             pure ()
   V.imapM_ maintainWorker workersSpec
-  -- TODO: handle async tasks
   liftIO $ threadDelay $ 200 * 1000
 
 main :: IO ()

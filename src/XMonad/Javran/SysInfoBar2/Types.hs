@@ -18,7 +18,7 @@ data MessagePayload
 type MessageQueue = Seq.Seq (ThreadId, (UTCTime, MessagePayload))
 
 -- main thread will provide such a callback for sending messages.
-type SendMessage = ThreadId -> MessagePayload -> IO ()
+type SendMessage = MessagePayload -> IO ()
 
 class Worker w where
   -- interface to start the worker

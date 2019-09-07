@@ -29,8 +29,7 @@ startLoop sendMessage = fix $ \loop oldS -> do
 
 instance Worker CpuUsage where
   workerStart _ sendMessage = do
-    tid <- myThreadId
     (s, _) <- CU.getCpuStatRaw
-    startLoop (sendMessage tid) s
+    startLoop sendMessage s
 
   workerDeadline _ = 10 * 1000 * 1000

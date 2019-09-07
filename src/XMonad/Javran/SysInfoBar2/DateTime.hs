@@ -13,9 +13,8 @@ data DateTime
 
 instance Worker DateTime where
   workerStart _ sendMessage = do
-    tid <- myThreadId
     let sendMsg dS tS =
-          sendMessage tid $
+          sendMessage $
             MPRendered (Just $ renderDateTime (dS,tS))
     forever $ do
       t <- getZonedTime
