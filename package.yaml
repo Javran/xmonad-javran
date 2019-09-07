@@ -53,3 +53,13 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
       - -main-is XMonad/Javran/SysInfoBar
+
+  SysInfoBar2:
+    source-dirs: src
+    main: XMonad.Javran.SysInfoBar2.SysInfoBar2
+    ghc-options:
+      - -threaded
+      - -O2
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -main-is XMonad/Javran/SysInfoBar2/SysInfoBar2

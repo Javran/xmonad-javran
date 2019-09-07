@@ -48,6 +48,7 @@ import Control.Monad
 import Data.Time.Clock
 import Control.Monad.State.Strict
 import Control.Concurrent.Async
+import Data.Foldable
 
 import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
@@ -96,6 +97,7 @@ mainLoop mQueue = evalStateT $ forever $ do
   liftIO $ do
     q <- swapMVar mQueue Seq.empty
     putStrLn $ "Received " <> show (Seq.length q) <> " messages"
+    print $ toList (fst <$> q)
 
   let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
@@ -103,6 +105,7 @@ mainLoop mQueue = evalStateT $ forever $ do
             -- this instance is missing, we need to start it.
             let sendMessage :: ThreadId -> MessagePayload -> IO ()
                 sendMessage tid mp = do
+                  -- TODO: I just realized that leaving tid to client is not necessary.
                   t <- getCurrentTime
                   modifyMVar_ mQueue (pure . (Seq.|> (tid, (t, mp))))
             let wrId = wId
