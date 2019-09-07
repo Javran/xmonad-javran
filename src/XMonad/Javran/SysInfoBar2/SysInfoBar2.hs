@@ -3,6 +3,7 @@
   , FlexibleContexts
   , LambdaCase
   , RecordWildCards
+  , NamedFieldPuns
   , RecursiveDo
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
@@ -96,10 +97,16 @@ type WorkersRep = IM.IntMap WorkerRep
 mainLoop :: MVar MessageQueue -> WorkersRep -> IO ()
 mainLoop mQueue = evalStateT $ forever $ do
   -- TODO: process incoming message
-  liftIO $ do
-    q <- swapMVar mQueue Seq.empty
-    putStrLn $ "Received " <> show (Seq.length q) <> " messages"
-    print $ toList (fst <$> q)
+  q <- liftIO $ swapMVar mQueue Seq.empty
+  liftIO $ putStrLn $ "Received " <> show (Seq.length q) <> " messages"
+  forM_ q $ \(tId,(t,_mp)) ->
+    gets ( IM.minViewWithKey
+         . IM.filter (\WorkerRep{wrAsync} -> asyncThreadId wrAsync == tId)
+         ) >>= \case
+      Nothing -> pure () -- ignore, unknown thread. (some thread that we no longer keep record)
+      Just ((wId, wr), _) ->
+        -- TODO: handle payload
+        modify (IM.insert wId wr{wrLastKnown=t})
 
   let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
