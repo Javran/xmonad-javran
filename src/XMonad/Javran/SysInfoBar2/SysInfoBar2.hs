@@ -43,6 +43,7 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2
 
  -}
 
+import Control.Exception
 import Data.Proxy
 import Control.Concurrent
 import Control.Monad
@@ -113,9 +114,23 @@ mainLoop mQueue = evalStateT $ forever $ do
                   modifyMVar_ mQueue (pure . (Seq.|> (tId, (t, mp))))
             wrLastKnown <- liftIO getCurrentTime
             modify (IM.insert wId WorkerRep {..})
-          Just _ ->
-            -- TODO: need some other handling to see whether this one is still "living"
-            pure ()
+          Just WorkerRep {..} -> liftIO (poll wrAsync) >>= \case
+            Nothing ->
+              -- TODO: thread is alive, check last known time
+              pure ()
+            Just r -> do
+              liftIO $ do
+                case r of
+                  Left e -> do
+                    putStrLn $ "Worker #" <> show wId <> " terminated with exception:"
+                    putStrLn $ displayException e
+                  Right () ->
+                    putStrLn $ "Worker #" <> show wId <> " terminated normally."
+                putStrLn $ "Worker #" <> show wId <> " will be restarted."
+              -- thread is terminated, in either case, we should remove it from the record,
+              -- so that we'll have them restarted in next loop.
+              modify (IM.delete wId)
+
   V.imapM_ maintainWorker workersSpec
   liftIO $ threadDelay $ 200 * 1000
 
