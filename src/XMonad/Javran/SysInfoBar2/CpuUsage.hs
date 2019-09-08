@@ -4,6 +4,8 @@ module XMonad.Javran.SysInfoBar2.CpuUsage
 
 import Control.Concurrent
 import Data.Function
+import Data.Colour.SRGB
+import System.Dzen
 
 import qualified XMonad.Javran.SysInfoBar.CpuUsage as CU
 
@@ -17,7 +19,8 @@ startLoop sendMessage = fix $ \loop oldS -> do
     threadDelay 1000000
     (s, _) <- CU.getCpuStatRaw
     let rendered =
-          renderCpuUsage (simpl <$> zipWith CU.computeCpuUsage oldS s)
+          fg (sRGB24read "#FFFF00") $
+            renderCpuUsage (simpl <$> zipWith CU.computeCpuUsage oldS s)
     sendMessage (MPRendered (Just rendered))
     loop s
   where
