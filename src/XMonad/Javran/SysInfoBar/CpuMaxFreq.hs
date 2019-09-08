@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.CpuMaxFreq
   ( CpuMaxFreq
+  , getCpuMaxFreqGHz
   ) where
 
 import Data.Maybe
@@ -33,7 +34,7 @@ getCpuMaxFreqGHz = fmap ((/1000) . maximum) . NE.nonEmpty <$> getCpuFreqs
 runWorkerWith :: MVar BarState -> IO ()
 runWorkerWith mv = forever $ do
   v <- getCpuMaxFreqGHz
-  let k = typeRep (Proxy :: Proxy CpuMaxFreq)  
+  let k = typeRep (Proxy :: Proxy CpuMaxFreq)
   modifyMVar_ mv (pure . M.insert k (SomeWorkerState (St v)))
   threadDelay 1000000
 

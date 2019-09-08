@@ -63,6 +63,7 @@ import qualified System.Dzen as Dz
 
 import XMonad.Javran.SysInfoBar2.Types
 import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
+import XMonad.Javran.SysInfoBar2.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
 data EWorker = forall w. Worker w => EW (Proxy w)
@@ -75,6 +76,19 @@ data EWorker = forall w. Worker w => EW (Proxy w)
 workersSpec :: V.Vector EWorker
 workersSpec = V.fromList
   [ EW (Proxy :: Proxy CpuUsage)
+  , EW (Proxy :: Proxy CpuMaxFreq)
+  {-
+    TODO: migration.
+
+
+  , EW (Proxy :: Proxy MemUsage)
+  , EW (Proxy :: Proxy TopProc)
+  , EW (Proxy :: Proxy NetStat)
+  , EW (Proxy :: Proxy Mail)
+  , EW (Proxy :: Proxy Mpd)
+  , EW (Proxy :: Proxy Battery)
+
+  -}
   , EW (Proxy :: Proxy DateTime)
   ]
 
@@ -131,7 +145,6 @@ spawnDzen = createProcess cp >>= trAndSet
 mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
 mainLoop hOut mQueue = evalStateT $ forever $ do
   q <- liftIO $ swapMVar mQueue Seq.empty
-  liftIO $ putStrLn $ "Received " <> show (Seq.length q) <> " messages"
   forM_ q $ \(tId,(t, MPRendered rendered)) ->
     gets ( IM.minViewWithKey
          . IM.filter (\WorkerRep{wrAsync} -> asyncThreadId wrAsync == tId)
