@@ -5,6 +5,7 @@
   , RecordWildCards
   , NamedFieldPuns
   , RecursiveDo
+  , OverloadedStrings
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
   ( main
@@ -53,6 +54,7 @@ import Data.Proxy
 import Data.Time.Clock
 import System.IO
 import System.Process
+import Data.Maybe
 
 import qualified Data.IntMap.Strict as IM
 import qualified Data.Sequence as Seq
@@ -103,9 +105,7 @@ type WorkersRep = IM.IntMap WorkerRep
   - worker maintenance: kill / restart workers if needed
   - sleep and wait for update
   - loop
-
  -}
-
 spawnDzen :: IO (Handle, ProcessHandle)
 spawnDzen = createProcess cp >>= trAndSet
   where
@@ -128,7 +128,6 @@ spawnDzen = createProcess cp >>= trAndSet
           , "-bg", "#505050"
           ]
 
-
 mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
 mainLoop hOut mQueue = evalStateT $ forever $ do
   q <- liftIO $ swapMVar mQueue Seq.empty
@@ -140,8 +139,16 @@ mainLoop hOut mQueue = evalStateT $ forever $ do
       Nothing -> pure () -- ignore, unknown thread. (some thread that we no longer keep record)
       Just ((wId, wr), _) ->
         modify (IM.insert wId wr{wrLastKnown=t, wrRendered=rendered})
-  -- TODO: render to dzen here.
-
+  curSt <- get
+  let renders :: [Dz.DString]
+      renders =
+          V.ifoldl (\acc i w -> acc <> maybeToList (getRender i w)) [] workersSpec
+        where
+          getRender :: Int -> EWorker -> Maybe Dz.DString
+          getRender i _ = (curSt IM.!? i) >>= wrRendered
+      rendered :: Dz.DString
+      rendered = foldr (\x xs -> x <> " " <> xs) mempty renders
+  liftIO $ hPutStrLn hOut (Dz.toString rendered)
   let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
           Nothing -> mdo
