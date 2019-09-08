@@ -44,14 +44,15 @@ module XMonad.Javran.SysInfoBar2.SysInfoBar2
 
  -}
 
-import Control.Exception
-import Data.Proxy
 import Control.Concurrent
-import Control.Monad
-import Data.Time.Clock
-import Control.Monad.State.Strict
 import Control.Concurrent.Async
-import Data.Foldable
+import Control.Exception
+import Control.Monad
+import Control.Monad.State.Strict
+import Data.Proxy
+import Data.Time.Clock
+import System.IO
+import System.Process
 
 import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
@@ -94,8 +95,31 @@ type WorkersRep = IM.IntMap WorkerRep
 
  -}
 
-mainLoop :: MVar MessageQueue -> WorkersRep -> IO ()
-mainLoop mQueue = evalStateT $ forever $ do
+spawnDzen :: IO (Handle, ProcessHandle)
+spawnDzen = createProcess cp >>= trAndSet
+  where
+    trAndSet (Just hInp, _, _, hProc) = do
+      hSetBuffering hInp LineBuffering
+      pure (hInp, hProc)
+    trAndSet _ = error "failed while trying to spawn dzen"
+    cp = initCp { std_in = CreatePipe }
+      where
+        initCp = proc "/usr/bin/dzen2"
+          [ "-w", "810"
+          , "-x", "900"
+            {-
+              TODO: -y 24 is to avoid overlaping with v1 when debuging,
+              should remove this when done.
+             -}
+          , "-y", "24"
+          , "-h", "24"
+          , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
+          , "-bg", "#505050"
+          ]
+
+
+mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
+mainLoop hOut mQueue = evalStateT $ forever $ do
   -- TODO: process incoming message
   q <- liftIO $ swapMVar mQueue Seq.empty
   liftIO $ putStrLn $ "Received " <> show (Seq.length q) <> " messages"
@@ -153,6 +177,7 @@ mainLoop mQueue = evalStateT $ forever $ do
 
 main :: IO ()
 main = do
+  (hOut, _) <- spawnDzen
   mQueue <- newMVar Seq.empty
-  mainLoop mQueue IM.empty
+  mainLoop hOut mQueue IM.empty
 
