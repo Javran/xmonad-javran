@@ -8,8 +8,11 @@ import qualified Data.Sequence as Seq
 import qualified System.Dzen as Dz
 
 newtype MessagePayload
-  = -- for worker to send the (lazily) rendered part.
-    -- this also serves as a heartbeat if we send nothing.
+  = {-
+      for worker to send the (lazily) rendered part.
+      note that sending message counts as a heartbeat,
+      so even if there is no update, sending the old message is still necessary.
+     -}
     MPRendered (Maybe Dz.DString)
 
 type MessageQueue = Seq.Seq (ThreadId, (UTCTime, MessagePayload))

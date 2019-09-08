@@ -54,9 +54,10 @@ import Data.Time.Clock
 import System.IO
 import System.Process
 
-import qualified Data.Vector as V
 import qualified Data.IntMap.Strict as IM
 import qualified Data.Sequence as Seq
+import qualified Data.Vector as V
+import qualified System.Dzen as Dz
 
 import XMonad.Javran.SysInfoBar2.Types
 import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
@@ -80,6 +81,16 @@ data WorkerRep
   { wrId :: Int
   , wrLastKnown :: UTCTime -- last time it sends a message / initialized to creation time.
   , wrAsync :: Async ()
+    {-
+      render dzen content to be displayed.
+
+      - this gets replaced by message sent by workers.
+
+      - Nothing: despite that worker is alive, we should render nothing on dzen.
+      - Just x: x should be displayed in the bar,x could be empty, meaning it could space.
+
+     -}
+  , wrRendered :: Maybe Dz.DString
   }
 
 -- runtime representation of workers.
@@ -120,23 +131,21 @@ spawnDzen = createProcess cp >>= trAndSet
 
 mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
 mainLoop hOut mQueue = evalStateT $ forever $ do
-  -- TODO: process incoming message
   q <- liftIO $ swapMVar mQueue Seq.empty
   liftIO $ putStrLn $ "Received " <> show (Seq.length q) <> " messages"
-  forM_ q $ \(tId,(t,_mp)) ->
+  forM_ q $ \(tId,(t, MPRendered rendered)) ->
     gets ( IM.minViewWithKey
          . IM.filter (\WorkerRep{wrAsync} -> asyncThreadId wrAsync == tId)
          ) >>= \case
       Nothing -> pure () -- ignore, unknown thread. (some thread that we no longer keep record)
       Just ((wId, wr), _) ->
-        -- TODO: handle payload
-        modify (IM.insert wId wr{wrLastKnown=t})
+        modify (IM.insert wId wr{wrLastKnown=t, wrRendered=rendered})
+  -- TODO: render to dzen here.
 
   let maintainWorker wId (EW tyWorker) =
         gets (IM.lookup wId) >>= \case
           Nothing -> mdo
             -- this instance is missing, we need to start it.
-            let wrId = wId
             wrAsync <- liftIO $ async $ workerStart tyWorker sendMessage
             let sendMessage :: MessagePayload -> IO ()
                 sendMessage mp = do
@@ -147,7 +156,13 @@ mainLoop hOut mQueue = evalStateT $ forever $ do
                   -- from sending invalid data.
                   modifyMVar_ mQueue (pure . (Seq.|> (tId, (t, mp))))
             wrLastKnown <- liftIO getCurrentTime
-            modify (IM.insert wId WorkerRep {..})
+            modify $
+              IM.insert wId $
+                WorkerRep
+                  { wrRendered = Nothing
+                  , wrId = wId
+                  , ..
+                  }
           Just WorkerRep {..} -> liftIO (poll wrAsync) >>= \case
             Nothing -> do
               curT <- liftIO getCurrentTime
