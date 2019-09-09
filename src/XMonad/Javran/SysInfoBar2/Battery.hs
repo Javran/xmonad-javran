@@ -18,7 +18,7 @@ sleep :: IO ()
 sleep = threadDelay 1000000
 
 loopWithBatPath :: SendMessage -> FilePath -> Int -> Maybe DString -> IO ()
-loopWithBatPath sendMessage batPath consecFailCount prevRendered = do
+loopWithBatPath sendMessage batPath = fix $ \loop consecFailCount prevRendered -> do
   -- if we are having consecutive failures,
   -- probably it's the problem of batPath we've bound to,
   -- in which case we should crash and allow starting from mainLoop again.
@@ -34,12 +34,12 @@ loopWithBatPath sendMessage batPath consecFailCount prevRendered = do
     Nothing -> do
       sendMessage $ MPRendered prevRendered
       sleep
-      loopWithBatPath sendMessage batPath (consecFailCount+1) prevRendered
+      loop (consecFailCount+1) prevRendered
     Just p -> do
       let rendered = renderBattery p
       sendMessage $ MPRendered $ Just rendered
       sleep
-      loopWithBatPath sendMessage batPath 0 (Just $ fg (sRGB24read "#FF0000") rendered)
+      loop 0 (Just $ fg (sRGB24read "#FF0000") rendered)
 
 mainLoop :: SendMessage -> IO ()
 mainLoop sendMessage = fix $ \loop -> do
