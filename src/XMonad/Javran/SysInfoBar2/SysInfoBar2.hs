@@ -51,11 +51,13 @@ import Control.Concurrent.Async
 import Control.Exception
 import Control.Monad
 import Control.Monad.State.Strict
+import Data.Colour.SRGB
+import Data.Maybe
 import Data.Proxy
 import Data.Time.Clock
 import System.IO
 import System.Process
-import Data.Maybe
+import System.Dzen (fg, DString)
 
 import qualified Data.IntMap.Strict as IM
 import qualified Data.Sequence as Seq
@@ -72,13 +74,12 @@ data EWorker = forall w. Worker w => EW (Proxy w)
 
 data WorkerSpec
   = WorkerSpec
-  { wsEWorker :: EWorker
+  { _wsEWorker :: EWorker
     {-
-      TODO: to be implemented
       After the rendering process, this function is used to
       apply color and other customization.
      -}
-  , wsPostRender :: Dz.DString -> Dz.DString
+  , _wsPostRender :: DString -> DString
   }
 
 {-
@@ -90,8 +91,10 @@ data WorkerSpec
  -}
 workerSpecs :: V.Vector WorkerSpec
 workerSpecs = V.fromList
-  [ mkWS id $ Proxy @CpuUsage
-  , mkWS id $ Proxy @CpuMaxFreq
+  [ mkWS (fg (sRGB24read "#FFFF00"))
+      $ Proxy @CpuUsage
+  , mkWS (fg (sRGB24read "#FF80A0"))
+      $ Proxy @CpuMaxFreq
   {-
     TODO: migration.
 
@@ -103,7 +106,8 @@ workerSpecs = V.fromList
   , EW (Proxy :: Proxy Battery)
 
   -}
-  , mkWS id $ Proxy @DateTime
+  , mkWS id
+      $ Proxy @DateTime
   ]
   where
     mkWS postRender tp = WorkerSpec (EW tp) postRender
@@ -122,7 +126,7 @@ data WorkerRep
       - Just x: x should be displayed in the bar,x could be empty, meaning it could space.
 
      -}
-  , wrRendered :: Maybe Dz.DString
+  , wrRendered :: Maybe DString
   }
 
 -- runtime representation of workers.
@@ -169,16 +173,17 @@ mainLoop hOut mQueue = evalStateT $ forever $ do
       Just ((wId, wr), _) ->
         modify (IM.insert wId wr{wrLastKnown=t, wrRendered=rendered})
   curSt <- get
-  let renders :: [Dz.DString]
+  let renders :: [DString]
       renders =
           V.ifoldl (\acc i w -> acc <> maybeToList (getRender i w)) [] workerSpecs
         where
-          getRender :: Int -> WorkerSpec -> Maybe Dz.DString
-          getRender i _ = (curSt IM.!? i) >>= wrRendered
-      rendered :: Dz.DString
+          getRender :: Int -> WorkerSpec -> Maybe DString
+          getRender i (WorkerSpec _ postRender) =
+            postRender <$> ((curSt IM.!? i) >>= wrRendered)
+      rendered :: DString
       rendered = foldr (\x xs -> x <> " " <> xs) mempty renders
   liftIO $ hPutStrLn hOut (Dz.toString rendered)
-  let maintainWorker wId (WorkerSpec (EW tyWorker) _postRender) =
+  let maintainWorker wId (WorkerSpec (EW tyWorker) _) =
         gets (IM.lookup wId) >>= \case
           Nothing -> mdo
             -- this instance is missing, we need to start it.
