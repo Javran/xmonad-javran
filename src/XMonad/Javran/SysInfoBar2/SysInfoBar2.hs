@@ -71,7 +71,7 @@ import XMonad.Javran.SysInfoBar2.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar2.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar2.NetStat (NetStat)
 import XMonad.Javran.SysInfoBar2.Mail (Mail)
--- import XMonad.Javran.SysInfoBar2.Mpd (Mpd)
+import XMonad.Javran.SysInfoBar2.Mpd (Mpd)
 -- import XMonad.Javran.SysInfoBar2.Battery (Battery)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
@@ -109,13 +109,13 @@ workerSpecs = V.fromList
       $ Proxy @NetStat
   , mkWS (fg (sRGB24read "#FFFFFF"))
       $ Proxy @Mail
+  , mkWS (fg (sRGB24read "#FF80FF"))
+      $ Proxy @Mpd
   {-
     TODO: migration.
 
-  , mkWS (fg (sRGB24read "#FF80FF"))
-      $ Proxy Mpd
   , mkWS (fg (sRGB24read "#FF8080"))
-      $ Proxy Battery
+      $ Proxy @Battery
 
   -}
   , mkWS id
