@@ -1,15 +1,24 @@
+{-# LANGUAGE OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar2.DateTime
   ( DateTime
   ) where
 
 import Control.Concurrent
-import Data.Time
 import Control.Monad
+import Data.Colour.SRGB
+import Data.String
+import Data.Time
+import System.Dzen
 
 import XMonad.Javran.SysInfoBar2.Types
-import XMonad.Javran.SysInfoBar.DzenRender (renderDateTime)
 
 data DateTime
+
+renderDateTime :: (String, String) -> DString
+renderDateTime (dateStr, timeStr) = dStr <> " " <> tStr
+  where
+    dStr = fg (sRGB24read "#80FFFF") (fromString dateStr)
+    tStr = fg (sRGB24read "#FFFF80") (fromString timeStr)
 
 instance Worker DateTime where
   workerStart _ sendMessage = do

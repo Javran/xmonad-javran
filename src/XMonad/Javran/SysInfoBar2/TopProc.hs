@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    LambdaCase
+  , OverloadedStrings
+  #-}
 module XMonad.Javran.SysInfoBar2.TopProc
   ( TopProc
   ) where
@@ -5,13 +9,20 @@ module XMonad.Javran.SysInfoBar2.TopProc
 import Control.Concurrent
 import Control.Monad
 import Data.Maybe
+import Data.String
+import System.Dzen
 import System.IO
 import System.Process
 
 import XMonad.Javran.SysInfoBar2.Types
-import XMonad.Javran.SysInfoBar.DzenRender (renderTopProc)
 
 data TopProc
+
+renderTopProc :: Maybe String -> DString
+renderTopProc = \case
+    Nothing -> "------"
+    Just xs | length xs <= 6 -> fromString $ take 6 (xs ++ repeat ' ')
+    Just xs -> fromString $ take 4 xs ++ ".."
 
 instance Worker TopProc where
   workerStart _ sendMessage = forever $ do

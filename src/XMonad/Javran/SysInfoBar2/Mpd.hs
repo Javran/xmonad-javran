@@ -1,14 +1,25 @@
+{-# LANGUAGE OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar2.Mpd
   ( Mpd
   ) where
 
 import Control.Monad
 import Control.Concurrent
+import System.Dzen
+
 import qualified Network.MPD as Mpd
 
-import XMonad.Javran.SysInfoBar.Mpd ()
-import XMonad.Javran.SysInfoBar.DzenRender (renderMpd)
 import XMonad.Javran.SysInfoBar2.Types
+
+renderMpd :: Maybe Mpd.State -> DString
+renderMpd mpdSt = "[" <> st <> "]"
+  where
+    st =
+      case mpdSt of
+        Nothing -> "?"
+        Just Mpd.Playing -> ">"
+        Just Mpd.Stopped -> "|"
+        Just Mpd.Paused -> "|"
 
 data Mpd
 
