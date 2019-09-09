@@ -18,7 +18,6 @@ module XMonad.Javran.SysInfoBar.DzenRender
   , renderNetStat
   , renderMail
   , renderMpd
-  , renderBattery
   ) where
 
 import System.Dzen
@@ -41,9 +40,7 @@ import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar.TopProc (TopProc)
 import XMonad.Javran.SysInfoBar.NetStat (NetStat)
-import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
-import XMonad.Javran.SysInfoBar.Battery (Battery)
 import XMonad.Javran.SysInfoBar.DateTime (DateTime)
 
 renderCpuUsage :: [Int] -> DString
@@ -121,15 +118,6 @@ renderMpd mpdSt = "[" <> st <> "]"
         Just Mpd.Stopped -> "|"
         Just Mpd.Paused -> "|"
 
-renderBattery :: (Int, Bool) -> DString
-renderBattery (capa, charge) = chgRdr <> capRdr
-  where
-    chgRdr = if charge then "+" else "="
-    capRdr =
-      if capa == 100
-        then "Ful"
-        else fromString (printf "%2d%%" capa)
-
 renderDateTime :: (String, String) -> DString
 renderDateTime (dateStr, timeStr) = dStr <> " " <> tStr
   where
@@ -153,12 +141,8 @@ render p st =
             \Refl -> fg (sRGB24read "#FF00FF") $ renderTopProc st
         , eqT @w @NetStat <&>
             \Refl -> renderNetStat st
-        , eqT @w @Mail <&>
-            \Refl -> fg (sRGB24read "#FFFFFF") $ renderMail st
         , eqT @w @Mpd <&>
             \Refl -> fg (sRGB24read "#FF80FF") $ renderMpd st
-        , eqT @w @Battery <&>
-            \Refl -> fg (sRGB24read "#FF8080") $ renderBattery st
         , eqT @w @DateTime <&>
             \Refl -> renderDateTime st
         ]

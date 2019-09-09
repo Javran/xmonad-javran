@@ -1,3 +1,7 @@
+{-# LANGUAGE
+    LambdaCase
+  , OverloadedStrings
+  #-}
 module XMonad.Javran.SysInfoBar2.Battery
   ( Battery
   ) where
@@ -5,14 +9,71 @@ module XMonad.Javran.SysInfoBar2.Battery
 import Control.Concurrent
 import Control.Exception
 import Control.Monad
-import Data.Function
 import Data.Colour.SRGB
+import Data.Function
+import Data.String
+import System.Directory
 import System.Dzen
-import XMonad.Javran.SysInfoBar.Battery (handleExc, getBatteryPath, BatState)
-import XMonad.Javran.SysInfoBar.DzenRender (renderBattery)
+import Text.Printf
+
 import XMonad.Javran.SysInfoBar2.Types
 
+{-
+
+  ref: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-power
+
+  - it seems reasonable to assume that we'll have at most one battery,
+    and it's not going to change when the instance is running
+    (it's still possible to remove and reattach the battery but the path won't change)
+  - /sys/class/power_supply/<XXX>/type must be "Battery", and "BAT" is a prefix
+  - /sys/class/power_supply/<XXX>/capacity: 0 ~ 100 (int)
+  - /sys/class/power_supply/<XXX>/status: we just want to know whether it's charging:
+    "Discharging" or "Not charging" will be negative indicators
+    (Note: for some reason my laptop shows "Unknown" when power is plugged in.)
+
+ -}
+
+type BatState = (Int, Bool) -- (<capacity>, <isCharging?>)
+
 data Battery
+
+renderBattery :: (Int, Bool) -> DString
+renderBattery (capa, charge) = chgRdr <> capRdr
+  where
+    chgRdr = if charge then "+" else "="
+    capRdr =
+      if capa == 100
+        then "Ful"
+        else fromString (printf "%2d%%" capa)
+
+sysPowerSupply :: FilePath
+sysPowerSupply = "/sys/class/power_supply/"
+
+handleExc :: a -> IOException -> IO a
+handleExc x _ =  pure x
+
+getBatteryPath :: IO (Maybe FilePath)
+getBatteryPath = catch tryGet (handleExc Nothing)
+  where
+    testProperBatDir :: FilePath -> IO (Maybe FilePath)
+    testProperBatDir sub = catch doTest (handleExc Nothing)
+      where
+        doTest = do
+          let batMagic = "BAT"
+          guard (take (length batMagic) sub == batMagic)
+          let path = sysPowerSupply ++ sub
+          "Battery\n" <- readFile (path ++ "/type")
+          pure (Just path)
+    tryGet :: IO (Maybe FilePath)
+    tryGet = do
+      ps <- listDirectory sysPowerSupply
+      fix (\run -> \case
+          [] -> pure Nothing
+          p:remainingPs -> testProperBatDir p >>= \r ->
+              case r of
+                Just _ -> pure r
+                Nothing -> run remainingPs
+          ) ps
 
 sleep :: IO ()
 sleep = threadDelay 1000000

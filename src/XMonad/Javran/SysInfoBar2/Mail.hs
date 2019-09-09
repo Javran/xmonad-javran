@@ -1,14 +1,24 @@
+{-# LANGUAGE OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar2.Mail
   ( Mail
   ) where
 
 import Control.Concurrent
+import Control.DeepSeq
+import Control.Exception
 import Data.Colour.SRGB
+import Data.String
+import Network.HaskellNet.IMAP
 import Network.HaskellNet.IMAP.Connection
+import Network.HaskellNet.IMAP.SSL
 import System.Dzen
-import XMonad.Javran.SysInfoBar.DzenRender (renderMail)
-import XMonad.Javran.SysInfoBar.Mail (getUnreadMailCount, prepareConn)
+import System.Dzen.Internal (primStr)
+import System.Environment
+import System.IO
+import Text.Printf
+
 import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.Utils
 
 data Mail
 
@@ -17,6 +27,62 @@ sleep = threadDelay (oneSec * 60 * 5)
 
 oneSec :: Int
 oneSec = 1000000
+
+
+type AuthInfo = (String, String)
+
+getAuthInfo :: IO AuthInfo
+getAuthInfo = do
+    homeDir <- getEnv "HOME"
+    h <- openFile (homeDir ++ "/.xmonad_mail_check") ReadMode
+    user <- hGetLine h
+    pswd <- hGetLine h
+    hClose h
+    pure (user, pswd)
+
+{-
+  capture all exceptions happened in the library call,
+  this is a shotgun approach, but for our task that is required to
+  run all the time, this is the safest way.
+ -}
+errHandler :: SomeException -> IO (Maybe a)
+errHandler e = do
+  appendLog $ "exception caught: " ++ displayException e
+  pure Nothing
+
+prepareConn :: IO (Maybe IMAPConnection)
+prepareConn = catch prep errHandler
+  where
+    prep = do
+        c <- connectIMAPSSL "imap.gmail.com"
+        (user, pswd) <- getAuthInfo
+        authenticate c PLAIN user pswd
+        select c  "Inbox"
+        pure (Just c)
+
+getUnreadMailCount :: IMAPConnection -> IO (Maybe Int)
+getUnreadMailCount c = catch getCount errHandler
+  where
+    getCount = Just . length <$!!> search c [NOTs (FLAG Seen)]
+
+appendLog :: String -> IO ()
+appendLog = appendLogTo "/tmp/mail.log"
+
+renderMail :: Maybe Int -> DString
+renderMail mCount =
+    primStr (caPre <> content <> caPost) (Just (length content))
+  where
+    caPre, caPost :: String
+    caPre = "^ca(1, xdg-open https://mail.google.com/)"
+    caPost = "^ca()"
+    content :: String
+    content =
+      case mCount of
+        Nothing -> "----"
+        Just count ->
+          if count > 9999
+            then ">=1k"
+            else fromString (printf "%4d" count)
 
 instance Worker Mail where
   workerStart _ sendMessage = run Nothing Nothing
