@@ -1,6 +1,8 @@
 {-# LANGUAGE TypeFamilies #-}
 module XMonad.Javran.SysInfoBar.Mail
   ( Mail
+  , getUnreadMailCount
+  , prepareConn
   ) where
 
 import Control.Concurrent

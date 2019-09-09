@@ -21,4 +21,3 @@ instance Worker NetStat where
         run p
 
   workerDeadline _ = 5
-
