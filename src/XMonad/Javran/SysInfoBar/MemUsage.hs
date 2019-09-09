@@ -1,6 +1,8 @@
 {-# LANGUAGE TypeFamilies, RecordWildCards #-}
 module XMonad.Javran.SysInfoBar.MemUsage
   ( MemUsage
+  , getMemInfoRaw
+  , MemInfoRaw(..)
   ) where
 
 import System.IO

@@ -67,6 +67,7 @@ import qualified System.Dzen as Dz
 import XMonad.Javran.SysInfoBar2.Types
 import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar2.CpuMaxFreq (CpuMaxFreq)
+import XMonad.Javran.SysInfoBar2.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
 -- Use existential to allow passing types as values
@@ -95,10 +96,11 @@ workerSpecs = V.fromList
       $ Proxy @CpuUsage
   , mkWS (fg (sRGB24read "#FF80A0"))
       $ Proxy @CpuMaxFreq
+  , mkWS (fg (sRGB24read "#00FF00"))
+      $ Proxy @MemUsage
   {-
     TODO: migration.
 
-  , EW (Proxy :: Proxy MemUsage)
   , EW (Proxy :: Proxy TopProc)
   , EW (Proxy :: Proxy NetStat)
   , EW (Proxy :: Proxy Mail)
@@ -149,6 +151,7 @@ spawnDzen = createProcess cp >>= trAndSet
     trAndSet _ = error "failed while trying to spawn dzen"
     cp = initCp { std_in = CreatePipe }
       where
+        -- TODO: allow passing args to dzen rather than relying on hard-coded flags
         initCp = proc "/usr/bin/dzen2"
           [ "-w", "810"
           , "-x", "900"
