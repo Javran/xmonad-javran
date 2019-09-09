@@ -69,6 +69,10 @@ import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar2.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar2.MemUsage (MemUsage)
 import XMonad.Javran.SysInfoBar2.TopProc (TopProc)
+import XMonad.Javran.SysInfoBar2.NetStat (NetStat)
+-- import XMonad.Javran.SysInfoBar2.Mail (Mail)
+-- import XMonad.Javran.SysInfoBar2.Mpd (Mpd)
+-- import XMonad.Javran.SysInfoBar2.Battery (Battery)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
 -- Use existential to allow passing types as values
@@ -101,13 +105,17 @@ workerSpecs = V.fromList
       $ Proxy @MemUsage
   , mkWS (fg (sRGB24read "#FF00FF"))
       $ Proxy @TopProc
+  , mkWS id
+      $ Proxy @NetStat
   {-
     TODO: migration.
 
-  , EW (Proxy :: Proxy NetStat)
-  , EW (Proxy :: Proxy Mail)
-  , EW (Proxy :: Proxy Mpd)
-  , EW (Proxy :: Proxy Battery)
+  , mkWS (fg (sRGB24read "#FFFFFF"))
+      $ Proxy @Mail
+  , mkWS (fg (sRGB24read "#FF80FF"))
+      $ Proxy Mpd
+  , mkWS (fg (sRGB24read "#FF8080"))
+      $ Proxy Battery
 
   -}
   , mkWS id

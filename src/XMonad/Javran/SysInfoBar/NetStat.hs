@@ -1,6 +1,8 @@
 {-# LANGUAGE TypeFamilies, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.NetStat
   ( NetStat
+  , parseNetStat
+  , getRxTxInfo
   ) where
 
 import Data.Char
