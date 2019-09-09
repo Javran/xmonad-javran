@@ -1,6 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables, LambdaCase, TypeFamilies, OverloadedStrings #-}
 module XMonad.Javran.SysInfoBar.Battery
   ( Battery
+  , sysPowerSupply
+  , handleExc
+  , getBatteryPath
+  , BatState
   ) where
 
 {-
