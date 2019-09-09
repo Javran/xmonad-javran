@@ -6,6 +6,7 @@
   , NamedFieldPuns
   , RecursiveDo
   , OverloadedStrings
+  , TypeApplications
   #-}
 module XMonad.Javran.SysInfoBar2.SysInfoBar2
   ( main
@@ -66,20 +67,33 @@ import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
 import XMonad.Javran.SysInfoBar2.CpuMaxFreq (CpuMaxFreq)
 import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
 
+-- Use existential to allow passing types as values
 data EWorker = forall w. Worker w => EW (Proxy w)
 
--- this vector specifies stuff that we want to show
--- on the status bar in that order.
--- at runtime each element will be identified by its index here
--- and assigned a thread for doing the actual work.
--- unlike first version, duplicated elements are allowed.
-workersSpec :: V.Vector EWorker
-workersSpec = V.fromList
-  [ EW (Proxy :: Proxy CpuUsage)
-  , EW (Proxy :: Proxy CpuMaxFreq)
+data WorkerSpec
+  = WorkerSpec
+  { wsEWorker :: EWorker
+    {-
+      TODO: to be implemented
+      After the rendering process, this function is used to
+      apply color and other customization.
+     -}
+  , wsPostRender :: Dz.DString -> Dz.DString
+  }
+
+{-
+  This vector specifies workers and customizations that we want to show
+  on the status bar in that order.
+  At runtime each element will be identified by its index here
+  and assigned a thread for doing the actual work.
+  unlike first version (SysInfoBar), duplicated elements are allowed.
+ -}
+workerSpecs :: V.Vector WorkerSpec
+workerSpecs = V.fromList
+  [ mkWS id $ Proxy @CpuUsage
+  , mkWS id $ Proxy @CpuMaxFreq
   {-
     TODO: migration.
-
 
   , EW (Proxy :: Proxy MemUsage)
   , EW (Proxy :: Proxy TopProc)
@@ -89,8 +103,10 @@ workersSpec = V.fromList
   , EW (Proxy :: Proxy Battery)
 
   -}
-  , EW (Proxy :: Proxy DateTime)
+  , mkWS id $ Proxy @DateTime
   ]
+  where
+    mkWS postRender tp = WorkerSpec (EW tp) postRender
 
 data WorkerRep
   = WorkerRep
@@ -155,14 +171,14 @@ mainLoop hOut mQueue = evalStateT $ forever $ do
   curSt <- get
   let renders :: [Dz.DString]
       renders =
-          V.ifoldl (\acc i w -> acc <> maybeToList (getRender i w)) [] workersSpec
+          V.ifoldl (\acc i w -> acc <> maybeToList (getRender i w)) [] workerSpecs
         where
-          getRender :: Int -> EWorker -> Maybe Dz.DString
+          getRender :: Int -> WorkerSpec -> Maybe Dz.DString
           getRender i _ = (curSt IM.!? i) >>= wrRendered
       rendered :: Dz.DString
       rendered = foldr (\x xs -> x <> " " <> xs) mempty renders
   liftIO $ hPutStrLn hOut (Dz.toString rendered)
-  let maintainWorker wId (EW tyWorker) =
+  let maintainWorker wId (WorkerSpec (EW tyWorker) _postRender) =
         gets (IM.lookup wId) >>= \case
           Nothing -> mdo
             -- this instance is missing, we need to start it.
@@ -207,7 +223,7 @@ mainLoop hOut mQueue = evalStateT $ forever $ do
               -- so that we'll have them restarted in next loop.
               modify (IM.delete wId)
 
-  V.imapM_ maintainWorker workersSpec
+  V.imapM_ maintainWorker workerSpecs
   liftIO $ threadDelay $ 200 * 1000
 
 main :: IO ()
