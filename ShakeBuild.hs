@@ -34,7 +34,7 @@ main = do
   shakeArgs shakeOptions{shakeFiles="_build/"} $ do
     let binaries = map ("_build" </>)
                  . words
-                 $ "xmonad-javran SysInfoBar"
+                 $ "xmonad-javran SysInfoBar2"
         syncEtcs = "syncEtcs"
         syncBins = "syncBins"
         diffEtcs = "diffEtcs"
