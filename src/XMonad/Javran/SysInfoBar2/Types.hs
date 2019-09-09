@@ -1,8 +1,8 @@
+{-# LANGUAGE ExplicitForAll #-}
 module XMonad.Javran.SysInfoBar2.Types where
 
-import Data.Time.Clock
-import Data.Proxy
 import Control.Concurrent
+import Data.Time.Clock
 
 import qualified Data.Sequence as Seq
 import qualified System.Dzen as Dz
@@ -22,8 +22,8 @@ type SendMessage = MessagePayload -> IO ()
 
 class Worker w where
   -- interface to start the worker
-  workerStart :: Proxy w -> SendMessage -> IO ()
+  workerStart :: forall p. p w -> SendMessage -> IO ()
   -- if worker doesn't send a message within this time limit,
   -- it's considered dead therefore killed & restarted
   -- the unit is second.
-  workerDeadline :: Proxy w -> Int
+  workerDeadline :: forall p. p w -> Int
