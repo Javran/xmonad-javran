@@ -1,5 +1,5 @@
 {-# LANGUAGE ExplicitForAll #-}
-module XMonad.Javran.SysInfoBar2.Types where
+module XMonad.Javran.SysInfoBar.Types where
 
 import Control.Concurrent
 import Data.Time.Clock

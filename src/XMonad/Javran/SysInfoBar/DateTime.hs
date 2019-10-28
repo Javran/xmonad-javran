@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module XMonad.Javran.SysInfoBar2.DateTime
+module XMonad.Javran.SysInfoBar.DateTime
   ( DateTime
   ) where
 
@@ -10,7 +10,7 @@ import Data.String
 import Data.Time
 import System.Dzen
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 data DateTime
 

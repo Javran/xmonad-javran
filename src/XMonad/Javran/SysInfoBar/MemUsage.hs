@@ -4,7 +4,7 @@
   , MultiWayIf
   , OverloadedStrings
   #-}
-module XMonad.Javran.SysInfoBar2.MemUsage
+module XMonad.Javran.SysInfoBar.MemUsage
   ( MemUsage
   ) where
 
@@ -17,7 +17,7 @@ import System.IO
 import Text.ParserCombinators.ReadP
 import Text.Printf
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 renderMemUsage :: (Int, Int) -> DString
 renderMemUsage (numer, denom) = fromString ("M:" ++ msg)

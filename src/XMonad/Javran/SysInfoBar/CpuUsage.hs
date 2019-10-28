@@ -4,7 +4,7 @@
   , RecordWildCards
   , DeriveFunctor
   #-}
-module XMonad.Javran.SysInfoBar2.CpuUsage
+module XMonad.Javran.SysInfoBar.CpuUsage
   ( CpuUsage
   ) where
 
@@ -19,7 +19,7 @@ import System.Dzen
 import System.IO
 import Text.ParserCombinators.ReadP
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 data CpuUsage
 

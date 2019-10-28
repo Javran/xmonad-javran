@@ -1,7 +1,7 @@
 {-# LANGUAGE
     OverloadedStrings
   #-}
-module XMonad.Javran.SysInfoBar2.NetStat
+module XMonad.Javran.SysInfoBar.NetStat
   ( NetStat
   ) where
 
@@ -15,7 +15,7 @@ import System.Dzen
 import Text.ParserCombinators.ReadP
 
 import XMonad.Javran.Utils
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 renderNetStat :: (Int, Int) -> DString
 renderNetStat (rBytes, tBytes) =

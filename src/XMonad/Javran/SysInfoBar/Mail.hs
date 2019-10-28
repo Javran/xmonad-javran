@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module XMonad.Javran.SysInfoBar2.Mail
+module XMonad.Javran.SysInfoBar.Mail
   ( Mail
   ) where
 
@@ -17,7 +17,7 @@ import System.Environment
 import System.IO
 import Text.Printf
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 import XMonad.Javran.Utils
 
 data Mail
@@ -65,6 +65,7 @@ getUnreadMailCount c = catch getCount errHandler
   where
     getCount = Just . length <$!!> search c [NOTs (FLAG Seen)]
 
+-- TODO: logging facility
 appendLog :: String -> IO ()
 appendLog = appendLogTo "/tmp/mail.log"
 

@@ -2,7 +2,7 @@
     OverloadedStrings
   , LambdaCase
   #-}
-module XMonad.Javran.SysInfoBar2.CpuMaxFreq
+module XMonad.Javran.SysInfoBar.CpuMaxFreq
   ( CpuMaxFreq
   ) where
 
@@ -17,7 +17,7 @@ import Text.Printf
 
 import qualified Data.List.NonEmpty as NE
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 renderCpuMaxFreq :: Maybe Double -> DString
 renderCpuMaxFreq = \case

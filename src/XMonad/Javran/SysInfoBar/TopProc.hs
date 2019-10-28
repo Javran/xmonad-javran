@@ -2,7 +2,7 @@
     LambdaCase
   , OverloadedStrings
   #-}
-module XMonad.Javran.SysInfoBar2.TopProc
+module XMonad.Javran.SysInfoBar.TopProc
   ( TopProc
   ) where
 
@@ -14,7 +14,7 @@ import System.Dzen
 import System.IO
 import System.Process
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 data TopProc
 

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module XMonad.Javran.SysInfoBar2.Mpd
+module XMonad.Javran.SysInfoBar.Mpd
   ( Mpd
   ) where
 
@@ -9,7 +9,7 @@ import System.Dzen
 
 import qualified Network.MPD as Mpd
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 renderMpd :: Maybe Mpd.State -> DString
 renderMpd mpdSt = "[" <> st <> "]"

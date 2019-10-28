@@ -2,7 +2,7 @@
     LambdaCase
   , OverloadedStrings
   #-}
-module XMonad.Javran.SysInfoBar2.Battery
+module XMonad.Javran.SysInfoBar.Battery
   ( Battery
   ) where
 
@@ -16,7 +16,7 @@ import System.Directory
 import System.Dzen
 import Text.Printf
 
-import XMonad.Javran.SysInfoBar2.Types
+import XMonad.Javran.SysInfoBar.Types
 
 {-
 

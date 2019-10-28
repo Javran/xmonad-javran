@@ -8,7 +8,7 @@
   , OverloadedStrings
   , TypeApplications
   #-}
-module XMonad.Javran.SysInfoBar2.SysInfoBar2
+module XMonad.Javran.SysInfoBar.SysInfoBar
   ( main
   ) where
 
@@ -64,16 +64,16 @@ import qualified Data.Sequence as Seq
 import qualified Data.Vector as V
 import qualified System.Dzen as Dz
 
-import XMonad.Javran.SysInfoBar2.Types
-import XMonad.Javran.SysInfoBar2.CpuUsage (CpuUsage)
-import XMonad.Javran.SysInfoBar2.CpuMaxFreq (CpuMaxFreq)
-import XMonad.Javran.SysInfoBar2.MemUsage (MemUsage)
-import XMonad.Javran.SysInfoBar2.TopProc (TopProc)
-import XMonad.Javran.SysInfoBar2.NetStat (NetStat)
-import XMonad.Javran.SysInfoBar2.Mail (Mail)
-import XMonad.Javran.SysInfoBar2.Mpd (Mpd)
-import XMonad.Javran.SysInfoBar2.Battery (Battery)
-import XMonad.Javran.SysInfoBar2.DateTime (DateTime)
+import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.CpuUsage (CpuUsage)
+import XMonad.Javran.SysInfoBar.CpuMaxFreq (CpuMaxFreq)
+import XMonad.Javran.SysInfoBar.MemUsage (MemUsage)
+import XMonad.Javran.SysInfoBar.TopProc (TopProc)
+import XMonad.Javran.SysInfoBar.NetStat (NetStat)
+import XMonad.Javran.SysInfoBar.Mail (Mail)
+import XMonad.Javran.SysInfoBar.Mpd (Mpd)
+import XMonad.Javran.SysInfoBar.Battery (Battery)
+import XMonad.Javran.SysInfoBar.DateTime (DateTime)
 
 -- Use existential to allow passing types as values
 data EWorker = forall w. Worker w => EW (Proxy w)
