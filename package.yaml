@@ -8,6 +8,7 @@ copyright: "Copyright: (c) 2014-2019 Javran Cheng"
 description: "Javran's xmonad config"
 
 dependencies:
+- aeson
 - async
 - base
 - bytestring
@@ -25,9 +26,13 @@ dependencies:
 - libmpd
 - mtl
 - process
+- scientific
+- system-filepath
 - template-haskell
 - text
+- turtle
 - time
+- unordered-containers
 - vector
 - xmonad
 - xmonad-contrib

@@ -74,6 +74,7 @@ import XMonad.Javran.SysInfoBar.Mail (Mail)
 import XMonad.Javran.SysInfoBar.Mpd (Mpd)
 import XMonad.Javran.SysInfoBar.Battery (Battery)
 import XMonad.Javran.SysInfoBar.DateTime (DateTime)
+import XMonad.Javran.SysInfoBar.Temperature (Temperature)
 
 -- Use existential to allow passing types as values
 data EWorker = forall w. Worker w => EW (Proxy w)
@@ -103,6 +104,9 @@ workerSpecs = V.fromList
       $ Proxy @CpuMaxFreq
   , mkWS (fg (sRGB24read "#00FF00"))
       $ Proxy @MemUsage
+  -- TODO: enable after implemented.
+  -- , mkWS (fg (sRGB24read "#A0FFA0"))
+  --    $ Proxy @Temperature
   , mkWS (fg (sRGB24read "#FF00FF"))
       $ Proxy @TopProc
   , mkWS id
