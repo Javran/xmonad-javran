@@ -2,6 +2,8 @@
     OverloadedStrings
   , TupleSections
   , TypeApplications
+  , LambdaCase
+  , MultiWayIf
   #-}
 module XMonad.Javran.SysInfoBar.Temperature
   ( Temperature
@@ -11,6 +13,7 @@ import Prelude hiding (FilePath)
 
 import Control.Applicative
 import Control.Concurrent
+import Data.Colour.Names
 import Control.Monad
 import Data.Aeson
 import Data.Char
@@ -18,16 +21,19 @@ import Data.Foldable
 import Data.Maybe
 import Data.Ord
 import Data.Scientific
+import Data.String
 import Data.Text.Encoding (encodeUtf8)
 import Filesystem.Path.CurrentOS hiding (null)
 import System.Exit
 import Text.ParserCombinators.ReadP
+import Text.Printf
 import Turtle.Prelude
 
-import qualified Data.Text as T
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map.Strict as M
+import qualified Data.Text as T
+import qualified System.Dzen as Dz
 
 import XMonad.Javran.SysInfoBar.Types
 
@@ -98,6 +104,8 @@ type TempDisplay = (Int, Criticality)
 
 sensorLoop :: FilePath -> IO (Maybe TempDisplay, Maybe TempDisplay)
 sensorLoop sensorsBinPath = do
+  -- TODO: not sure what happened here, but the following never seems to return.
+  -- my suspect is that this has something to do with threading. not sure yet.
   (ExitSuccess, rawOut) <- procStrict (toText' sensorsBinPath) ["-j", "-A"] ""
   case
       eitherDecode' @(M.Map T.Text (M.Map T.Text (Maybe TempInfo)))
@@ -135,11 +143,38 @@ sensorLoop sensorsBinPath = do
 
 data Temperature
 
+renderDzen :: Maybe TempDisplay -> Dz.DString
+renderDzen = \case
+  Nothing -> "??" -- no reading, treat it as normal.
+  Just (inp, crit) ->
+    let numDisplay =
+          if
+            | inp < 0 -> "NE"
+            | inp >= 100 -> "!!"
+            | otherwise -> fromString (printf "%2d" inp)
+        sty = case crit of
+          CNormal -> id
+          CCritical -> Dz.fg red
+          CHigh -> Dz.fg orange
+    in sty numDisplay
+
 instance Worker Temperature where
-  workerStart _ sendMessage = forever $ do
-    -- v <- getCpuMaxFreqGHz
-    let rendered = "?? ??" -- renderCpuMaxFreq v
-    sendMessage (MPRendered (Just rendered))
-    threadDelay 5000000
+  workerStart _ sendMessage = do
+    {-
+      Query for the binary once and lock on the decision.
+      Most of the time if we cannot find the binary first time,
+      there's no further need to repeat this process over and over again.
+      User can simply restart XMonad to redo the scan.
+     -}
+    mSensorsBinPath <- which "sensors"
+    case mSensorsBinPath of
+      Nothing -> forever $ do
+        sendMessage (MPRendered Nothing)
+        threadDelay $ 4 * 1000 * 1000
+      Just binPath -> forever $ do
+        (cpuTemp, acpiTemp) <- sensorLoop binPath
+        let rendered = renderDzen cpuTemp <> " " <> renderDzen acpiTemp
+        sendMessage (MPRendered (Just rendered))
+        threadDelay $ 500 * 1000
 
   workerDeadline _ = 5
