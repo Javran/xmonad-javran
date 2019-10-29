@@ -9,25 +9,22 @@ module XMonad.Javran.SysInfoBar.Temperature
   ( Temperature
   ) where
 
-import Prelude hiding (FilePath)
-
 import Control.Applicative
 import Control.Concurrent
-import Data.Colour.Names
 import Control.Monad
 import Data.Aeson
 import Data.Char
+import Data.Colour.Names
 import Data.Foldable
 import Data.Maybe
 import Data.Ord
 import Data.Scientific
 import Data.String
-import Data.Text.Encoding (encodeUtf8)
-import Filesystem.Path.CurrentOS hiding (null)
+import System.Directory
 import System.Exit
+import System.Process
 import Text.ParserCombinators.ReadP
 import Text.Printf
-import Turtle.Prelude
 
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.HashMap.Strict as HM
@@ -81,16 +78,6 @@ instance FromJSON TempInfo where
       <*> (fmap . fmap) cov (obj' .:? "crit")
 
 {-
-  This program parses output from `sensors` and print out useful info
-  regarding temperature readings.
-
-  Eventually this will end up being info source to some xmonad components.
-
- -}
-toText' :: FilePath -> T.Text
-toText' = either id id . toText
-
-{-
   naming here is a bit confusing, the following doc looks authoritative on this topic:
 
   https://www.kernel.org/doc/Documentation/hwmon/sysfs-interface
@@ -102,16 +89,18 @@ data Criticality = CNormal | CHigh | CCritical
 
 type TempDisplay = (Int, Criticality)
 
-sensorLoop :: FilePath -> IO (Maybe TempDisplay, Maybe TempDisplay)
-sensorLoop sensorsBinPath = do
-  -- TODO: not sure what happened here, but the following never seems to return.
-  -- my suspect is that this has something to do with threading. not sure yet.
-  (ExitSuccess, rawOut) <- procStrict (toText' sensorsBinPath) ["-j", "-A"] ""
-  case
-      eitherDecode' @(M.Map T.Text (M.Map T.Text (Maybe TempInfo)))
-      . BSL.fromStrict
-      . encodeUtf8
-      $ rawOut of
+readFromSensors :: String -> IO (Maybe TempDisplay, Maybe TempDisplay)
+readFromSensors binPath = do
+  let cp =
+        (shell $ unwords [binPath, "-j", "-A"])
+          { std_in = NoStream
+          , std_out = CreatePipe
+          , std_err = Inherit
+          }
+  (_, Just hOut, _, _ph) <- createProcess cp
+  raw <- BSL.hGetContents hOut
+  -- somehow not waiting for process does what we want this to do...
+  case eitherDecode' @(M.Map T.Text (M.Map T.Text (Maybe TempInfo))) raw of
     Left _e -> pure (Nothing, Nothing)
     Right parsed -> do
       let tbl :: TempInfoTable
@@ -141,6 +130,7 @@ sensorLoop sensorsBinPath = do
             pure (inp, crit)
       pure (toDisplay "coretemp-isa-0000", toDisplay "acpitz-acpi-0")
 
+
 data Temperature
 
 renderDzen :: Maybe TempDisplay -> Dz.DString
@@ -166,13 +156,13 @@ instance Worker Temperature where
       there's no further need to repeat this process over and over again.
       User can simply restart XMonad to redo the scan.
      -}
-    mSensorsBinPath <- which "sensors"
+    mSensorsBinPath <- findExecutable "sensors"
     case mSensorsBinPath of
       Nothing -> forever $ do
         sendMessage (MPRendered Nothing)
         threadDelay $ 4 * 1000 * 1000
       Just binPath -> forever $ do
-        (cpuTemp, acpiTemp) <- sensorLoop binPath
+        (cpuTemp, acpiTemp) <- readFromSensors binPath
         let rendered = renderDzen cpuTemp <> " " <> renderDzen acpiTemp
         sendMessage (MPRendered (Just rendered))
         threadDelay $ 500 * 1000

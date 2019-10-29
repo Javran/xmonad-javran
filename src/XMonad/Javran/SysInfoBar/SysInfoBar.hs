@@ -104,8 +104,8 @@ workerSpecs = V.fromList
       $ Proxy @CpuMaxFreq
   , mkWS (fg (sRGB24read "#00FF00"))
       $ Proxy @MemUsage
-  --, mkWS (fg (sRGB24read "#A0FFA0"))
-  --  $ Proxy @Temperature
+  , mkWS (fg (sRGB24read "#A0FFA0"))
+      $ Proxy @Temperature
   , mkWS (fg (sRGB24read "#FF00FF"))
       $ Proxy @TopProc
   , mkWS id
