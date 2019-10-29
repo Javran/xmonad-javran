@@ -11,7 +11,7 @@ import qualified Network.MPD as Mpd
 
 import XMonad.Javran.SysInfoBar.Types
 
-renderMpd :: Maybe Mpd.State -> DString
+renderMpd :: Maybe Mpd.PlaybackState -> DString
 renderMpd mpdSt = "[" <> st <> "]"
   where
     st =
