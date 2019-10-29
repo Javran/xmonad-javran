@@ -3,16 +3,13 @@ extra-package-dbs: []
 packages:
 - '.'
 extra-deps:
-- X11-1.9
-- xmonad-contrib-0.15
+- HaskellNet-SSL-0.3.4.1
+- mime-mail-0.4.14
 - xmonad-entryhelper-0.1.0.0
-- xmonad-0.15
+- connection-0.2.8
+- socks-0.5.6
 - git: https://github.com/Javran/dzen-utils.git
   commit: 44bb4228c7b0a7413b0f5751bfaacf9c0e229362
 - git: https://github.com/jtdaugherty/HaskellNet.git
   commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
-- HaskellNet-SSL-0.3.4.1
-- connection-0.2.8
-- mime-mail-0.4.14
-- socks-0.5.6
 resolver: lts-14.12
