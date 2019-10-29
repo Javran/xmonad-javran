@@ -21,7 +21,6 @@ import Data.Ord
 import Data.Scientific
 import Data.String
 import System.Directory
-import System.Exit
 import System.Process
 import Text.ParserCombinators.ReadP
 import Text.Printf
