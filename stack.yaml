@@ -11,8 +11,8 @@ extra-deps:
   commit: 44bb4228c7b0a7413b0f5751bfaacf9c0e229362
 - git: https://github.com/jtdaugherty/HaskellNet.git
   commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
-- HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157
-- connection-0.2.8@sha256:b33ed18b274e9d65ffefcda46ba3d6ff852bec1e7ffcb686985228dc52631c2e,1525
-- mime-mail-0.4.14@sha256:22e54d99c3f9f21004c929f0cf0c7ab75fcee5e0666c03517157be61be6fea93,1647
-- socks-0.5.6@sha256:765b6ba4996fda7bbf561a2bb7ad2a37087dfe0691a31fe2077caf4ed5f7c6a5,1254
+- HaskellNet-SSL-0.3.4.1
+- connection-0.2.8
+- mime-mail-0.4.14
+- socks-0.5.6
 resolver: lts-14.0
