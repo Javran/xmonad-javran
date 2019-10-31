@@ -82,13 +82,11 @@ instance FromJSON TempInfo where
   https://www.kernel.org/doc/Documentation/hwmon/sysfs-interface
  -}
 
-type TempInfoTable = M.Map T.Text [TempInfo] -- this list is guaranteed to be non-empty
-
 data Criticality = CNormal | CHigh | CCritical
 
 type TempDisplay = (Int, Criticality)
 
-readFromSensors :: String -> IO (Maybe TempDisplay, Maybe TempDisplay)
+readFromSensors :: String -> IO (Maybe TempDisplay)
 readFromSensors binPath = do
   let cp =
         (shell $ unwords [binPath, "-j", "-A"])
@@ -100,35 +98,31 @@ readFromSensors binPath = do
   raw <- BSL.hGetContents hOut
   -- somehow not waiting for process does what we want this to do...
   case eitherDecode' @(M.Map T.Text (M.Map T.Text (Maybe TempInfo))) raw of
-    Left _e -> pure (Nothing, Nothing)
+    Left _e -> pure Nothing
     Right parsed -> do
-      let tbl :: TempInfoTable
-          tbl =
-            -- non-empty list only, with those that can be parsed successfully.
-            M.filter (not . null)
-            . M.map (catMaybes . M.elems)
-            $ parsed
-          toDisplay :: T.Text -> Maybe TempDisplay
-          toDisplay prop = do
-            vs <- tbl M.!? prop
-            let ti = maximumBy (comparing tiInput) vs
-                inp = tiInput ti
-                Just crit =
-                    shouldShowCrit
-                    <|> shouldShowHigh
-                    <|> Just CNormal
-                  where
-                    shouldShowCrit = do
-                      critBound <- tiCrit ti
-                      guard $ inp >= critBound
-                      pure CCritical
-                    shouldShowHigh = do
-                      highBound <- tiMax ti
-                      guard $ inp >= highBound
-                      pure CHigh
-            pure (inp, crit)
-      pure (toDisplay "coretemp-isa-0000", toDisplay "acpitz-acpi-0")
-
+      let tInfoList :: [TempInfo]
+          tInfoList = foldMap (catMaybes . M.elems) parsed
+          {-
+            Let's only show the maximum temp - all of those might
+            have a different definition for max, crit etc.
+            But we do get the general idea of which part of the component stands out.
+           -}
+          ti = maximumBy (comparing tiInput) tInfoList
+          inp = tiInput ti
+          Just crit =
+              shouldShowCrit
+              <|> shouldShowHigh
+              <|> Just CNormal
+            where
+              shouldShowCrit = do
+                critBound <- tiCrit ti
+                guard $ inp >= critBound
+                pure CCritical
+              shouldShowHigh = do
+                highBound <- tiMax ti
+                guard $ inp >= highBound
+                pure CHigh
+      pure $ Just (inp, crit)
 
 data Temperature
 
@@ -161,8 +155,8 @@ instance Worker Temperature where
         sendMessage (MPRendered Nothing)
         threadDelay $ 4 * 1000 * 1000
       Just binPath -> forever $ do
-        (cpuTemp, acpiTemp) <- readFromSensors binPath
-        let rendered = renderDzen cpuTemp <> " " <> renderDzen acpiTemp
+        curMaxTemp <- readFromSensors binPath
+        let rendered = renderDzen curMaxTemp
         sendMessage (MPRendered (Just rendered))
         threadDelay $ 500 * 1000
 
