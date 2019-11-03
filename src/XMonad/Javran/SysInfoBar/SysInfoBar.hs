@@ -166,6 +166,7 @@ spawnDzen = createProcess cp >>= trAndSet
           , "-h", "24"
           , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
           , "-bg", "#505050"
+          , "-e", "\"button2=;\""
           ]
 
 mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
