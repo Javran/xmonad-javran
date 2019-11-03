@@ -13,8 +13,10 @@ import Control.Applicative
 import Control.Concurrent
 import Control.Monad
 import Data.Aeson
+import Data.Aeson.Types
 import Data.Char
 import Data.Colour.Names
+import Data.Either
 import Data.Foldable
 import Data.Maybe
 import Data.Ord
@@ -86,6 +88,24 @@ data Criticality = CNormal | CHigh | CCritical
 
 type TempDisplay = (Int, Criticality)
 
+data ChipReading
+  = ChipReading
+    { crGeneral :: Object
+    , crTempInfo :: HM.HashMap T.Text TempInfo
+    }
+   deriving (Show)
+
+instance FromJSON ChipReading where
+  parseJSON = withObject "ChipReading" $ \obj -> do
+    let ps = convert <$> HM.toList obj
+          where
+            convert p@(k,v) = case parse @_ @TempInfo parseJSON v of
+              Success ti -> Right (k, ti)
+              Error _ -> Left p
+        (gs,ts) = partitionEithers ps
+    pure $
+      ChipReading (HM.fromList gs) (HM.fromList ts)
+
 readFromSensors :: String -> IO (Maybe TempDisplay)
 readFromSensors binPath = do
   let cp =
@@ -97,11 +117,11 @@ readFromSensors binPath = do
   (_, Just hOut, _, _ph) <- createProcess cp
   raw <- BSL.hGetContents hOut
   -- somehow not waiting for process does what we want this to do...
-  case eitherDecode' @(M.Map T.Text (M.Map T.Text (Maybe TempInfo))) raw of
+  case eitherDecode' @(M.Map T.Text ChipReading) raw of
     Left _e -> pure Nothing
     Right parsed -> do
       let tInfoList :: [TempInfo]
-          tInfoList = foldMap (catMaybes . M.elems) parsed
+          tInfoList = foldMap (HM.elems . crTempInfo) parsed
           {-
             Let's only show the maximum temp - all of those might
             have a different definition for max, crit etc.
