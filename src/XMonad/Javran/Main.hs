@@ -17,7 +17,7 @@ dzenCommand :: String
 dzenCommand = unwords
     [ "dzen2"
     , "-x" , sI 0
-    , "-w" , sI 900
+    , "-w" , sI 1200
     , "-ta", "l"
     , "-h" , sI 24
     , "-fg", "\"#22EE11\""

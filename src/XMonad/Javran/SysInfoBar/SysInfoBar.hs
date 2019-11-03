@@ -112,8 +112,8 @@ workerSpecs = V.fromList
       $ Proxy @NetStat
   , mkWS (fg (sRGB24read "#FFFFFF"))
       $ Proxy @Mail
-  , mkWS (fg (sRGB24read "#FF80FF"))
-      $ Proxy @Mpd
+  -- , mkWS (fg (sRGB24read "#FF80FF"))
+  --    $ Proxy @Mpd
   , mkWS (fg (sRGB24read "#FF8080"))
       $ Proxy @Battery
   , mkWS id
@@ -161,8 +161,8 @@ spawnDzen = createProcess cp >>= trAndSet
       where
         -- TODO: allow passing args to dzen rather than relying on hard-coded flags
         initCp = proc "/usr/bin/dzen2"
-          [ "-w", "810"
-          , "-x", "900"
+          [ "-w", "1150"
+          , "-x", "1200"
           , "-h", "24"
           , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
           , "-bg", "#505050"
