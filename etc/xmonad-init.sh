@@ -54,7 +54,7 @@ try_run_once /usr/bin/fcitx -dr
 
 try_run_once ~/.xmonad/MailChecker
 
-pkill SysInfoBar; ~/.xmonad/SysInfoBar
+pkill SysInfoBar; ~/.xmonad/SysInfoBar &
 
 #try_run_once ~/.dropbox-dist/dropboxd
 
