@@ -46,6 +46,13 @@ module XMonad.Javran.SysInfoBar.SysInfoBar
 
  -}
 
+{-
+  TODO: note that sysfs and procfs can be read over and over again with seeking
+  rather than opening & closing repeatly, we might consider using that if possible.
+
+  Reference: https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
+
+ -}
 import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Exception
@@ -114,8 +121,8 @@ workerSpecs = V.fromList
       $ Proxy @Mail
   -- , mkWS (fg (sRGB24read "#FF80FF"))
   --    $ Proxy @Mpd
-  , mkWS (fg (sRGB24read "#FF8080"))
-      $ Proxy @Battery
+  -- , mkWS (fg (sRGB24read "#FF8080"))
+  --    $ Proxy @Battery
   , mkWS id
       $ Proxy @DateTime
   ]
