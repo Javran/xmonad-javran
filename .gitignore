@@ -29,3 +29,4 @@ StreamConvert
 /stack.yaml.lock
 
 xmonad-javran.cabal
+.stack-work*

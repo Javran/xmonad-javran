@@ -9,3 +9,12 @@
   + We'll like to have `<Super>` to do xmonad-related things, and
     `<Super>+something <some other key>` for launching programs,
     which can be done using emacs-style key bindings from xmonad-contrib
+
+- TODO: Improve SysInfoBar. Current implementation of SysInfoBar is wasteful and
+  cause more CPU utilization than necessary. Few reasons being:
+
+  + String-based parsing will always have a hard time in terms of performance,
+    unless they are only used in ways that lists are expected.
+  + I'm not sure whether this will help, but we can isolate SysInfoBar
+    from other parts of my xmonad config - that way we might
+    end up with a binary that occupies less space.
