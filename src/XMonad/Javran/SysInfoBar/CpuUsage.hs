@@ -17,9 +17,12 @@ import Data.String
 import Data.Time.Clock
 import System.Dzen
 import System.IO
-import Text.ParserCombinators.ReadP
+import Data.Attoparsec.ByteString.Char8
+
+import qualified Data.ByteString.Char8 as BSC
 
 import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.ProcParser
 
 data CpuUsage
 
@@ -32,50 +35,15 @@ renderCpuUsage xs = "[" <> foldMap rdr xs <> "]"
       | n >= 5 = fg orange (fromString (show n))
       | otherwise = fromString (show n)
 
-data CpuStatRow a = CpuStatRow
-  { user :: a
-  , nice :: a
-  , system :: a
-  , idle :: a -- count as idle time
-  , ioWait :: a -- count as idle time
-  , irq :: a
-  , softIrq :: a
-  , steal :: a
-    -- there are actually 2 extra fields called "guest" and "guest_nice"
-    -- in a recent version of kernel,
-    -- but no word is given on how to deal with these two fields - guess we'll just ignore them.
-  } deriving (Functor, Show)
-
-parseRow :: String -> ((String, CpuStatRow Int), String)
-parseRow raw = case readP_to_S parseLineP raw of
-    [(r, [])] -> r
-    _ -> error "parse error"
-  where
-    cpuDesc = munch1 (not . isSpace)
-    getInt = read @Int <$> munch1 isDigit
-    dataPart = do
-      [user, nice, system, idle, ioWait, irq, softIrq, steal] <-
-        replicateM 8 (skipSpaces >> getInt)
-      pure CpuStatRow {..}
-    parseLineP = (,) <$> ((,) <$> cpuDesc <*> dataPart) <*> munch (const True)
-
 getCpuStatRaw :: IO ([CpuStatRow Int], UTCTime)
 getCpuStatRaw = do
-  (cpuRawLines, t) <- withFile "/proc/stat" ReadMode $ \handle -> do
-    -- get timestamp immediately after the proc stat file is opened,
-    -- by doing so we can make sure we have the accurate time
-    t <- getCurrentTime
-    xs <- fix $ \kont -> do
-        raw <- hGetLine handle
-        if take 3 raw == "cpu"
-          then (raw :) <$> kont
-          else pure []
-    pure (xs, t)
-  -- first "cpu ..." line is the total across all CPUs so we ignore it.
-  -- assume no parsing error, but we'll like to have leftover input just in case.
-  -- also, hopefully we always get lists of the same length, so we don't really
-  -- need to return cpu tags
-  pure (map (snd . fst . parseRow) $ drop 1 cpuRawLines, t)
+  t <- getCurrentTime
+  raw <- BSC.readFile "/proc/stat"
+  case parseOnly procStatP raw of
+    Left _ -> pure ([], t)
+    Right (_, rs) ->
+      let convert (_, (r, _)) = fmap fromIntegral r
+      in pure (convert <$> rs, t)
 
 -- reference from conky:
 -- https://github.com/brndnmtthws/conky/blob/f8ff46c2dca4d639c9287790c35999bbaae56010/src/linux.cc#L969-L975

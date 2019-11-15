@@ -1,6 +1,7 @@
 {-# LANGUAGE
     DeriveGeneric
   , DeriveAnyClass
+  , DeriveFunctor
   , RecordWildCards
   , OverloadedStrings
   #-}
@@ -39,7 +40,7 @@ data CpuStatRow a = CpuStatRow
     -- there are actually 2 extra fields called "guest" and "guest_nice"
     -- in a recent version of kernel,
     -- but no word is given on how to deal with these two fields - guess we'll just ignore them.
-  } deriving (Show, Generic, NFData)
+  } deriving (Show, Generic, NFData, Functor)
 
 -- return type: (<cpu id>, (<parsed>, <leftovers of that line>))
 type ParsedCpuStatRow = (Maybe Word8, (CpuStatRow Word64, BSC.ByteString))
