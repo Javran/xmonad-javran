@@ -8,16 +8,18 @@ module XMonad.Javran.SysInfoBar.CpuMaxFreq
 
 import Control.Concurrent
 import Control.Monad
+import Data.Attoparsec.ByteString.Char8
 import Data.Char
 import Data.Maybe
 import Data.String
 import System.Dzen
-import Text.ParserCombinators.ReadP
 import Text.Printf
 
+import qualified Data.ByteString.Char8 as BSC
 import qualified Data.List.NonEmpty as NE
 
 import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.ProcParser
 
 renderCpuMaxFreq :: Maybe Double -> DString
 renderCpuMaxFreq = \case
@@ -28,18 +30,12 @@ renderCpuMaxFreq = \case
       in fromString content
 
 getCpuFreqs :: IO [Double]
-getCpuFreqs = mapMaybe parseLine . lines <$> readFile "/proc/cpuinfo"
+getCpuFreqs = doParse <$> BSC.readFile "/proc/cpuinfo"
   where
-    parseLine :: String -> Maybe Double
-    parseLine raw = case readP_to_S parse raw of
-      [(r, [])] -> Just r
-      _ -> Nothing
-    parse :: ReadP Double
-    parse =
-      string "cpu MHz" *> skipSpaces *>
-      char ':' *> skipSpaces *>
-      -- read should be safe because ReadP is a MonadFail
-      (read <$> munch1 (not . isSpace)) <* skipSpaces <* eof
+    doParse :: BSC.ByteString -> [Double]
+    doParse raw = case parseOnly procCpuInfoP raw of
+      Left _ -> []
+      Right r -> realToFrac <$> r
 
 getCpuMaxFreqGHz :: IO (Maybe Double)
 getCpuMaxFreqGHz = fmap ((/1000) . maximum) . NE.nonEmpty <$> getCpuFreqs
