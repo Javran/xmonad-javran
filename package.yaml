@@ -10,6 +10,7 @@ description: "Javran's xmonad config"
 dependencies:
 - aeson
 - async
+- attoparsec
 - base
 - bytestring
 - colour
