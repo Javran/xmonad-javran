@@ -29,9 +29,8 @@ xmodmap ~/.Xmodmap
 
 xsetroot -cursor_name left_ptr
 
-# TODO: figure out geometry automatically?
 # $WALLPAPER could be set up somewhere in .xinitrc for example
-xloadimage -onroot -center -type png "${WALLPAPER}" -geometry 768x576
+xloadimage -onroot -center -type png "$WALLPAPER_PATH" -geometry "$WALLPAPER_GEOMERTY"
 
 ~/.xmonad/on-monitor-change.sh
 
@@ -51,8 +50,6 @@ try_run_once /usr/bin/xscreensaver -no-splash
 try_run_once /usr/bin/fcitx -dr
 
 # try_run_once /usr/bin/pidgin
-
-try_run_once ~/.xmonad/MailChecker
 
 pkill SysInfoBar; ~/.xmonad/SysInfoBar &
 
