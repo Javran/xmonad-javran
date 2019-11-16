@@ -1,5 +1,6 @@
 {-# LANGUAGE
     OverloadedStrings
+  , TypeApplications
   #-}
 module XMonad.Javran.SysInfoBar.NetStat
   ( NetStat
@@ -12,23 +13,27 @@ import Data.Colour.SRGB
 import Data.Monoid
 import Data.String
 import System.Dzen
-import Text.ParserCombinators.ReadP
+import Data.Attoparsec.ByteString.Char8
+import Data.Word
+
+import qualified Data.ByteString.Char8 as BSC
 
 import XMonad.Javran.Utils
 import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.ProcParser
 
-renderNetStat :: (Int, Int) -> DString
+renderNetStat :: (Word64, Word64) -> DString
 renderNetStat (rBytes, tBytes) =
     rContent <> " " <> tContent
   where
     rContent =
         fg (sRGB24read "#80FF80")
       . fromString
-      $ "R:" ++ byteToReadableString rBytes
+      $ "R:" ++ byteToReadableString (fromIntegral rBytes)
     tContent =
         fg (sRGB24read "#8080FF")
       . fromString
-      $ "T:" ++ byteToReadableString tBytes
+      $ "T:" ++ byteToReadableString (fromIntegral tBytes)
 
 {-
   refs:
@@ -37,36 +42,21 @@ renderNetStat (rBytes, tBytes) =
   - https://linux.die.net/man/5/proc
 -}
 
-type NetInfo = (Int, Int) -- (Rx, Tx)
+type NetInfo = (Word64, Word64) -- (Rx, Tx)
 
-parseNetStat :: String -> NetInfo
-parseNetStat =
-      coerce
-    . foldMap parseRawLine
-    . drop 2 -- first 2 lines are headers
-    . lines
-  where
-    parseRawLine :: String -> (Sum Int, Sum Int)
-    parseRawLine raw = case readP_to_S parse raw of
-        [(r, [])] -> coerce r
-        _ -> mempty
-    parse :: ReadP (Sum Int, Sum Int)
-    parse = do
-        skipSpaces
-        ifn <- munch1 (/= ':')
-        case ifn of
-          -- ignore loopback interface
-          "lo" -> pure mempty
-          _ ->
-            char ':' *> skipSpaces *>
-            ((munch1 isDigit `sepBy1` skipSpaces) >>= getInfo) <* skipSpaces
-    getInfo [ rBytes, _rPackets, _rErrs, _rDrop, _rFifo, _rFrame, _rCompressed, _rMulticase
-            , tBytes, _tPackets, _tErrs, _tDrop, _tFifo, _tColls, _tCarrier, _tCompressed
-            ] = pure (Sum $ read rBytes, Sum $ read tBytes)
-    getInfo _ = fail "parse error"
+parseNetStat :: BSC.ByteString -> NetInfo
+parseNetStat raw = case parseOnly procNetDevP raw of
+  Left _ -> (0, 0)
+  Right rs ->
+    let p@(Sum _, Sum _) = foldMap go rs
+        go (ifName, ~NetDevStat {ndRxBytes = rx , ndTxBytes = tx}) =
+          if ifName == "lo"
+            then mempty
+            else (Sum rx, Sum tx)
+    in coerce @(Sum Word64, Sum Word64) @NetInfo p
 
 getRxTxInfo :: IO NetInfo
-getRxTxInfo = parseNetStat <$> readFile "/proc/net/dev"
+getRxTxInfo = parseNetStat <$> BSC.readFile "/proc/net/dev"
 
 data NetStat
 
