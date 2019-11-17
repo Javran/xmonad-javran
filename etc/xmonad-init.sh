@@ -30,7 +30,7 @@ xmodmap ~/.Xmodmap
 xsetroot -cursor_name left_ptr
 
 # $WALLPAPER could be set up somewhere in .xinitrc for example
-xloadimage -onroot -center -type png "$WALLPAPER_PATH" -geometry "$WALLPAPER_GEOMERTY"
+xloadimage -onroot -center -type png "$WALLPAPER_PATH" -geometry "$WALLPAPER_GEOMETRY"
 
 ~/.xmonad/on-monitor-change.sh
 
