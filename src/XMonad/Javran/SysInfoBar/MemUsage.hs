@@ -10,16 +10,21 @@ module XMonad.Javran.SysInfoBar.MemUsage
 
 import Control.Concurrent
 import Control.Monad
+import Data.Attoparsec.ByteString.Char8
 import Data.Char
 import Data.String
+import Data.Word
 import System.Dzen
 import System.IO
 import Text.ParserCombinators.ReadP
 import Text.Printf
 
-import XMonad.Javran.SysInfoBar.Types
+import qualified Data.ByteString.Char8 as BSC
 
-renderMemUsage :: (Int, Int) -> DString
+import XMonad.Javran.SysInfoBar.Types
+import XMonad.Javran.SysInfoBar.ProcParser
+
+renderMemUsage :: (Word64, Word64) -> DString
 renderMemUsage (numer, denom) = fromString ("M:" ++ msg)
   where
     fI = fromIntegral @_ @Double
@@ -37,28 +42,16 @@ renderMemUsage (numer, denom) = fromString ("M:" ++ msg)
 -}
 
 data MemInfoRaw = MemInfoRaw
-  { mTotal :: Int
-  , mFree :: Int
-  , mAvailable :: Int
+  { mTotal :: Word64
+  , mFree :: Word64
+  , mAvailable :: Word64
   }
 
 getMemInfoRaw :: IO MemInfoRaw
 getMemInfoRaw = do
-    [rawTotal, rawFree, rawAvail] <- withFile "/proc/meminfo" ReadMode $ \handle ->
-      replicateM 3 (hGetLine handle)
-    let p fName raw =
-          case readP_to_S (parseRawField fName) raw of
-              [(v,[])] -> v
-              _ -> error $ "parse error for: " ++ fName
-    pure (MemInfoRaw
-           (p "MemTotal" rawTotal)
-           (p "MemFree" rawFree)
-           (p "MemAvailable" rawAvail))
-  where
-    parseRawField :: String -> ReadP Int
-    parseRawField fieldName =
-      string fieldName >> char ':' >> skipSpaces >>
-      (read <$> munch1 isDigit) <* string " kB"
+  raw <- BSC.readFile "/proc/meminfo"
+  let Right (vTotal, vFree, vAvailable) = parseOnly procMemInfoP raw
+  pure $ MemInfoRaw vTotal vFree vAvailable
 
 data MemUsage
 
