@@ -22,6 +22,7 @@ dependencies:
 - filepath
 - HaskellNet
 - HaskellNet-SSL
+- hostname
 - json
 - lens
 - libmpd

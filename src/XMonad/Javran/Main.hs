@@ -6,6 +6,7 @@ module XMonad.Javran.Main
 import System.Process
 import System.Exit
 import System.FilePath.Posix
+import Network.HostName
 
 import XMonad
 import qualified XMonad.Util.EntryHelper as EH
@@ -13,11 +14,17 @@ import XMonad.Util.Run (spawnPipe)
 
 import XMonad.Javran.Config
 
-dzenCommand :: String
-dzenCommand = unwords
+dzenCommand :: IO String
+dzenCommand = do
+  hn <- getHostName
+  let width = case hn of
+        "Sajuuk" -> 900
+        "Senatus" -> 1200
+        _ -> 900
+  pure $ unwords
     [ "dzen2"
     , "-x" , sI 0
-    , "-w" , sI 1200
+    , "-w" , sI width
     , "-ta", "l"
     , "-h" , sI 24
     , "-fg", "\"#22EE11\""
@@ -42,7 +49,8 @@ main = EH.withCustomHelper mhConf
                 -- spawn $ "/bin/bash " ++ initScript
                 -- TODO: use startup hook instead of initScript
                 -- TODO: this part seems to be executed twice, find out what happened.
-                dzenHandle <- spawnPipe dzenCommand
+                dzCmd <- dzenCommand
+                dzenHandle <- spawnPipe dzCmd
                 xmonad (myConfig dzenHandle)
         , EH.compile = \force -> EH.withLock ExitSuccess $ do
               let cmd = if force

@@ -65,6 +65,7 @@ import Data.Time.Clock
 import System.IO
 import System.Process
 import System.Dzen (fg, DString)
+import Network.HostName
 
 import qualified Data.IntMap.Strict as IM
 import qualified Data.Sequence as Seq
@@ -103,30 +104,28 @@ data WorkerSpec
   and assigned a thread for doing the actual work.
   unlike first version (SysInfoBar), duplicated elements are allowed.
  -}
-workerSpecs :: V.Vector WorkerSpec
-workerSpecs = V.fromList
-  [ mkWS (fg (sRGB24read "#FFFF00"))
-      $ Proxy @CpuUsage
-  , mkWS (fg (sRGB24read "#FF80A0"))
-      $ Proxy @CpuMaxFreq
-  , mkWS (fg (sRGB24read "#00FF00"))
-      $ Proxy @MemUsage
-  , mkWS (fg (sRGB24read "#A0FFA0"))
-      $ Proxy @Temperature
-  , mkWS (fg (sRGB24read "#FF00FF"))
-      $ Proxy @TopProc
-  , mkWS id
-      $ Proxy @NetStat
-  , mkWS (fg (sRGB24read "#FFFFFF"))
-      $ Proxy @Mail
-  -- , mkWS (fg (sRGB24read "#FF80FF"))
-  --    $ Proxy @Mpd
-  -- , mkWS (fg (sRGB24read "#FF8080"))
-  --    $ Proxy @Battery
-  , mkWS id
-      $ Proxy @DateTime
-  ]
+mkWorkerSpecs :: HostName -> V.Vector WorkerSpec
+mkWorkerSpecs hn = V.fromList $
+    [ mkWS (fg (sRGB24read "#FFFF00"))
+        $ Proxy @CpuUsage
+    , mkWS (fg (sRGB24read "#FF80A0"))
+        $ Proxy @CpuMaxFreq
+    , mkWS (fg (sRGB24read "#00FF00"))
+        $ Proxy @MemUsage
+    , mkWS (fg (sRGB24read "#A0FFA0"))
+        $ Proxy @Temperature
+    , mkWS (fg (sRGB24read "#FF00FF"))
+        $ Proxy @TopProc
+    , mkWS id
+        $ Proxy @NetStat
+    , mkWS (fg (sRGB24read "#FFFFFF"))
+        $ Proxy @Mail
+    ]
+    <> [ mkWS (fg (sRGB24read "#FF80FF"))  $ Proxy @Mpd | isSajuuk  ]
+    <> [ mkWS (fg (sRGB24read "#FF8080")) $ Proxy @Battery | isSajuuk ]
+    <> [ mkWS id $ Proxy @DateTime]
   where
+    isSajuuk = hn == "Sajuuk"
     mkWS postRender tp = WorkerSpec (EW tp) postRender
 
 data WorkerRep
@@ -158,26 +157,32 @@ type WorkersRep = IM.IntMap WorkerRep
   - loop
  -}
 spawnDzen :: IO (Handle, ProcessHandle)
-spawnDzen = createProcess cp >>= trAndSet
+spawnDzen = do
+    hn <- getHostName
+    createProcess (mkCp hn) >>= trAndSet
   where
     trAndSet (Just hInp, _, _, hProc) = do
       hSetBuffering hInp LineBuffering
       pure (hInp, hProc)
     trAndSet _ = error "failed while trying to spawn dzen"
-    cp = initCp { std_in = CreatePipe }
+    mkCp hn = initCp { std_in = CreatePipe }
       where
+        (cpW, cpX) = case hn of
+          "Sajuuk" -> (810, 900)
+          "Senatus" -> (1150, 1200)
+          _ -> (810, 900)
         -- TODO: allow passing args to dzen rather than relying on hard-coded flags
         initCp = proc "/usr/bin/dzen2"
-          [ "-w", "1150"
-          , "-x", "1200"
+          [ "-w", show cpW
+          , "-x", show cpX
           , "-h", "24"
           , "-fn", "DejaVu Sans Mono:pixelsize=15:antialias=true"
           , "-bg", "#505050"
           , "-e", "\"button2=;\""
           ]
 
-mainLoop :: Handle -> MVar MessageQueue -> WorkersRep -> IO ()
-mainLoop hOut mQueue = evalStateT $ forever $ do
+mainLoop :: V.Vector WorkerSpec -> Handle -> MVar MessageQueue -> WorkersRep -> IO ()
+mainLoop workerSpecs hOut mQueue = evalStateT $ forever $ do
   q <- liftIO $ swapMVar mQueue Seq.empty
   forM_ q $ \(tId,(t, MPRendered rendered)) ->
     gets ( IM.minViewWithKey
@@ -249,5 +254,6 @@ main :: IO ()
 main = do
   (hOut, _) <- spawnDzen
   mQueue <- newMVar Seq.empty
-  mainLoop hOut mQueue IM.empty
+  hn <- getHostName
+  mainLoop (mkWorkerSpecs hn) hOut mQueue IM.empty
 
