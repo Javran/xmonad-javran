@@ -1,4 +1,8 @@
-{-# LANGUAGE TypeOperators, TypeApplications #-}
+{-# LANGUAGE
+    TypeOperators
+  , TypeApplications
+  , BlockArguments
+  #-}
 import Development.Shake
 import Development.Shake.FilePath
 
@@ -42,7 +46,7 @@ main = do
   putStrLn $ "Setting current directory to: " ++ projectDir
   SD.setCurrentDirectory projectDir
 
-  shakeArgs shakeOptions{shakeFiles="_build/"} $ do
+  shakeArgs shakeOptions{shakeFiles="_build/"} do
     let binaries = map ("_build" </>)
                  . words
                  $ "xmonad-javran SysInfoBar"
@@ -71,24 +75,24 @@ main = do
         need binaries
         cmd Shell (Cwd "_build") "cp xmonad-javran" xmonadBinaryName
 
-    phony "all" $ do
+    phony "all" do
         need [syncBins, syncEtcs]
         info "Printing current time"
         cmd "date"
 
-    phony syncEtcs $ do
+    phony syncEtcs do
         xmDir <- liftIO getXMonadDir
         info "Synchronizing etc files"
         cmd "rsync -uarc" (projectDir </> "etc/") xmDir :: Action ()
         need [diffEtcs]
 
-    phony syncBins $ do
+    phony syncBins do
         xmDir <- liftIO getXMonadDir
         info "Synchronizing binary files"
         need (xmBin:binaries)
         cmd "rsync -uarc --exclude .database" (projectDir </> "_build/") xmDir
 
-    phony diffEtcs $ do
+    phony diffEtcs do
         xmDir <- liftIO getXMonadDir
         info "Comparing etc files' differences"
         -- http://stackoverflow.com/q/11325123/315302
@@ -97,7 +101,7 @@ main = do
                . filter (not . isPrefixOf "Only in")
                . lines $ out
 
-    phony "clean" $ do
+    phony "clean" do
         info "Cleaning files in _build"
         removeFilesAfter "_build" ["//*"]
         info "Cleaning cabal-zone"

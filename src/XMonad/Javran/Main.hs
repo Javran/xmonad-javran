@@ -1,4 +1,7 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE
+    TypeApplications
+  , BlockArguments
+  #-}
 module XMonad.Javran.Main
   ( main
   ) where
@@ -52,7 +55,7 @@ main = EH.withCustomHelper mhConf
                 dzCmd <- dzenCommand
                 dzenHandle <- spawnPipe dzCmd
                 xmonad (myConfig dzenHandle)
-        , EH.compile = \force -> EH.withLock ExitSuccess $ do
+        , EH.compile = \force -> EH.withLock ExitSuccess do
               let cmd = if force
                         then "cd ${XMONAD_HOME} && ./build.sh clean && ./build.sh all"
                         else "cd ${XMONAD_HOME} && ./build.sh all"

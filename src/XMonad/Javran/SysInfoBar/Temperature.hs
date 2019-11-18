@@ -4,6 +4,7 @@
   , TypeApplications
   , LambdaCase
   , MultiWayIf
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.Temperature
   ( Temperature
@@ -171,10 +172,10 @@ instance Worker Temperature where
      -}
     mSensorsBinPath <- findExecutable "sensors"
     case mSensorsBinPath of
-      Nothing -> forever $ do
+      Nothing -> forever do
         sendMessage (MPRendered Nothing)
         threadDelay $ 4 * 1000 * 1000
-      Just binPath -> forever $ do
+      Just binPath -> forever do
         curMaxTemp <- readFromSensors binPath
         let rendered = renderDzen curMaxTemp
         sendMessage (MPRendered (Just rendered))

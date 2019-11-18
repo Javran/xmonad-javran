@@ -3,6 +3,7 @@
   , TypeApplications
   , MultiWayIf
   , OverloadedStrings
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.MemUsage
   ( MemUsage
@@ -55,7 +56,7 @@ getMemInfoRaw = do
 data MemUsage
 
 instance Worker MemUsage where
-  workerStart _ sendMessage = forever $ do
+  workerStart _ sendMessage = forever do
     MemInfoRaw {..} <- getMemInfoRaw
     let numer = mTotal - mAvailable
         denom = mTotal

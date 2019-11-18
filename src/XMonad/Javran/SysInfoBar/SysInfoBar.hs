@@ -7,6 +7,7 @@
   , RecursiveDo
   , OverloadedStrings
   , TypeApplications
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.SysInfoBar
   ( main
@@ -182,7 +183,7 @@ spawnDzen = do
           ]
 
 mainLoop :: V.Vector WorkerSpec -> Handle -> MVar MessageQueue -> WorkersRep -> IO ()
-mainLoop workerSpecs hOut mQueue = evalStateT $ forever $ do
+mainLoop workerSpecs hOut mQueue = evalStateT $ forever do
   q <- liftIO $ swapMVar mQueue Seq.empty
   forM_ q $ \(tId,(t, MPRendered rendered)) ->
     gets ( IM.minViewWithKey
@@ -227,7 +228,7 @@ mainLoop workerSpecs hOut mQueue = evalStateT $ forever $ do
             Nothing -> do
               curT <- liftIO getCurrentTime
               let lastContactDur = round $ diffUTCTime curT wrLastKnown
-              when (lastContactDur > workerDeadline tyWorker) $ do
+              when (lastContactDur > workerDeadline tyWorker) do
                 liftIO $ do
                   putStrLn $
                     "Worker #" <> show wId
@@ -235,7 +236,7 @@ mainLoop workerSpecs hOut mQueue = evalStateT $ forever $ do
                   throwTo (asyncThreadId wrAsync) AsyncCancelled
                 modify (IM.delete wId)
             Just r -> do
-              liftIO $ do
+              liftIO do
                 case r of
                   Left e -> do
                     putStrLn $ "Worker #" <> show wId <> " terminated with exception:"

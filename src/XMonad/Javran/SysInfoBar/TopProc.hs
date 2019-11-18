@@ -1,6 +1,7 @@
 {-# LANGUAGE
     LambdaCase
   , OverloadedStrings
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.TopProc
   ( TopProc
@@ -25,7 +26,7 @@ renderTopProc = \case
     Just xs -> fromString $ take 4 xs ++ ".."
 
 instance Worker TopProc where
-  workerStart _ sendMessage = forever $ do
+  workerStart _ sendMessage = forever do
     let cp =
           (shell "ps --sort=-pcpu -eo comm | head -n 2")
             { std_in = NoStream

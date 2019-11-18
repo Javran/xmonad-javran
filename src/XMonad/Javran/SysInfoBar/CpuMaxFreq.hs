@@ -1,6 +1,7 @@
 {-# LANGUAGE
     OverloadedStrings
   , LambdaCase
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.CpuMaxFreq
   ( CpuMaxFreq
@@ -43,7 +44,7 @@ getCpuMaxFreqGHz = fmap ((/1000) . maximum) . NE.nonEmpty <$> getCpuFreqs
 data CpuMaxFreq
 
 instance Worker CpuMaxFreq where
-  workerStart _ sendMessage = forever $ do
+  workerStart _ sendMessage = forever do
     v <- getCpuMaxFreqGHz
     let rendered = renderCpuMaxFreq v
     sendMessage (MPRendered (Just rendered))

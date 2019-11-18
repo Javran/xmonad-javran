@@ -1,4 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE
+    OverloadedStrings
+  , BlockArguments
+  #-}
 module XMonad.Javran.SysInfoBar.DateTime
   ( DateTime
   ) where
@@ -25,7 +28,7 @@ instance Worker DateTime where
     let sendMsg dS tS =
           sendMessage $
             MPRendered (Just $ renderDateTime (dS,tS))
-    forever $ do
+    forever do
       t <- getZonedTime
       let dateStr = formatTime defaultTimeLocale "%_Y-%m-%d" t
           timeStr = formatTime defaultTimeLocale "%T" t
