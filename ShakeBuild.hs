@@ -1,29 +1,40 @@
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators, TypeApplications #-}
 import Development.Shake
 import Development.Shake.FilePath
 
-import System.Info
+import Control.Exception
 import Data.List
-import System.Environment as SE
 import System.Directory as SD
+import System.Environment as SE
+import System.Exit
+import System.IO
+import System.IO.Error
+import System.Info
 
 getXMonadDir :: IO FilePath
 getXMonadDir = getAppUserDataDirectory "xmonad"
 
 xmonadBinaryName :: String
-xmonadBinaryName = "xmonad-"++arch++"-"++os
+xmonadBinaryName = "xmonad-" <> arch <> "-" <> os
 
 -- get and verify project directory, so we can make the script independent
 -- of the current directory of the script
 getProjectDirectory :: IO String
 getProjectDirectory = do
-    putStrLn "Getting and verifying project directory."
-    putStrLn "Please make sure $XMONAD_HOME points to the correct directory"
-    putStrLn "and file \"xmonad-javran.cabal\" is in the directory"
-    prjDir <- SE.getEnv "XMONAD_HOME"
-    let cabalFile = prjDir </> "xmonad-javran.cabal"
-    True <- SD.doesFileExist cabalFile
-    return prjDir
+    putStrLn "Getting and verifying project directory ..."
+    let doChecks = do
+          prjDir <- SE.getEnv "XMONAD_HOME"
+          let cabalFile = prjDir </> "xmonad-javran.cabal"
+          b <- SD.doesFileExist cabalFile
+          if b
+            then pure prjDir
+            else do
+              hPutStrLn stderr "Please make sure $XMONAD_HOME points to the correct directory,"
+              hPutStrLn stderr "  and file \"xmonad-javran.cabal\" is in the directory."
+              throw $ mkIOError doesNotExistErrorType "?" Nothing (Just cabalFile)
+    catch @IOException doChecks $ \e -> do
+      hPutStrLn stderr $ "error: " <> displayException e
+      exitFailure
 
 main :: IO ()
 main = do
