@@ -67,7 +67,7 @@ parseTempField inp = case readP_to_S pTemp (T.unpack inp) of
         *> munch1 (const True))
 
 instance FromJSON TempInfo where
-  parseJSON = withObject "TempInfo" $ \obj -> do
+  parseJSON = withObject "TempInfo" \obj -> do
     let obj' :: Object
         obj' =
           HM.fromList
@@ -97,7 +97,7 @@ data ChipReading
    deriving (Show)
 
 instance FromJSON ChipReading where
-  parseJSON = withObject "ChipReading" $ \obj -> do
+  parseJSON = withObject "ChipReading" \obj -> do
     let ps = convert <$> HM.toList obj
           where
             convert p@(k,v) = case parse @_ @TempInfo parseJSON v of

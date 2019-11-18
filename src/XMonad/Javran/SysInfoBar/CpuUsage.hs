@@ -3,6 +3,7 @@
   , TypeApplications
   , RecordWildCards
   , DeriveFunctor
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.CpuUsage
   ( CpuUsage
@@ -68,7 +69,7 @@ computeCpuUsage before after = fI (100 * activeTime) / fI total
     activeTime = total - idleCnt - ioWaitCnt
 
 startLoop :: (MessagePayload -> IO ()) -> [CpuStatRow Int] -> IO ()
-startLoop sendMessage = fix $ \loop oldS -> do
+startLoop sendMessage = fix \loop oldS -> do
     threadDelay 1000000
     (s, _) <- getCpuStatRaw
     let rendered =

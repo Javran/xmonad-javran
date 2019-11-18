@@ -1,4 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE
+    OverloadedStrings
+  , BlockArguments
+  #-}
 module XMonad.Javran.SysInfoBar.Mpd
   ( Mpd
   ) where
@@ -24,7 +27,7 @@ renderMpd mpdSt = "[" <> st <> "]"
 data Mpd
 
 instance Worker Mpd where
-  workerStart _ sendMessage = forever $ do
+  workerStart _ sendMessage = forever do
     r <- either (const Nothing) (Just . Mpd.stState) <$> Mpd.withMPD Mpd.status
     sendMessage (MPRendered (Just (renderMpd r)))
     threadDelay 500000

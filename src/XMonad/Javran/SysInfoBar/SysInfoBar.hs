@@ -229,7 +229,7 @@ mainLoop workerSpecs hOut mQueue = evalStateT $ forever do
               curT <- liftIO getCurrentTime
               let lastContactDur = round $ diffUTCTime curT wrLastKnown
               when (lastContactDur > workerDeadline tyWorker) do
-                liftIO $ do
+                liftIO do
                   putStrLn $
                     "Worker #" <> show wId
                     <> " doesn't contact within deadline, canceling it."

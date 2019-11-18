@@ -1,6 +1,7 @@
 {-# LANGUAGE
     LambdaCase
   , OverloadedStrings
+  , BlockArguments
   #-}
 module XMonad.Javran.SysInfoBar.Battery
   ( Battery
@@ -79,7 +80,7 @@ sleep :: IO ()
 sleep = threadDelay 1000000
 
 loopWithBatPath :: SendMessage -> FilePath -> Int -> Maybe DString -> IO ()
-loopWithBatPath sendMessage batPath = fix $ \loop consecFailCount prevRendered -> do
+loopWithBatPath sendMessage batPath = fix \loop consecFailCount prevRendered -> do
   -- if we are having consecutive failures,
   -- probably it's the problem of batPath we've bound to,
   -- in which case we should crash and allow starting from mainLoop again.
@@ -103,7 +104,7 @@ loopWithBatPath sendMessage batPath = fix $ \loop consecFailCount prevRendered -
       loop 0 (Just $ fg (sRGB24read "#FF0000") rendered)
 
 mainLoop :: SendMessage -> IO ()
-mainLoop sendMessage = fix $ \loop -> do
+mainLoop sendMessage = fix \loop -> do
   -- determine battery path on startup and then lock on it.
   mBatPath <- getBatteryPath
   case mBatPath of
