@@ -16,7 +16,6 @@ import Data.String
 import Data.Word
 import System.Dzen
 import System.IO
-import Text.ParserCombinators.ReadP
 import Text.Printf
 
 import qualified Data.ByteString.Char8 as BSC
