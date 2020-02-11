@@ -1,7 +1,8 @@
-flags: {}
-extra-package-dbs: []
+resolver: lts-14.23
+
 packages:
 - '.'
+
 extra-deps:
 - HaskellNet-SSL-0.3.4.1
 - mime-mail-0.4.14
@@ -12,4 +13,4 @@ extra-deps:
   commit: 44bb4228c7b0a7413b0f5751bfaacf9c0e229362
 - git: https://github.com/jtdaugherty/HaskellNet.git
   commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
-resolver: lts-14.12
+
