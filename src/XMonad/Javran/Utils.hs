@@ -77,7 +77,7 @@ byteToReadableString b
     | b < unitGiB                   =                       "0.9GiB"
     | otherwise                     = fixLen                ">=1GiB"
     where
-        fixLen = fixStringLen 6 ' ' undefined
+        fixLen = fixStringLen 6 ' ' "??????"
         unitKiB = 1024
         unitMiB = 1024 *  unitKiB
         unitGiB = 1024 *  unitMiB
