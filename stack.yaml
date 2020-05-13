@@ -1,16 +1,16 @@
-resolver: lts-14.27
+resolver: lts-15.12
 
 packages:
 - '.'
 
 extra-deps:
-- HaskellNet-SSL-0.3.4.1
+- json-0.10
 - mime-mail-0.4.14
 - xmonad-entryhelper-0.1.0.0
-- connection-0.2.8
-- socks-0.5.6
 - git: https://github.com/Javran/dzen-utils.git
   commit: 44bb4228c7b0a7413b0f5751bfaacf9c0e229362
-- git: https://github.com/jtdaugherty/HaskellNet.git
-  commit: e76437e8963fd9542e0f8226c7c48bb0c2767f89
+- git: https://github.com/jtdaugherty/HaskellNet
+  commit: ed05c8c1aabeea3f9256c8fef341778f9a959443
+- git: https://github.com/zoominsoftware/HaskellNet-SSL
+  commit: 5b4f4ab49a6321b57f6dbeba64a7f4bb8ffa5cbc
 
