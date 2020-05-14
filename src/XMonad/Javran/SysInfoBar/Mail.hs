@@ -65,6 +65,13 @@ getUnreadMailCount c = catch getCount errHandler
   where
     getCount = Just . length <$!!> search c [NOTs (FLAG Seen)]
 
+{-
+  Note: investigated a bit about the runtime exception:
+
+  - the problem seems to be in the response parsing of HaskellNet IMAP module.
+  - look for pSearch function, which in turn calls searchCharset.
+  - the query starts with "UID SEARCH".
+ -}
 -- TODO: logging facility
 appendLog :: String -> IO ()
 appendLog = appendLogTo "/tmp/mail.log"
