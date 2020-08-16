@@ -19,6 +19,8 @@ manageHook = composeAll
     , className =? "Gnuplot" --> doFloat
     , className =? "FLTK" --> doFloat
     , className =? "poi"   --> doFloat
+    , className =? "skype" --> doFloat
+    , className =? "Skype" --> doFloat
     , className =? "poi"   --> doShift "4"
     -- not necessary
     -- , className =? "jetbrains-android-studio" --> doFloat
