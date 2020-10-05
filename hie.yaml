@@ -1,4 +1,8 @@
 cradle:
   stack:
     - path: "./src"
+      component: "xmonad-javran:lib"
+    - path: "./exe/xmonad-javran"
       component: "xmonad-javran:exe:xmonad-javran"
+    - path: "./exe/SysInfoBar"
+      component: "xmonad-javran:exe:SysInfoBar"

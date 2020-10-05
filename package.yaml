@@ -4,7 +4,7 @@ github:  "Javran/xmonad-javran"
 license: MIT
 author: "Javran Cheng"
 maintainer: "Javran.C@gmail.com"
-copyright: "Copyright: (c) 2014-2019 Javran Cheng"
+copyright: "Copyright: (c) 2014-2020 Javran Cheng"
 description: "Javran's xmonad config"
 
 dependencies:
@@ -38,23 +38,33 @@ dependencies:
 - xmonad-contrib
 - xmonad-entryhelper
 
+library:
+  source-dirs: src
+  ghc-options:
+    - -O2
+    - -Wall
+
 executables:
   xmonad-javran:
-    source-dirs: src
-    main: XMonad.Javran.Main
+    source-dirs: exe/xmonad-javran
+    main: Main.hs
+    dependencies:
+      - xmonad-javran
     ghc-options:
       - -threaded
       - -O2
+      - -Wall
       - -rtsopts
       - -with-rtsopts=-N
-      - -main-is XMonad/Javran/Main
 
   SysInfoBar:
-    source-dirs: src
-    main: XMonad.Javran.SysInfoBar.SysInfoBar
+    source-dirs: exe/SysInfoBar
+    main: Main.hs
+    dependencies:
+      - xmonad-javran
     ghc-options:
       - -threaded
       - -O2
+      - -Wall
       - -rtsopts
       - -with-rtsopts=-N
-      - -main-is XMonad/Javran/SysInfoBar/SysInfoBar
